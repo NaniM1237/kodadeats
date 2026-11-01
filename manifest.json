@@ -1,0 +1,24 @@
+{
+  "name": "Kzip - కొదాడ ఇన్‌స్టంట్ ఫుడ్ డెలివరీ",
+  "short_name": "Kzip",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "description": "Kzip - Kodad's #1 Instant Food Delivery App. Fast Biryani, Tiffins & Snacks delivered in minutes.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kzip Captain - Delivery Partner App</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .pulse-ring { animation: pulseRing 1.5s infinite; }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(249, 115, 22, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen antialiased select-none pb-12">
+
+  <!-- ================= TOP MULTI-PORTAL SWITCHER BANNER ================= -->
+  <div class="bg-black text-white text-xs py-2 px-4 shadow-md sticky top-0 z-50 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800">
+    <div class="flex items-center gap-2 font-medium">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span><b>Kzip Captain Radar</b> (Rider Delivery App)</span>
+    </div>
+    <div class="flex items-center gap-2 font-semibold">
+      <a href="index.html" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-white px-2.5 py-1 rounded-md transition text-xs border border-zinc-700">
+        🛒 Customer Store
+      </a>
+      <a href="admin.html" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-white px-2.5 py-1 rounded-md transition text-xs border border-zinc-700">
+        📊 Admin Panel
+      </a>
+    </div>
+  </div>
+
+  <!-- ================= CAPTAIN APP CONTAINER (MOBILE CARD LOOK) ================= -->
+  <div class="max-w-md mx-auto px-4 py-4 space-y-4">
+
+    <!-- Captain Header & Profile -->
+    <div class="bg-zinc-800/90 border border-zinc-700 rounded-2xl p-4 shadow-xl space-y-3">
+      
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-orange-600 flex items-center justify-center text-2xl shadow-md">
+            🛵
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="captainName" class="text-base font-extrabold text-white">Ramesh G.</h2>
+              <span class="bg-orange-500/20 text-orange-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-500/30">Captain #1</span>
+            </div>
+            <p id="captainVehicle" class="text-xs text-zinc-400">Hero Splendor (TS-05-AB-1234)</p>
+          </div>
+        </div>
+
+        <!-- Captain Switcher Dropdown (For testing) -->
+        <select id="captainSelect" onchange="switchCaptain(this.value)" class="bg-zinc-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg border border-zinc-600 focus:outline-none">
+          <option value="cap-1" selected>Ramesh G.</option>
+          <option value="cap-2">Suresh K.</option>
+          <option value="cap-3">Venkatesh M.</option>
+        </select>
+      </div>
+
+      <!-- Online / Offline Duty Switch -->
+      <div class="flex items-center justify-between p-3 bg-zinc-900/80 rounded-xl border border-zinc-700/60">
+        <div class="flex items-center gap-2">
+          <span id="dutyIndicator" class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div>
+            <span id="dutyStatusText" class="text-xs font-extrabold text-white block">ON DUTY (Ready in Kodad)</span>
+            <span class="text-[10px] text-zinc-400">Receiving instant dispatch orders</span>
+          </div>
+        </div>
+        <button onclick="toggleDuty()" id="dutyBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm transition">
+          Go Offline
+        </button>
+      </div>
+
+      <!-- Quick Earnings & Stats Cards -->
+      <div class="grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="bg-zinc-900/60 p-2.5 rounded-xl border border-zinc-700/60">
+          <span class="text-zinc-400 text-[10px] block">Today's Trips</span>
+          <span id="statTripsCount" class="text-base font-extrabold text-white mt-0.5 block">6</span>
+        </div>
+        <div class="bg-zinc-900/60 p-2.5 rounded-xl border border-zinc-700/60">
+          <span class="text-zinc-400 text-[10px] block">Earnings (₹)</span>
+          <span id="statEarnings" class="text-base font-extrabold text-emerald-400 mt-0.5 block">₹240</span>
+        </div>
+        <div class="bg-zinc-900/60 p-2.5 rounded-xl border border-zinc-700/60">
+          <span class="text-zinc-400 text-[10px] block">Rider Rating</span>
+          <span class="text-base font-extrabold text-amber-400 mt-0.5 block">★ 4.9</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Test Notification Sound -->
+    <div class="flex justify-between items-center px-1">
+      <span class="text-xs text-zinc-400">Rider Alert Chime:</span>
+      <button onclick="testRiderChime()" class="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1">
+        <span>🔊 Test Delivery Ringtone</span>
+      </button>
+    </div>
+
+    <!-- Active Delivery Task (Or Idle State) -->
+    <div id="activeTaskContainer">
+      <!-- Populated via JS -->
+    </div>
+
+    <!-- Past Deliveries History -->
+    <div class="bg-zinc-800/60 border border-zinc-700 rounded-2xl p-4 shadow-xl space-y-3">
+      <h3 class="font-extrabold text-sm text-white flex items-center justify-between">
+        <span>Recent Deliveries in Kodad</span>
+        <span class="text-[10px] font-semibold text-zinc-400">₹40 per delivery payout</span>
+      </h3>
+      <div id="historyList" class="space-y-2 text-xs">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="data.js"></script>
+  <script src="realtime-sync.js"></script>
+  <script>
+    let currentCaptainId = 'cap-1';
+    let isOnDuty = true;
+    let completedDeliveries = 6;
+    let todayEarnings = 240;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCaptainUI();
+      checkAssignedDeliveries();
+      initCaptainRealtime();
+    });
+
+    function switchCaptain(capId) {
+      currentCaptainId = capId;
+      loadCaptainUI();
+      checkAssignedDeliveries();
+    }
+
+    function loadCaptainUI() {
+      const cap = KODAD_DATA.captains.find(c => c.id === currentCaptainId) || KODAD_DATA.captains[0];
+      document.getElementById('captainName').textContent = cap.name;
+      document.getElementById('captainVehicle').textContent = cap.vehicle;
+    }
+
+    function toggleDuty() {
+      isOnDuty = !isOnDuty;
+      const dutyIndicator = document.getElementById('dutyIndicator');
+      const statusText = document.getElementById('dutyStatusText');
+      const btn = document.getElementById('dutyBtn');
+
+      if (isOnDuty) {
+        dutyIndicator.className = 'w-3 h-3 rounded-full bg-emerald-400 animate-pulse';
+        statusText.textContent = 'ON DUTY (Ready in Kodad)';
+        btn.textContent = 'Go Offline';
+        btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm transition';
+      } else {
+        dutyIndicator.className = 'w-3 h-3 rounded-full bg-red-500';
+        statusText.textContent = 'OFF DUTY (Paused)';
+        btn.textContent = 'Go Online';
+        btn.className = 'bg-zinc-700 hover:bg-zinc-600 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm transition';
+      }
+      checkAssignedDeliveries();
+    }
+
+    function testRiderChime() {
+      RealtimeBus.Sounds.playRiderAlert();
+    }
+
+    // Check for Active Deliveries Assigned to this Captain
+    function checkAssignedDeliveries() {
+      const container = document.getElementById('activeTaskContainer');
+      const orders = RealtimeBus.getAllOrders();
+
+      if (!isOnDuty) {
+        container.innerHTML = `
+          <div class="bg-zinc-800/60 border border-zinc-700 rounded-2xl p-8 text-center text-zinc-400 space-y-2">
+            <span class="text-4xl block">💤</span>
+            <h4 class="font-bold text-sm text-white">You are Currently Offline</h4>
+            <p class="text-xs">Click 'Go Online' above to start receiving delivery orders in Kodad.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Find an order assigned to this captain that is not delivered or cancelled
+      const activeOrder = orders.find(o => 
+        (o.status === 'CAPTAIN_ASSIGNED' || o.status === 'PICKED_UP') && 
+        o.captain && o.captain.id === currentCaptainId
+      );
+
+      if (!activeOrder) {
+        container.innerHTML = `
+          <div class="bg-zinc-800/90 border border-zinc-700 rounded-2xl p-8 text-center text-zinc-400 space-y-3 shadow-xl">
+            <div class="w-16 h-16 rounded-full bg-orange-600/20 text-orange-400 flex items-center justify-center text-3xl mx-auto pulse-ring">
+              📍
+            </div>
+            <h4 class="font-extrabold text-base text-white">Looking for Nearby Deliveries</h4>
+            <p class="text-xs text-zinc-400 max-w-xs mx-auto">
+              Stay near Khammam X Road or Bus Stand in Kodad. You will receive an instant ringtone when Admin assigns an order!
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      // Render Active Order Delivery Card
+      const isPickedUp = activeOrder.status === 'PICKED_UP';
+      const isCOD = activeOrder.paymentMethod.includes('Cash');
+
+      container.innerHTML = `
+        <div class="bg-zinc-800 border-2 border-orange-500 rounded-2xl p-4 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+          
+          <!-- Order Alert Header -->
+          <div class="flex items-center justify-between pb-3 border-b border-zinc-700">
+            <div>
+              <span class="bg-orange-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                ${isPickedUp ? '🚀 En Route to Customer' : '🔔 Pick Up Required'}
+              </span>
+              <h3 class="text-lg font-black text-white mt-1">Order #${activeOrder.id}</h3>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-zinc-400 block">Payout</span>
+              <span class="text-emerald-400 font-extrabold text-sm">₹40.00</span>
+            </div>
+          </div>
+
+          <!-- 1. RESTAURANT PICKUP INFO -->
+          <div class="bg-zinc-900/90 p-3 rounded-xl border border-zinc-700/80 space-y-2">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-2.5">
+                <span class="text-xl">🏪</span>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-orange-400 block">Pickup Location (Restaurant)</span>
+                  <h4 class="font-extrabold text-sm text-white">${activeOrder.restaurant.name}</h4>
+                  <p class="text-xs text-zinc-400">Near Main Market, Kodad</p>
+                </div>
+              </div>
+              <a href="https://maps.google.com/?q=${encodeURIComponent(activeOrder.restaurant.name + ' Kodad')}" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 text-orange-400 font-bold text-xs p-2 rounded-lg border border-zinc-700 flex items-center gap-1 transition">
+                🗺️ Maps
+              </a>
+            </div>
+            <div class="text-[11px] text-zinc-300 pt-1 border-t border-zinc-800 flex justify-between">
+              <span>Items: <b>${activeOrder.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</b></span>
+            </div>
+          </div>
+
+          <!-- 2. CUSTOMER DROP INFO -->
+          <div class="bg-zinc-900/90 p-3 rounded-xl border border-zinc-700/80 space-y-2">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-2.5">
+                <span class="text-xl">📍</span>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-emerald-400 block">Delivery Drop (Customer)</span>
+                  <h4 class="font-extrabold text-sm text-white">${activeOrder.customer.name}</h4>
+                  <p class="text-xs text-zinc-300">${activeOrder.customer.address}</p>
+                  <p class="text-xs font-bold text-orange-400">Landmark: ${activeOrder.customer.landmark}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <a href="https://wa.me/91${activeOrder.customer.phone.replace(/\\D/g, '').slice(-10)}?text=${encodeURIComponent('Hello ' + activeOrder.customer.name + ', I am your KodadEats Captain. I am on the way with your food to ' + activeOrder.customer.landmark + '!')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-2.5 py-2 rounded-lg shadow-sm flex items-center gap-1 transition">
+                  <span>💬 WA</span>
+                </a>
+                <a href="tel:${activeOrder.customer.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-3 py-2 rounded-lg shadow-sm flex items-center gap-1 transition">
+                  <span>📞 Call</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. PAYMENT COLLECTION NOTICE -->
+          <div class="p-3 rounded-xl ${isCOD ? 'bg-amber-950/40 border border-amber-600/50' : 'bg-emerald-950/40 border border-emerald-600/50'} flex items-center justify-between text-xs">
+            <div>
+              <span class="text-zinc-400 block font-semibold">Payment Status:</span>
+              <span class="font-black text-sm ${isCOD ? 'text-amber-400' : 'text-emerald-400'}">
+                ${isCOD ? `Collect Cash: ₹${activeOrder.total}` : 'Paid Online (Don\'t collect cash)'}
+              </span>
+            </div>
+            <span class="text-2xl">${isCOD ? '💵' : '✅'}</span>
+          </div>
+
+          <!-- 4. CAPTAIN WORKFLOW BUTTONS -->
+          <div class="pt-2">
+            ${!isPickedUp ? `
+              <button onclick="captainConfirmPickup('${activeOrder.id}')" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                <span>📦 I Have Picked Up Food from Kitchen</span>
+              </button>
+            ` : `
+              <button onclick="captainConfirmDelivered('${activeOrder.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm animate-pulse">
+                <span>✓ Delivered to Customer & Complete Trip</span>
+              </button>
+            `}
+          </div>
+
+        </div>
+      `;
+    }
+
+    function captainConfirmPickup(orderId) {
+      RealtimeBus.markPickedUp(orderId);
+      checkAssignedDeliveries();
+    }
+
+    function captainConfirmDelivered(orderId) {
+      RealtimeBus.markDelivered(orderId);
+      completedDeliveries++;
+      todayEarnings += 40;
+
+      document.getElementById('statTripsCount').textContent = completedDeliveries;
+      document.getElementById('statEarnings').textContent = `₹${todayEarnings}`;
+
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+
+      checkAssignedDeliveries();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      const orders = RealtimeBus.getAllOrders().filter(o => o.status === 'DELIVERED');
+      
+      if (orders.length === 0) {
+        list.innerHTML = `
+          <div class="p-2.5 bg-zinc-900/60 rounded-xl text-zinc-400 text-center">
+            No completed trips today yet.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = orders.map(o => `
+        <div class="p-2.5 bg-zinc-900/80 rounded-xl border border-zinc-700/60 flex items-center justify-between">
+          <div>
+            <span class="font-bold text-white block">#${o.id} • ${o.restaurant.name}</span>
+            <span class="text-zinc-400 text-[11px]">To: ${o.customer.landmark}</span>
+          </div>
+          <span class="font-extrabold text-emerald-400 text-xs">+₹40.00</span>
+        </div>
+      `).join('');
+    }
+
+    // Realtime Listener
+    function initCaptainRealtime() {
+      renderHistory();
+      RealtimeBus.on((event) => {
+        if (event.type === 'CAPTAIN_ASSIGNED') {
+          // Play loud rider alert chime
+          RealtimeBus.Sounds.playRiderAlert();
+          checkAssignedDeliveries();
+        }
+        if (event.type === 'ORDER_PICKED_UP' || event.type === 'ORDER_DELIVERED') {
+          checkAssignedDeliveries();
+          renderHistory();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

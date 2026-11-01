@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kzip - కొదాడ ఇన్‌స్టంట్ ఫుడ్ డెలివరీ యాప్</title>
+  <!-- PWA & Mobile App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ea580c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kzip">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .pulse-dot { animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 pb-24 md:pb-12 antialiased select-none">
+
+  <!-- ================= TOP MULTI-PORTAL SWITCHER BANNER ================= -->
+  <div class="bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 text-white text-xs py-2 px-4 shadow-md sticky top-0 z-50 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-2 font-medium">
+      <span class="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-emerald-300"></span>
+      <span><b>Kzip Realtime Business Engine</b> (Live in Kodad)</span>
+    </div>
+    <div class="flex items-center gap-2 font-semibold">
+      <span class="text-white/80 hidden sm:inline">Open in separate tabs to test live sync:</span>
+      <a href="admin.html" target="_blank" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-md transition backdrop-blur-sm border border-white/30 flex items-center gap-1">
+        📊 Admin / Restaurant Portal
+      </a>
+      <a href="captain.html" target="_blank" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-md transition backdrop-blur-sm border border-white/30 flex items-center gap-1">
+        🛵 Captain / Rider Portal
+      </a>
+    </div>
+  </div>
+
+  <!-- ================= HEADER NAVIGATION ================= -->
+  <header class="bg-white border-b border-gray-200 sticky top-8 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center text-white text-2xl shadow-md shadow-orange-500/30">
+            🛵
+          </div>
+          <div>
+            <h1 class="text-xl font-extrabold tracking-tight text-gray-900 flex items-center gap-0.5">
+              K<span class="text-orange-600">zip</span>
+            </h1>
+            <p class="text-[10px] text-gray-500 font-medium">కొదాడ ఇన్‌స్టంట్ డెలివరీ</p>
+          </div>
+        </a>
+
+        <!-- Location Dropdown Pill -->
+        <button onclick="openLocationModal()" class="hidden md:flex items-center gap-1.5 bg-orange-50 hover:bg-orange-100 text-orange-950 px-3 py-1.5 rounded-full border border-orange-200 text-xs font-semibold transition ml-2">
+          <span class="text-orange-600 text-sm">📍</span>
+          <span id="currentLocationText" class="truncate max-w-[200px]">Balaji Nagar, Kodad</span>
+          <span class="text-orange-600 text-[10px]">▼</span>
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="flex-1 max-w-md hidden sm:block">
+        <div class="relative">
+          <input 
+            id="searchInput"
+            type="text" 
+            placeholder="Search for Biryani, Dosa, Tiffins or Restaurant..." 
+            oninput="handleSearch(this.value)"
+            class="w-full bg-gray-100 text-sm pl-10 pr-4 py-2 rounded-full border border-transparent focus:border-orange-500 focus:bg-white focus:outline-none transition shadow-inner"
+          >
+          <span class="absolute left-3.5 top-2.5 text-gray-400 text-sm">🔍</span>
+        </div>
+      </div>
+
+      <!-- Right Header Actions (Cart & Orders) -->
+      <div class="flex items-center gap-3">
+        <!-- Install App Button (PWA) -->
+        <button id="installAppHeaderBtn" onclick="triggerPWAInstall()" class="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-extrabold px-3 py-2 rounded-full shadow-md flex items-center gap-1.5 transition">
+          <span>📲</span>
+          <span>Install App</span>
+        </button>
+
+        <!-- Live Order Button (Appears if active order exists) -->
+        <button id="trackActiveOrderBtn" onclick="openTrackingModal()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-full shadow-md flex items-center gap-1.5 transition animate-pulse">
+          <span>🛵 Track Live Order</span>
+        </button>
+
+        <!-- Cart Button -->
+        <button onclick="toggleCartDrawer()" class="relative bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-md shadow-orange-600/30 transition">
+          <span>🛒</span>
+          <span id="cartCountBadge" class="hidden bg-white text-orange-600 text-xs font-extrabold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+          <span id="cartTotalHeader">₹0</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Location & Search Sub-bar -->
+    <div class="sm:hidden px-4 pb-2.5 flex flex-col gap-2">
+      <button onclick="openLocationModal()" class="flex items-center gap-1 text-xs text-gray-600 font-medium">
+        <span class="text-orange-600">📍 Delivering to:</span>
+        <span id="mobileLocationText" class="font-bold text-gray-900 truncate">Balaji Nagar, Kodad</span>
+        <span class="text-orange-600">▼</span>
+      </button>
+      <div class="relative">
+        <input 
+          type="text" 
+          placeholder="Search Biryani, Dosa in Kodad..." 
+          oninput="handleSearch(this.value)"
+          class="w-full bg-gray-100 text-xs pl-8 pr-3 py-2 rounded-lg focus:outline-none focus:bg-white border focus:border-orange-500"
+        >
+        <span class="absolute left-2.5 top-2 text-gray-400 text-xs">🔍</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO PROMOTIONAL BANNER ================= -->
+  <section class="max-w-7xl mx-auto px-4 pt-4 pb-2">
+    <div class="bg-gradient-to-r from-orange-500 via-amber-500 to-red-500 rounded-2xl p-5 md:p-8 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="space-y-2 z-10 text-center md:text-left">
+        <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">
+          🔥 Kodad Special Offer
+        </div>
+        <h2 class="text-2xl md:text-4xl font-extrabold leading-tight">
+          Craving Hot Biryani or Tiffins? <br>
+          <span class="text-yellow-200">Delivered in 20 Mins in Kodad!</span>
+        </h2>
+        <p class="text-white/90 text-xs md:text-sm max-w-lg">
+          Order from your favorite local Kodad restaurants. Flat ₹50 OFF on your first order with code <span class="bg-black/30 font-mono px-2 py-0.5 rounded font-bold">KODAD50</span>
+        </p>
+      </div>
+      <div class="flex items-center gap-4 z-10">
+        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
+          <span class="text-2xl font-bold block">15-25m</span>
+          <span class="text-[11px] text-white/80">Avg. Delivery</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
+          <span class="text-2xl font-bold block">₹25</span>
+          <span class="text-[11px] text-white/80">Flat Local Fee</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
+          <span class="text-2xl font-bold block">COD</span>
+          <span class="text-[11px] text-white/80">Cash/UPI Accepted</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CATEGORY FILTER PILLS ================= -->
+  <section class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-lg font-bold text-gray-900">What are you craving today?</h3>
+      <!-- Veg Toggle -->
+      <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold shadow-xs">
+        <input type="checkbox" id="vegOnlyToggle" onchange="toggleVegOnly(this.checked)" class="accent-emerald-600 w-4 h-4 rounded">
+        <span class="text-emerald-700">🟢 Pure Veg Only</span>
+      </label>
+    </div>
+
+    <div id="categoryContainer" class="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
+      <!-- Populated via JS -->
+    </div>
+  </section>
+
+  <!-- ================= RESTAURANTS IN KODAD ================= -->
+  <section class="max-w-7xl mx-auto px-4 py-2">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-xl font-bold text-gray-900">Popular Restaurants in Kodad</h3>
+        <p class="text-xs text-gray-500">Top hygiene rated kitchen partners near you</p>
+      </div>
+    </div>
+
+    <div id="restaurantsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Populated via JS -->
+    </div>
+  </section>
+
+  <!-- ================= FOOD MENU ITEMS GRID ================= -->
+  <section class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-4 border-t border-gray-200 pt-6">
+      <div>
+        <h3 id="dishesHeading" class="text-xl font-bold text-gray-900">All Dishes & Specialties</h3>
+        <p class="text-xs text-gray-500">Freshly prepared and packed with care</p>
+      </div>
+    </div>
+
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Populated via JS -->
+    </div>
+  </section>
+
+  <!-- ================= CART SLIDE-OUT DRAWER ================= -->
+  <div id="cartDrawer" class="hidden fixed inset-0 z-50 overflow-hidden">
+    <!-- Backdrop -->
+    <div onclick="toggleCartDrawer()" class="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"></div>
+
+    <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
+        
+        <!-- Cart Header -->
+        <div class="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🛒</span>
+            <div>
+              <h3 class="font-bold text-base text-gray-900">Your Kzip Order</h3>
+              <p class="text-xs text-gray-500" id="cartStoreTitle">Select items to order</p>
+            </div>
+          </div>
+          <button onclick="toggleCartDrawer()" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-gray-600">✕</button>
+        </div>
+
+        <!-- Cart Items List & Customer Details Form -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+          
+          <!-- Items List -->
+          <div id="cartItemsList" class="space-y-3">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Customer Address & Contact in Kodad -->
+          <div class="bg-orange-50/60 border border-orange-200 rounded-xl p-3.5 space-y-3">
+            <h4 class="font-bold text-xs uppercase tracking-wide text-orange-950 flex items-center gap-1.5">
+              <span>📍 Delivery Location in Kodad</span>
+            </h4>
+
+            <div>
+              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Your Full Name:</label>
+              <input id="custNameInput" type="text" value="Ravi Teja" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+            </div>
+
+            <div>
+              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Phone Number (for Captain calls):</label>
+              <input id="custPhoneInput" type="tel" value="9848123456" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+            </div>
+
+            <div>
+              <label class="text-[11px] font-semibold text-gray-600 block mb-1">House / Door No & Street:</label>
+              <input id="custAddressInput" type="text" value="H.No 4-128, Near Balaji Temple" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+            </div>
+
+            <div>
+              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Select Kodad Landmark / Area:</label>
+              <select id="custLandmarkSelect" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+                <!-- Populated via JS from KODAD_DATA.landmarks -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
+            <h4 class="font-bold text-xs uppercase tracking-wide text-gray-700">Payment Option</h4>
+            <div class="space-y-1.5 text-xs font-medium">
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer">
+                <input type="radio" name="paymentOption" value="Cash on Delivery (COD)" checked class="accent-orange-600">
+                <span>💵 Cash on Delivery (COD)</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer">
+                <input type="radio" name="paymentOption" value="Pay with PhonePe / GPay QR" class="accent-orange-600">
+                <span>📱 Pay via PhonePe / GPay QR (On Delivery)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Bill Summary -->
+          <div class="bg-white border border-gray-200 rounded-xl p-3.5 space-y-2 text-xs">
+            <div class="flex justify-between text-gray-600">
+              <span>Item Subtotal</span>
+              <span id="billSubtotal">₹0</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Kodad Local Delivery Fee</span>
+              <span id="billDelivery">₹25</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Restaurant Packaging</span>
+              <span>₹10</span>
+            </div>
+            <div id="discountRow" class="hidden flex justify-between text-emerald-600 font-semibold">
+              <span>Kodad First Order Discount</span>
+              <span id="billDiscount">-₹50</span>
+            </div>
+            <hr class="border-gray-200 my-1">
+            <div class="flex justify-between text-base font-extrabold text-gray-900">
+              <span>To Pay</span>
+              <span id="billGrandTotal" class="text-orange-600">₹0</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Checkout Action Button -->
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+          <button 
+            id="placeOrderBtn"
+            onclick="executeCheckout()" 
+            class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-orange-600/30 flex items-center justify-between transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span class="flex items-center gap-2">
+              <span>Confirm & Place Order</span>
+              <span>➔</span>
+            </span>
+            <span id="placeOrderAmount">₹0</span>
+          </button>
+          <p class="text-[10px] text-center text-gray-500 mt-2">
+            🔔 Instant loud notification will be dispatched to Admin & Captain!
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LIVE ORDER TRACKING MODAL ================= -->
+  <div id="trackingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200 max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95">
+      
+      <!-- Modal Header -->
+      <div class="p-4 bg-gradient-to-r from-orange-600 to-red-600 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[10px] uppercase font-bold tracking-wider bg-white/20 px-2 py-0.5 rounded">Real-time Order Tracker</span>
+          <h3 id="trackOrderIdHeader" class="text-lg font-extrabold mt-0.5">Order #KD-0000</h3>
+        </div>
+        <button onclick="closeTrackingModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center font-bold text-white transition">✕</button>
+      </div>
+
+      <!-- Tracking Content -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        
+        <!-- Live Status Highlight Box -->
+        <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+          <div id="statusIconBig" class="text-4xl mb-1">⏳</div>
+          <h4 id="statusTitleBig" class="text-base font-bold text-orange-950">Order Placed</h4>
+          <p id="statusDescBig" class="text-xs text-gray-600 mt-1">
+            Waiting for restaurant to accept your order in Kodad.
+          </p>
+          <div class="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-orange-700">
+            <span class="pulse-dot w-2 h-2 rounded-full bg-orange-600"></span>
+            <span>Estimated delivery: 20-25 mins</span>
+          </div>
+        </div>
+
+        <!-- Realtime Step Progress Bar -->
+        <div class="space-y-3 px-2">
+          <!-- Step 1 -->
+          <div class="flex items-start gap-3">
+            <div id="stepDot-1" class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">✓</div>
+            <div>
+              <h5 class="text-xs font-bold text-gray-900">Order Received & Placed</h5>
+              <p class="text-[11px] text-gray-500">Sent to Kodad restaurant kitchen</p>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="flex items-start gap-3">
+            <div id="stepDot-2" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+            <div>
+              <h5 class="text-xs font-bold text-gray-900">Restaurant Accepted & Cooking</h5>
+              <p id="stepDesc-2" class="text-[11px] text-gray-500">Awaiting kitchen confirmation</p>
+            </div>
+          </div>
+          <!-- Step 3 -->
+          <div class="flex items-start gap-3">
+            <div id="stepDot-3" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+            <div>
+              <h5 class="text-xs font-bold text-gray-900">Captain / Rider Assigned</h5>
+              <p id="stepDesc-3" class="text-[11px] text-gray-500">Searching for nearby Kodad delivery partner</p>
+            </div>
+          </div>
+          <!-- Step 4 -->
+          <div class="flex items-start gap-3">
+            <div id="stepDot-4" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
+            <div>
+              <h5 class="text-xs font-bold text-gray-900">Out for Delivery (On the way)</h5>
+              <p id="stepDesc-4" class="text-[11px] text-gray-500">Captain is riding towards your address</p>
+            </div>
+          </div>
+          <!-- Step 5 -->
+          <div class="flex items-start gap-3">
+            <div id="stepDot-5" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">5</div>
+            <div>
+              <h5 class="text-xs font-bold text-gray-900">Delivered</h5>
+              <p class="text-[11px] text-gray-500">Enjoy your hot Kodad meal!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Captain (Rider) Profile Card (Shown when assigned) -->
+        <div id="captainCard" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-3.5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-orange-100 border-2 border-orange-500 flex items-center justify-center text-2xl">
+              🛵
+            </div>
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wide text-orange-600 block">Your Kodad Captain</span>
+              <h5 id="captainNameText" class="font-bold text-sm text-gray-900">Ramesh G.</h5>
+              <p id="captainVehicleText" class="text-[11px] text-gray-500">Hero Splendor (TS-05-AB-1234)</p>
+            </div>
+          </div>
+          <a id="captainCallBtn" href="tel:9848012345" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 shadow-sm transition">
+            <span>📞 Call Captain</span>
+          </a>
+        </div>
+
+        <!-- Order Items Summary in Tracker -->
+        <div class="bg-gray-50 rounded-xl p-3 text-xs space-y-1.5 border border-gray-200">
+          <span class="font-bold text-gray-700 block mb-1">Items in this order:</span>
+          <div id="trackItemsList" class="space-y-1 text-gray-600">
+            <!-- Populated via JS -->
+          </div>
+          <div class="pt-2 border-t border-gray-200 flex justify-between font-bold text-gray-900">
+            <span>Amount to pay (<span id="trackPaymentMethod">COD</span>):</span>
+            <span id="trackTotalAmount" class="text-orange-600">₹0</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tracker Footer -->
+      <div class="p-3 bg-gray-100 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2">
+        <a id="trackWhatsAppSupportBtn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition shadow-sm">
+          <span>💬</span>
+          <span>Send Order on WhatsApp</span>
+        </a>
+        <button onclick="closeTrackingModal()" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= LOCATION PICKER MODAL ================= -->
+  <div id="locationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="font-bold text-base text-gray-900">Choose Delivery Area in Kodad</h4>
+        <button onclick="closeLocationModal()" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+      </div>
+      <p class="text-xs text-gray-500">Select your landmark so our Kodad captains can deliver faster:</p>
+      <div id="locationOptionsList" class="space-y-1.5 max-h-60 overflow-y-auto">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="realtime-sync.js"></script>
+  <script>
+    // State
+    let cart = [];
+    let selectedCategory = 'all';
+    let isVegOnly = false;
+    let selectedLandmark = KODAD_DATA.landmarks[5]; // Balaji Nagar
+    let activeOrderId = RealtimeBus.getActiveOrderId();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+      renderRestaurants();
+      renderProducts();
+      populateLandmarkDropdowns();
+      initRealtimeListener();
+      checkActiveOrder();
+    });
+
+    // Populate Landmarks
+    function populateLandmarkDropdowns() {
+      const select = document.getElementById('custLandmarkSelect');
+      const modalList = document.getElementById('locationOptionsList');
+      if (select) {
+        select.innerHTML = KODAD_DATA.landmarks.map(l => `<option value="${l}" ${l === selectedLandmark ? 'selected' : ''}>${l}</option>`).join('');
+      }
+      if (modalList) {
+        modalList.innerHTML = KODAD_DATA.landmarks.map(l => `
+          <button onclick="selectLandmark('${l}')" class="w-full text-left p-2.5 rounded-lg hover:bg-orange-50 hover:text-orange-600 text-xs font-medium border border-gray-100 flex items-center gap-2 transition">
+            <span>📍</span>
+            <span>${l}</span>
+          </button>
+        `).join('');
+      }
+    }
+
+    function selectLandmark(landmark) {
+      selectedLandmark = landmark;
+      document.getElementById('currentLocationText').textContent = landmark;
+      document.getElementById('mobileLocationText').textContent = landmark;
+      const select = document.getElementById('custLandmarkSelect');
+      if (select) select.value = landmark;
+      closeLocationModal();
+    }
+
+    function openLocationModal() { document.getElementById('locationModal').classList.remove('hidden'); }
+    function closeLocationModal() { document.getElementById('locationModal').classList.add('hidden'); }
+
+    // Render Categories
+    function renderCategories() {
+      const container = document.getElementById('categoryContainer');
+      if (!container) return;
+      container.innerHTML = KODAD_DATA.categories.map(cat => `
+        <button 
+          onclick="filterCategory('${cat.id}')" 
+          class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition shadow-xs ${
+            selectedCategory === cat.id 
+              ? 'bg-orange-600 text-white border-orange-600 shadow-md' 
+              : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
+          }"
+        >
+          <span>${cat.icon}</span>
+          <span>${cat.name}</span>
+        </button>
+      `).join('');
+    }
+
+    function filterCategory(catId) {
+      selectedCategory = catId;
+      renderCategories();
+      renderProducts();
+    }
+
+    function toggleVegOnly(checked) {
+      isVegOnly = checked;
+      renderProducts();
+    }
+
+    function handleSearch(term) {
+      const q = term.toLowerCase().trim();
+      const filtered = KODAD_DATA.products.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.restName.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q)
+      );
+      renderProducts(filtered);
+    }
+
+    // Render Restaurants
+    function renderRestaurants() {
+      const grid = document.getElementById('restaurantsGrid');
+      if (!grid) return;
+      grid.innerHTML = KODAD_DATA.restaurants.map(r => `
+        <div class="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition cursor-pointer group">
+          <div class="relative h-44 overflow-hidden">
+            <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-gray-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+              ${r.badge}
+            </span>
+            <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-md">
+              ⏱️ ${r.deliveryTime}
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="font-extrabold text-base text-gray-900 leading-tight group-hover:text-orange-600 transition">${r.name}</h4>
+              <span class="bg-emerald-600 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                ★ ${r.rating}
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">${r.cuisine}</p>
+            <div class="flex items-center gap-3 text-[11px] text-gray-500 mt-3 pt-3 border-t border-gray-100">
+              <span>📍 ${r.location}</span>
+              <span>•</span>
+              <span>${r.distance}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Products
+    function renderProducts(customList = null) {
+      const grid = document.getElementById('productsGrid');
+      if (!grid) return;
+
+      let list = customList || KODAD_DATA.products;
+
+      if (selectedCategory !== 'all') {
+        list = list.filter(p => p.category === selectedCategory);
+      }
+
+      if (isVegOnly) {
+        list = list.filter(p => p.isVeg);
+      }
+
+      grid.innerHTML = list.map(item => {
+        const inCartItem = cart.find(c => c.id === item.id);
+        const qty = inCartItem ? inCartItem.quantity : 0;
+
+        return `
+          <div class="bg-white rounded-2xl p-3 border border-gray-200 flex flex-col justify-between hover:border-orange-300 transition shadow-xs">
+            <div class="relative h-40 rounded-xl overflow-hidden mb-3">
+              <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+              <span class="absolute top-2 left-2 ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'} text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                ${item.isVeg ? '🟢 Veg' : '🔴 Non-Veg'}
+              </span>
+              ${item.badge ? `<span class="absolute bottom-2 left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">${item.badge}</span>` : ''}
+            </div>
+
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-semibold text-gray-500 block truncate">${item.restName}</span>
+                <h4 class="font-bold text-sm text-gray-900 mt-0.5 leading-snug">${item.name}</h4>
+                <p class="text-[11px] text-gray-500 line-clamp-2 mt-1">${item.description}</p>
+              </div>
+
+              <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-base font-extrabold text-gray-900">₹${item.price}</span>
+                  ${item.originalPrice ? `<span class="text-xs text-gray-400 line-through">₹${item.originalPrice}</span>` : ''}
+                </div>
+
+                ${qty > 0 ? `
+                  <div class="flex items-center bg-orange-600 text-white rounded-lg px-2 py-1 gap-2 font-bold text-xs shadow-sm">
+                    <button onclick="updateCart('${item.id}', -1)" class="hover:opacity-80 px-1 font-extrabold text-sm">−</button>
+                    <span>${qty}</span>
+                    <button onclick="updateCart('${item.id}', 1)" class="hover:opacity-80 px-1 font-extrabold text-sm">+</button>
+                  </div>
+                ` : `
+                  <button onclick="updateCart('${item.id}', 1)" class="bg-orange-50 hover:bg-orange-600 text-orange-600 hover:text-white border border-orange-200 px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-xs">
+                    + ADD
+                  </button>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Cart Management
+    function updateCart(itemId, delta) {
+      const product = KODAD_DATA.products.find(p => p.id === itemId);
+      if (!product) return;
+
+      const idx = cart.findIndex(c => c.id === itemId);
+      if (idx >= 0) {
+        cart[idx].quantity += delta;
+        if (cart[idx].quantity <= 0) {
+          cart.splice(idx, 1);
+        }
+      } else if (delta > 0) {
+        cart.push({ ...product, quantity: 1 });
+      }
+
+      renderCartUI();
+      renderProducts();
+    }
+
+    function renderCartUI() {
+      const count = cart.reduce((acc, c) => acc + c.quantity, 0);
+      const subtotal = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+      const deliveryFee = count > 0 ? 25 : 0;
+      const packaging = count > 0 ? 10 : 0;
+      const discount = subtotal >= 300 ? 50 : 0;
+      const grandTotal = Math.max(0, subtotal + deliveryFee + packaging - discount);
+
+      // Header values
+      document.getElementById('cartTotalHeader').textContent = `₹${grandTotal}`;
+      const badge = document.getElementById('cartCountBadge');
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      // Drawer values
+      document.getElementById('billSubtotal').textContent = `₹${subtotal}`;
+      document.getElementById('billDelivery').textContent = `₹${deliveryFee}`;
+      document.getElementById('billGrandTotal').textContent = `₹${grandTotal}`;
+      document.getElementById('placeOrderAmount').textContent = `₹${grandTotal}`;
+
+      const discountRow = document.getElementById('discountRow');
+      if (discount > 0) {
+        discountRow.classList.remove('hidden');
+        document.getElementById('billDiscount').textContent = `-₹${discount}`;
+      } else {
+        discountRow.classList.add('hidden');
+      }
+
+      const placeBtn = document.getElementById('placeOrderBtn');
+      placeBtn.disabled = count === 0;
+
+      // Cart Items List
+      const listContainer = document.getElementById('cartItemsList');
+      if (count === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-8 text-gray-400 space-y-2">
+            <span class="text-4xl block">🛍️</span>
+            <p class="text-sm font-semibold">Your cart is empty</p>
+            <p class="text-xs">Add delicious biryani or tiffins to get started!</p>
+          </div>
+        `;
+        document.getElementById('cartStoreTitle').textContent = 'Empty cart';
+        return;
+      }
+
+      document.getElementById('cartStoreTitle').textContent = `${cart[0].restName} (${count} items)`;
+
+      listContainer.innerHTML = cart.map(item => `
+        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+          <div class="flex items-center gap-2.5">
+            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover">
+            <div>
+              <h5 class="text-xs font-bold text-gray-900 truncate max-w-[170px]">${item.name}</h5>
+              <span class="text-xs font-bold text-orange-600">₹${item.price}</span>
+            </div>
+          </div>
+          <div class="flex items-center bg-white border border-gray-200 rounded-lg px-2 py-0.5 gap-2 text-xs font-bold">
+            <button onclick="updateCart('${item.id}', -1)" class="text-orange-600 font-extrabold text-sm px-1">−</button>
+            <span>${item.quantity}</span>
+            <button onclick="updateCart('${item.id}', 1)" class="text-orange-600 font-extrabold text-sm px-1">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCartDrawer() {
+      const drawer = document.getElementById('cartDrawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    // Place Order Execution
+    function executeCheckout() {
+      if (cart.length === 0) return;
+
+      const custName = document.getElementById('custNameInput').value.trim() || 'Ravi Teja';
+      const custPhone = document.getElementById('custPhoneInput').value.trim() || '9848123456';
+      const custAddress = document.getElementById('custAddressInput').value.trim() || 'H.No 4-128';
+      const custLandmark = document.getElementById('custLandmarkSelect').value;
+      const paymentMethod = document.querySelector('input[name="paymentOption"]:checked')?.value || 'Cash on Delivery (COD)';
+
+      const subtotal = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+      const discount = subtotal >= 300 ? 50 : 0;
+      const total = subtotal + 25 + 10 - discount;
+
+      const orderData = {
+        customer: {
+          name: custName,
+          phone: custPhone,
+          address: custAddress,
+          landmark: custLandmark
+        },
+        restaurant: {
+          id: cart[0].restId,
+          name: cart[0].restName
+        },
+        items: [...cart],
+        subtotal: subtotal,
+        deliveryFee: 25,
+        discount: discount,
+        total: total,
+        paymentMethod: paymentMethod
+      };
+
+      // Place order via RealtimeBus
+      const placedOrder = RealtimeBus.placeOrder(orderData);
+      activeOrderId = placedOrder.id;
+
+      // Save customer info for next time
+      RealtimeBus.saveCustomerInfo(orderData.customer);
+
+      // Reset cart & close drawer
+      cart = [];
+      renderCartUI();
+      renderProducts();
+      toggleCartDrawer();
+
+      // Trigger Confetti
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+
+      // Open Tracking Modal
+      openTrackingModal(placedOrder);
+      checkActiveOrder();
+    }
+
+    // Tracking Modal
+    function openTrackingModal(givenOrder = null) {
+      const order = givenOrder || RealtimeBus.getOrderById(activeOrderId);
+      if (!order) return;
+
+      document.getElementById('trackOrderIdHeader').textContent = `Order #${order.id}`;
+      document.getElementById('trackTotalAmount').textContent = `₹${order.total}`;
+      document.getElementById('trackPaymentMethod').textContent = order.paymentMethod.includes('Cash') ? 'COD' : 'UPI';
+
+      // Items list
+      document.getElementById('trackItemsList').innerHTML = order.items.map(i => `
+        <div class="flex justify-between">
+          <span>${i.quantity}x ${i.name}</span>
+          <span>₹${i.price * i.quantity}</span>
+        </div>
+      `).join('');
+
+      const waBtn = document.getElementById('trackWhatsAppSupportBtn');
+      if (waBtn) {
+        waBtn.href = RealtimeBus.getWhatsAppUrl(order);
+      }
+
+      updateTrackerVisuals(order);
+      document.getElementById('trackingModal').classList.remove('hidden');
+    }
+
+    function closeTrackingModal() {
+      document.getElementById('trackingModal').classList.add('hidden');
+    }
+
+    function updateTrackerVisuals(order) {
+      if (!order) return;
+
+      const status = order.status;
+      const s1 = document.getElementById('stepDot-1');
+      const s2 = document.getElementById('stepDot-2');
+      const s3 = document.getElementById('stepDot-3');
+      const s4 = document.getElementById('stepDot-4');
+      const s5 = document.getElementById('stepDot-5');
+
+      const iconBig = document.getElementById('statusIconBig');
+      const titleBig = document.getElementById('statusTitleBig');
+      const descBig = document.getElementById('statusDescBig');
+      const captainCard = document.getElementById('captainCard');
+
+      // Reset
+      [s1, s2, s3, s4, s5].forEach((d, i) => {
+        d.className = 'w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0';
+        d.textContent = i + 1;
+      });
+
+      s1.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
+      s1.textContent = '✓';
+
+      if (status === 'PLACED') {
+        iconBig.textContent = '⏳';
+        titleBig.textContent = 'Order Placed & Sent to Kitchen';
+        descBig.textContent = `Waiting for ${order.restaurant.name} to confirm. A loud siren is ringing on Admin screen!`;
+        captainCard.classList.add('hidden');
+      } else if (status === 'ACCEPTED') {
+        s2.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
+        s2.textContent = '✓';
+        iconBig.textContent = '👨‍🍳';
+        titleBig.textContent = 'Restaurant Cooking Your Order';
+        descBig.textContent = `${order.restaurant.name} accepted your order. Fresh food is being prepared!`;
+        captainCard.classList.add('hidden');
+      } else if (status === 'CAPTAIN_ASSIGNED') {
+        s2.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
+        s2.textContent = '✓';
+        s3.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
+        s3.textContent = '✓';
+        iconBig.textContent = '🛵';
+        titleBig.textContent = 'Captain Assigned';
+        descBig.textContent = `${order.captain?.name} is on their way to pick up your food!`;
+        showCaptainDetails(order.captain);
+      } else if (status === 'PICKED_UP') {
+        [s1, s2, s3, s4].forEach(d => {
+          d.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
+          d.textContent = '✓';
+        });
+        iconBig.textContent = '🚀';
+        titleBig.textContent = 'Food Picked Up & On The Way!';
+        descBig.textContent = `Captain ${order.captain?.name} is riding towards ${order.customer.landmark}. Keep your phone handy!`;
+        showCaptainDetails(order.captain);
+      } else if (status === 'DELIVERED') {
+        [s1, s2, s3, s4, s5].forEach(d => {
+          d.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
+          d.textContent = '✓';
+        });
+        iconBig.textContent = '🎉';
+        titleBig.textContent = 'Order Delivered Successfully!';
+        descBig.textContent = 'Thank you for ordering with Kzip. Enjoy your meal in Kodad!';
+        showCaptainDetails(order.captain);
+      }
+    }
+
+    function showCaptainDetails(captain) {
+      if (!captain) return;
+      const card = document.getElementById('captainCard');
+      card.classList.remove('hidden');
+      document.getElementById('captainNameText').textContent = captain.name;
+      document.getElementById('captainVehicleText').textContent = captain.vehicle;
+      document.getElementById('captainCallBtn').href = `tel:${captain.phone}`;
+    }
+
+    function checkActiveOrder() {
+      const activeId = RealtimeBus.getActiveOrderId();
+      const trackBtn = document.getElementById('trackActiveOrderBtn');
+      if (activeId) {
+        const order = RealtimeBus.getOrderById(activeId);
+        if (order && order.status !== 'DELIVERED' && order.status !== 'CANCELLED') {
+          trackBtn.classList.remove('hidden');
+          return;
+        }
+      }
+      trackBtn.classList.add('hidden');
+    }
+
+    // Realtime Events listener
+    function initRealtimeListener() {
+      RealtimeBus.on((event) => {
+        if (!activeOrderId) activeOrderId = RealtimeBus.getActiveOrderId();
+        if (event.payload && event.payload.id === activeOrderId) {
+          updateTrackerVisuals(event.payload);
+          checkActiveOrder();
+        }
+      });
+    }
+
+    // PWA Service Worker & Install Prompt Registration
+    let deferredPrompt = null;
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service Worker registered with scope:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('installAppHeaderBtn');
+      if (installBtn) {
+        installBtn.classList.remove('hidden');
+        installBtn.classList.add('animate-pulse');
+      }
+    });
+
+    function triggerPWAInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('[PWA] User accepted the install prompt');
+            const installBtn = document.getElementById('installAppHeaderBtn');
+            if (installBtn) installBtn.classList.add('hidden');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert('To install Kzip as an App:\n\n📱 On Android: Tap Chrome 3 dots (⋮) -> Tap "Add to Home screen" or "Install App".\n\n🍏 On iPhone: Tap the Share button (⬆) -> Tap "Add to Home Screen".');
+      }
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('[PWA] Kzip App installed successfully!');
+      const installBtn = document.getElementById('installAppHeaderBtn');
+      if (installBtn) installBtn.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

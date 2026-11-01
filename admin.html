@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kzip Admin - Restaurant & Operations Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    @keyframes alertFlash {
+      0%, 100% { background-color: #ef4444; }
+      50% { background-color: #b91c1c; }
+    }
+    .siren-active {
+      animation: alertFlash 1s infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen antialiased select-none">
+
+  <!-- ================= TOP MULTI-PORTAL SWITCHER BANNER ================= -->
+  <div class="bg-gray-900 text-white text-xs py-2 px-4 shadow-md sticky top-0 z-50 flex flex-wrap items-center justify-between gap-2 border-b border-gray-800">
+    <div class="flex items-center gap-2 font-medium">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span><b>Kzip Central Command Center</b> (Live Dispatch Hub - Kodad)</span>
+    </div>
+    <div class="flex items-center gap-2 font-semibold">
+      <a href="index.html" target="_blank" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-md transition text-xs border border-white/20">
+        🛒 Open Customer Storefront
+      </a>
+      <a href="captain.html" target="_blank" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-md transition text-xs border border-white/20">
+        🛵 Open Captain Rider Portal
+      </a>
+    </div>
+  </div>
+
+  <!-- ================= INCOMING ORDER LOUD ALERT BANNER (HIDDEN UNTIL ORDER) ================= -->
+  <div id="incomingOrderAlertBanner" class="hidden siren-active text-white p-4 shadow-xl flex items-center justify-between z-40 transition sticky top-8">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl animate-bounce">🔔</span>
+      <div>
+        <h3 class="text-base font-extrabold uppercase tracking-wide">NEW ORDER RECEIVED IN KODAD!</h3>
+        <p id="alertBannerText" class="text-xs text-white/90">Order #KD-0000 placed. Siren ringing! Please review and accept immediately.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="stopSirenAudio()" class="bg-white text-red-700 hover:bg-gray-100 font-extrabold text-xs px-3 py-2 rounded-lg shadow transition">
+        🔕 Mute Siren
+      </button>
+      <button onclick="scrollToIncomingOrder()" class="bg-black/40 hover:bg-black/60 text-white font-extrabold text-xs px-4 py-2 rounded-lg transition border border-white/30">
+        View Order ➔
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN HEADER ================= -->
+  <header class="bg-white border-b border-gray-200 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xl font-bold">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-gray-900">
+            K<span class="text-orange-600">zip</span> <span class="text-xs bg-orange-100 text-orange-800 font-bold px-2 py-0.5 rounded-full ml-1">Admin v2.0</span>
+          </h1>
+          <p class="text-xs text-gray-500">Live Delivery & Restaurant Manager for Kodad Town</p>
+        </div>
+      </div>
+
+      <!-- Quick Audio & Status Controls -->
+      <div class="flex items-center gap-3">
+        <button onclick="testOrderSiren()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-2 rounded-lg border border-gray-300 flex items-center gap-1.5 transition">
+          <span>🔊</span>
+          <span>Test Loud Chime</span>
+        </button>
+        <button onclick="generateSampleOrder()" class="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition">
+          <span>+</span>
+          <span>Simulate Customer Order</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN DASHBOARD CONTAINER ================= -->
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- KPI Metrics Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <!-- Total Orders -->
+      <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Today's Orders</span>
+          <h3 id="statTotalOrders" class="text-2xl font-extrabold text-gray-900 mt-1">0</h3>
+          <span class="text-[11px] text-emerald-600 font-semibold">↑ Realtime Kodad count</span>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-2xl font-bold">
+          📦
+        </div>
+      </div>
+
+      <!-- Today's Revenue -->
+      <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Sales (INR)</span>
+          <h3 id="statTotalRevenue" class="text-2xl font-extrabold text-gray-900 mt-1">₹0</h3>
+          <span class="text-[11px] text-emerald-600 font-semibold">₹25/order delivery fee</span>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold">
+          ₹
+        </div>
+      </div>
+
+      <!-- Active In-Progress Deliveries -->
+      <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Active Deliveries</span>
+          <h3 id="statActiveDeliveries" class="text-2xl font-extrabold text-orange-600 mt-1">0</h3>
+          <span class="text-[11px] text-orange-500 font-semibold">Cooking or en route</span>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold">
+          🛵
+        </div>
+      </div>
+
+      <!-- Registered Captains -->
+      <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Kodad Captains</span>
+          <h3 class="text-2xl font-extrabold text-gray-900 mt-1">3 Active</h3>
+          <span class="text-[11px] text-emerald-600 font-semibold">100% fleet online</span>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold">
+          👥
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs for Admin -->
+    <div class="flex border-b border-gray-200 gap-6 text-sm font-bold">
+      <button onclick="switchTab('orders')" id="tab-orders" class="pb-3 text-orange-600 border-b-2 border-orange-600 transition flex items-center gap-1.5">
+        <span>⚡ Live Orders Radar</span>
+        <span id="tabOrderCountBadge" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
+      </button>
+      <button onclick="switchTab('captains')" id="tab-captains" class="pb-3 text-gray-500 hover:text-gray-900 transition flex items-center gap-1.5">
+        <span>🛵 Delivery Captains</span>
+        <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">3</span>
+      </button>
+      <button onclick="switchTab('customers')" id="tab-customers" class="pb-3 text-gray-500 hover:text-gray-900 transition flex items-center gap-1.5">
+        <span>👥 Customer CRM</span>
+      </button>
+      <button onclick="switchTab('menu')" id="tab-menu" class="pb-3 text-gray-500 hover:text-gray-900 transition flex items-center gap-1.5">
+        <span>🍽️ Menu & Stock Manager</span>
+      </button>
+    </div>
+
+    <!-- ================= TAB 1: LIVE ORDERS RADAR ================= -->
+    <div id="view-orders" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-extrabold text-lg text-gray-900">Incoming & Active Orders</h3>
+        <span class="text-xs text-gray-500">Auto-refreshes in real-time as customers place orders</span>
+      </div>
+
+      <div id="ordersContainer" class="space-y-3">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- ================= TAB 2: DELIVERY CAPTAINS ================= -->
+    <div id="view-captains" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-extrabold text-lg text-gray-900">Kodad Delivery Fleet (Captains)</h3>
+        <span class="text-xs text-gray-500">Assigned automatically or manually per order</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Captain 1 -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-bold">
+                🛵
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-gray-900">Ramesh G.</h4>
+                <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online (Ready)
+                </span>
+              </div>
+            </div>
+            <span class="text-xs font-bold bg-gray-100 px-2 py-1 rounded">★ 4.9</span>
+          </div>
+          <div class="text-xs text-gray-600 space-y-1 bg-gray-50 p-2.5 rounded-lg">
+            <div><b>Vehicle:</b> Hero Splendor (TS-05-AB-1234)</div>
+            <div><b>Phone:</b> +91 98480 12345</div>
+            <div><b>Deliveries completed:</b> 142</div>
+          </div>
+          <a href="tel:9848012345" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+            📞 Call Captain Ramesh
+          </a>
+        </div>
+
+        <!-- Captain 2 -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-bold">
+                🛵
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-gray-900">Suresh K.</h4>
+                <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online (Ready)
+                </span>
+              </div>
+            </div>
+            <span class="text-xs font-bold bg-gray-100 px-2 py-1 rounded">★ 4.8</span>
+          </div>
+          <div class="text-xs text-gray-600 space-y-1 bg-gray-50 p-2.5 rounded-lg">
+            <div><b>Vehicle:</b> Honda Activa (TS-05-CD-5678)</div>
+            <div><b>Phone:</b> +91 98480 54321</div>
+            <div><b>Deliveries completed:</b> 98</div>
+          </div>
+          <a href="tel:9848054321" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+            📞 Call Captain Suresh
+          </a>
+        </div>
+
+        <!-- Captain 3 -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-bold">
+                🛵
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-gray-900">Venkatesh M.</h4>
+                <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online (Ready)
+                </span>
+              </div>
+            </div>
+            <span class="text-xs font-bold bg-gray-100 px-2 py-1 rounded">★ 4.9</span>
+          </div>
+          <div class="text-xs text-gray-600 space-y-1 bg-gray-50 p-2.5 rounded-lg">
+            <div><b>Vehicle:</b> Bajaj Pulsar (TS-05-EF-9012)</div>
+            <div><b>Phone:</b> +91 98480 98765</div>
+            <div><b>Deliveries completed:</b> 210</div>
+          </div>
+          <a href="tel:9848098765" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+            📞 Call Captain Venkatesh
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 3: CUSTOMER CRM ================= -->
+    <div id="view-customers" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-extrabold text-lg text-gray-900">Registered Kodad Customers</h3>
+        <span class="text-xs text-gray-500">All customer information stored safely for re-orders</span>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-bold uppercase">
+              <tr>
+                <th class="p-3.5">Customer Name</th>
+                <th class="p-3.5">Mobile Number</th>
+                <th class="p-3.5">Delivery Address</th>
+                <th class="p-3.5">Kodad Landmark</th>
+                <th class="p-3.5">Orders Placed</th>
+                <th class="p-3.5">Action</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody" class="divide-y divide-gray-100">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 4: MENU & STOCK ================= -->
+    <div id="view-menu" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-extrabold text-lg text-gray-900">Kodad Restaurant Menu & Stock Control</h3>
+        <span class="text-xs text-gray-500">Toggle items on/off if kitchen sells out</span>
+      </div>
+
+      <div id="adminMenuList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= ASSIGN CAPTAIN MODAL ================= -->
+  <div id="assignCaptainModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="font-bold text-base text-gray-900">Dispatch Kodad Captain</h4>
+        <button onclick="closeAssignCaptainModal()" class="text-gray-400 font-bold hover:text-gray-600">✕</button>
+      </div>
+      <p id="assignModalOrderInfo" class="text-xs text-gray-600 font-medium"></p>
+      
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-gray-700 block">Select Rider for this delivery:</label>
+        <div class="space-y-2">
+          <button onclick="confirmCaptainAssignment('cap-1')" class="w-full text-left p-3 rounded-xl border hover:border-orange-500 hover:bg-orange-50/50 flex items-center justify-between transition">
+            <div>
+              <span class="font-bold text-xs text-gray-900 block">Ramesh G.</span>
+              <span class="text-[11px] text-gray-500">Hero Splendor • Near Bus Stand</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-600">Assign ➔</span>
+          </button>
+          <button onclick="confirmCaptainAssignment('cap-2')" class="w-full text-left p-3 rounded-xl border hover:border-orange-500 hover:bg-orange-50/50 flex items-center justify-between transition">
+            <div>
+              <span class="font-bold text-xs text-gray-900 block">Suresh K.</span>
+              <span class="text-[11px] text-gray-500">Honda Activa • Near Huzurnagar Road</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-600">Assign ➔</span>
+          </button>
+          <button onclick="confirmCaptainAssignment('cap-3')" class="w-full text-left p-3 rounded-xl border hover:border-orange-500 hover:bg-orange-50/50 flex items-center justify-between transition">
+            <div>
+              <span class="font-bold text-xs text-gray-900 block">Venkatesh M.</span>
+              <span class="text-[11px] text-gray-500">Bajaj Pulsar • Near Khammam X Road</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-600">Assign ➔</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="realtime-sync.js"></script>
+  <script>
+    let currentAssignOrderId = null;
+    let sirenInterval = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderOrders();
+      renderCustomerCRM();
+      renderMenuControl();
+      updateKPICounters();
+      initAdminRealtime();
+    });
+
+    // Tab Switcher
+    function switchTab(tabName) {
+      ['orders', 'captains', 'customers', 'menu'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('text-orange-600', 'border-b-2', 'border-orange-600');
+        document.getElementById(`tab-${t}`).classList.add('text-gray-500');
+      });
+
+      document.getElementById(`view-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).classList.add('text-orange-600', 'border-b-2', 'border-orange-600');
+      document.getElementById(`tab-${tabName}`).classList.remove('text-gray-500');
+    }
+
+    // Render Orders
+    function renderOrders() {
+      const orders = RealtimeBus.getAllOrders();
+      const container = document.getElementById('ordersContainer');
+      document.getElementById('tabOrderCountBadge').textContent = orders.length;
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-12 text-center border border-gray-200 text-gray-400 space-y-3">
+            <span class="text-5xl block">📥</span>
+            <h4 class="font-bold text-base text-gray-700">No Orders in Kodad Yet</h4>
+            <p class="text-xs">Place an order from the Customer Storefront or click "+ Simulate Customer Order" above!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(order => {
+        const isNew = order.status === 'PLACED';
+        const isAccepted = order.status === 'ACCEPTED';
+        const isAssigned = order.status === 'CAPTAIN_ASSIGNED';
+        const isDelivered = order.status === 'DELIVERED';
+
+        let badgeBg = 'bg-gray-100 text-gray-800';
+        if (isNew) badgeBg = 'bg-red-100 text-red-700 font-extrabold border border-red-300 animate-pulse';
+        if (isAccepted) badgeBg = 'bg-amber-100 text-amber-800 font-bold';
+        if (isAssigned) badgeBg = 'bg-blue-100 text-blue-800 font-bold';
+        if (order.status === 'PICKED_UP') badgeBg = 'bg-purple-100 text-purple-800 font-bold';
+        if (isDelivered) badgeBg = 'bg-emerald-100 text-emerald-800 font-bold';
+
+        return `
+          <div id="order-card-${order.id}" class="bg-white rounded-2xl p-4 border ${isNew ? 'border-red-400 shadow-md ring-1 ring-red-400' : 'border-gray-200'} transition shadow-xs space-y-3">
+            
+            <!-- Order Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="font-extrabold text-base text-gray-900">#${order.id}</span>
+                <span class="text-xs text-gray-500">• ${order.timeFormatted || 'Today'}</span>
+                <span class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
+                  🏪 ${order.restaurant.name}
+                </span>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full ${badgeBg}">
+                ● ${order.status.replace('_', ' ')}
+              </span>
+            </div>
+
+            <!-- Customer & Item Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              
+              <!-- Customer Box -->
+              <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 space-y-1">
+                <div class="font-bold text-gray-900 flex items-center gap-1.5">
+                  <span>👤 ${order.customer.name}</span>
+                  <a href="tel:${order.customer.phone}" class="text-emerald-600 font-extrabold hover:underline">(${order.customer.phone})</a>
+                </div>
+                <div class="text-gray-600">
+                  <span>📍 <b>Drop:</b> ${order.customer.address}, ${order.customer.landmark}</span>
+                </div>
+                <div class="text-gray-500 pt-1">
+                  <span>💳 Payment: <b>${order.paymentMethod}</b></span>
+                </div>
+              </div>
+
+              <!-- Ordered Items Box -->
+              <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 space-y-1 flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-gray-700 block mb-1">Items to Prepare:</span>
+                  ${order.items.map(i => `
+                    <div class="flex justify-between text-gray-600">
+                      <span>${i.quantity}x ${i.name}</span>
+                      <span class="font-semibold">₹${i.price * i.quantity}</span>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="pt-1.5 border-t border-gray-200 flex justify-between font-extrabold text-sm text-gray-900">
+                  <span>Total Bill:</span>
+                  <span class="text-orange-600">₹${order.total}</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Captain Assigned Info (if assigned) -->
+            ${order.captain ? `
+              <div class="bg-blue-50/60 border border-blue-200 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🛵</span>
+                  <div>
+                    <span class="text-blue-900 font-bold">Assigned Rider: ${order.captain.name}</span>
+                    <span class="text-blue-700 text-[11px] block">${order.captain.vehicle}</span>
+                  </div>
+                </div>
+                <a href="tel:${order.captain.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                  📞 Call Rider
+                </a>
+              </div>
+            ` : ''}
+
+            <!-- Action Buttons for Admin -->
+            <div class="flex flex-wrap items-center justify-end gap-2 pt-1">
+              <!-- WhatsApp Dispatch Button -->
+              <a href="${RealtimeBus.getWhatsAppUrl(order)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5" title="Send instant WhatsApp message to Captain or Kitchen">
+                <span>💬</span>
+                <span>WhatsApp Dispatch</span>
+              </a>
+
+              ${isNew ? `
+                <button onclick="adminAcceptOrder('${order.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                  <span>✓</span>
+                  <span>Accept Order & Start Prep (20 min)</span>
+                </button>
+                <button onclick="adminRejectOrder('${order.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs px-3 py-2 rounded-xl transition">
+                  Reject
+                </button>
+              ` : ''}
+
+              ${(isAccepted || isNew) && !order.captain ? `
+                <button onclick="openAssignCaptainModal('${order.id}')" class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                  <span>🛵</span>
+                  <span>Assign Kodad Captain</span>
+                </button>
+              ` : ''}
+
+              ${order.status === 'CAPTAIN_ASSIGNED' ? `
+                <button onclick="adminMarkPickedUp('${order.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition">
+                  Mark Food Picked Up by Captain
+                </button>
+              ` : ''}
+
+              ${order.status === 'PICKED_UP' ? `
+                <button onclick="adminMarkDelivered('${order.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition">
+                  Mark Delivered
+                </button>
+              ` : ''}
+
+              ${isDelivered ? `
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                  ✓ Order Completed & Paid
+                </span>
+              ` : ''}
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Actions
+    function adminAcceptOrder(orderId) {
+      stopSirenAudio();
+      RealtimeBus.acceptOrder(orderId, 20);
+      renderOrders();
+      updateKPICounters();
+    }
+
+    function adminRejectOrder(orderId) {
+      stopSirenAudio();
+      RealtimeBus.cancelOrder(orderId, 'Restaurant busy');
+      renderOrders();
+      updateKPICounters();
+    }
+
+    function openAssignCaptainModal(orderId) {
+      currentAssignOrderId = orderId;
+      document.getElementById('assignModalOrderInfo').textContent = `Assign delivery partner for order #${orderId}`;
+      document.getElementById('assignCaptainModal').classList.remove('hidden');
+    }
+
+    function closeAssignCaptainModal() {
+      document.getElementById('assignCaptainModal').classList.add('hidden');
+      currentAssignOrderId = null;
+    }
+
+    function confirmCaptainAssignment(captainId) {
+      if (!currentAssignOrderId) return;
+      RealtimeBus.assignCaptain(currentAssignOrderId, captainId);
+      closeAssignCaptainModal();
+      renderOrders();
+      updateKPICounters();
+    }
+
+    function adminMarkPickedUp(orderId) {
+      RealtimeBus.markPickedUp(orderId);
+      renderOrders();
+      updateKPICounters();
+    }
+
+    function adminMarkDelivered(orderId) {
+      RealtimeBus.markDelivered(orderId);
+      renderOrders();
+      updateKPICounters();
+    }
+
+    // Customer CRM Table
+    function renderCustomerCRM() {
+      const orders = RealtimeBus.getAllOrders();
+      const uniqueCustomers = {};
+
+      orders.forEach(o => {
+        if (!uniqueCustomers[o.customer.phone]) {
+          uniqueCustomers[o.customer.phone] = {
+            name: o.customer.name,
+            phone: o.customer.phone,
+            address: o.customer.address,
+            landmark: o.customer.landmark,
+            orderCount: 1,
+            totalSpent: o.total
+          };
+        } else {
+          uniqueCustomers[o.customer.phone].orderCount++;
+          uniqueCustomers[o.customer.phone].totalSpent += o.total;
+        }
+      });
+
+      // Default sample if empty
+      if (Object.keys(uniqueCustomers).length === 0) {
+        uniqueCustomers['9848123456'] = {
+          name: 'Ravi Teja',
+          phone: '9848123456',
+          address: 'H.No 4-128, Balaji Temple Area',
+          landmark: 'Balaji Nagar, Kodad',
+          orderCount: 4,
+          totalSpent: 960
+        };
+      }
+
+      const tbody = document.getElementById('customersTableBody');
+      tbody.innerHTML = Object.values(uniqueCustomers).map(c => `
+        <tr class="hover:bg-gray-50/80 transition">
+          <td class="p-3.5 font-bold text-gray-900">${c.name}</td>
+          <td class="p-3.5 text-emerald-600 font-semibold">${c.phone}</td>
+          <td class="p-3.5 text-gray-600">${c.address}</td>
+          <td class="p-3.5 font-medium text-gray-800">${c.landmark}</td>
+          <td class="p-3.5 font-extrabold text-orange-600">${c.orderCount} orders</td>
+          <td class="p-3.5">
+            <a href="tel:${c.phone}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-2.5 py-1 rounded font-bold transition">
+              Call Customer
+            </a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Menu Control
+    function renderMenuControl() {
+      const list = document.getElementById('adminMenuList');
+      list.innerHTML = KODAD_DATA.products.map(p => `
+        <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img src="${p.image}" alt="${p.name}" class="w-12 h-12 rounded-xl object-cover">
+            <div>
+              <h5 class="font-bold text-xs text-gray-900 truncate max-w-[150px]">${p.name}</h5>
+              <span class="text-xs text-orange-600 font-bold">₹${p.price}</span>
+            </div>
+          </div>
+          <label class="flex items-center gap-1.5 cursor-pointer text-xs font-semibold">
+            <input type="checkbox" checked class="accent-emerald-600 w-4 h-4">
+            <span class="text-emerald-600">In Stock</span>
+          </label>
+        </div>
+      `).join('');
+    }
+
+    // KPI Counters
+    function updateKPICounters() {
+      const orders = RealtimeBus.getAllOrders();
+      document.getElementById('statTotalOrders').textContent = orders.length;
+
+      const revenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
+      document.getElementById('statTotalRevenue').textContent = `₹${revenue.toLocaleString('en-IN')}`;
+
+      const active = orders.filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED').length;
+      document.getElementById('statActiveDeliveries').textContent = active;
+    }
+
+    // Audio & Siren Controls
+    function startSirenAudio(order) {
+      const banner = document.getElementById('incomingOrderAlertBanner');
+      banner.classList.remove('hidden');
+      document.getElementById('alertBannerText').textContent = `Order #${order.id} placed by ${order.customer.name} (${order.customer.landmark})!`;
+
+      // Play immediate chime
+      RealtimeBus.Sounds.playIncomingOrderSiren();
+
+      // Repeat siren every 3 seconds until acknowledged
+      if (sirenInterval) clearInterval(sirenInterval);
+      sirenInterval = setInterval(() => {
+        RealtimeBus.Sounds.playIncomingOrderSiren();
+      }, 3500);
+    }
+
+    function stopSirenAudio() {
+      if (sirenInterval) {
+        clearInterval(sirenInterval);
+        sirenInterval = null;
+      }
+      document.getElementById('incomingOrderAlertBanner').classList.add('hidden');
+    }
+
+    function testOrderSiren() {
+      RealtimeBus.Sounds.playIncomingOrderSiren();
+    }
+
+    function scrollToIncomingOrder() {
+      stopSirenAudio();
+      switchTab('orders');
+    }
+
+    // Generate Sample Customer Order
+    function generateSampleOrder() {
+      const sampleNames = ['Sita Ramaiah', 'Anil Kumar', 'Pooja Reddy', 'Naveen Goud'];
+      const sampleLandmarks = ['Huzurnagar Road, Kodad', 'Bus Stand Circle, Kodad', 'Gandhi Chowk, Kodad'];
+      const randomName = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+      const randomLandmark = sampleLandmarks[Math.floor(Math.random() * sampleLandmarks.length)];
+
+      const sampleOrder = {
+        customer: {
+          name: randomName,
+          phone: '9848' + Math.floor(100000 + Math.random() * 900000),
+          address: 'Ward #6, House No 12',
+          landmark: randomLandmark
+        },
+        restaurant: {
+          id: 'rest-1',
+          name: 'Kodad Biryani House'
+        },
+        items: [
+          { id: 'item-1', name: 'Special Chicken Dum Biryani', price: 220, quantity: 2 },
+          { id: 'item-2', name: 'Andhra Chicken 65 (Boneless)', price: 180, quantity: 1 }
+        ],
+        subtotal: 620,
+        deliveryFee: 25,
+        discount: 50,
+        total: 605,
+        paymentMethod: 'Cash on Delivery (COD)'
+      };
+
+      RealtimeBus.placeOrder(sampleOrder);
+    }
+
+    // Realtime Listener
+    function initAdminRealtime() {
+      RealtimeBus.on((event) => {
+        if (event.type === 'ORDER_PLACED') {
+          startSirenAudio(event.payload);
+        }
+        renderOrders();
+        renderCustomerCRM();
+        updateKPICounters();
+      });
+    }
+  </script>
+</body>
+</html>
