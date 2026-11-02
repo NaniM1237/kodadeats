@@ -1,23 +1,29 @@
 /**
- * Kzip (కే-జిప్) - Core Catalog & Local Data
+ * KodadEats (కొదాడ ఈట్స్) - Core Catalog & Local Kodad Geo-Data
+ * High-accuracy Kodad town coordinates for Live Leaflet Map Tracking
  */
 
 const KODAD_DATA = {
-  appName: 'Kzip',
-  tagline: 'కొదాడ ఇన్‌స్టంట్ ఫుడ్ డెలివరీ (Kodad Fast Food Delivery)',
+  appName: 'KodadEats',
+  tagline: 'కొదాడ నంబర్ 1 ఫుడ్ డెలివరీ యాప్ (Kodad Fast Food Delivery)',
   currency: '₹',
+  themeColor: '#2563eb', // Professional Royal Blue
 
+  // Kodad Center Coordinates
+  center: { lat: 16.9972, lng: 79.9678 },
+
+  // Kodad Landmarks with Real Geo-coordinates for Drop Locations
   landmarks: [
-    'Bus Stand Circle, Kodad',
-    'Huzurnagar Road, Kodad',
-    'Khammam Cross Road, Kodad',
-    'Gandhi Chowk, Kodad',
-    'Main Bazar, Kodad',
-    'Balaji Nagar, Kodad',
-    'Srinivasa Nagar, Kodad',
-    'Venkateswara Theatre Area, Kodad',
-    'Mellacheruvu Road, Kodad',
-    'NH-65 Bypass Junction, Kodad'
+    { name: 'Balaji Nagar, Kodad', lat: 16.9930, lng: 79.9630 },
+    { name: 'Bus Stand Circle, Kodad', lat: 16.9990, lng: 79.9710 },
+    { name: 'Huzurnagar Road, Kodad', lat: 16.9945, lng: 79.9690 },
+    { name: 'Khammam Cross Road, Kodad', lat: 17.0010, lng: 79.9665 },
+    { name: 'Gandhi Chowk, Kodad', lat: 16.9975, lng: 79.9675 },
+    { name: 'Main Bazar, Kodad', lat: 16.9980, lng: 79.9685 },
+    { name: 'Srinivasa Nagar, Kodad', lat: 16.9920, lng: 79.9650 },
+    { name: 'Venkateswara Theatre Area, Kodad', lat: 16.9960, lng: 79.9700 },
+    { name: 'Mellacheruvu Road, Kodad', lat: 16.9900, lng: 79.9680 },
+    { name: 'NH-65 Bypass Junction, Kodad', lat: 17.0040, lng: 79.9630 }
   ],
 
   categories: [
@@ -31,9 +37,9 @@ const KODAD_DATA = {
   ],
 
   captains: [
-    { id: 'cap-1', name: 'Ramesh G.', phone: '9848012345', vehicle: 'Hero Splendor (TS-05-AB-1234)', rating: 4.9, active: true, ordersCompleted: 142 },
-    { id: 'cap-2', name: 'Suresh K.', phone: '9848054321', vehicle: 'Honda Activa (TS-05-CD-5678)', rating: 4.8, active: true, ordersCompleted: 98 },
-    { id: 'cap-3', name: 'Venkatesh M.', phone: '9848098765', vehicle: 'Bajaj Pulsar (TS-05-EF-9012)', rating: 4.9, active: true, ordersCompleted: 210 }
+    { id: 'cap-1', name: 'Ramesh G.', phone: '9848012345', vehicle: 'Hero Splendor (TS-05-AB-1234)', rating: 4.9, active: true, lat: 16.9995, lng: 79.9705, ordersCompleted: 142 },
+    { id: 'cap-2', name: 'Suresh K.', phone: '9848054321', vehicle: 'Honda Activa (TS-05-CD-5678)', rating: 4.8, active: true, lat: 16.9940, lng: 79.9685, ordersCompleted: 98 },
+    { id: 'cap-3', name: 'Venkatesh M.', phone: '9848098765', vehicle: 'Bajaj Pulsar (TS-05-EF-9012)', rating: 4.9, active: true, lat: 17.0012, lng: 79.9660, ordersCompleted: 210 }
   ],
 
   restaurants: [
@@ -41,6 +47,10 @@ const KODAD_DATA = {
       id: 'rest-1',
       name: 'Kodad Biryani House',
       location: 'Khammam Cross Road, Kodad',
+      lat: 17.0015,
+      lng: 79.9660,
+      phone: '9848011111',
+      ownerName: 'Afzal Bhai',
       cuisine: 'Hyderabadi Dum Biryani • Tandoori',
       rating: 4.8,
       deliveryTime: '20-30 min',
@@ -53,6 +63,10 @@ const KODAD_DATA = {
       id: 'rest-2',
       name: 'Sri Raghavendra Tiffin & Meals',
       location: 'Huzurnagar Road, Kodad',
+      lat: 16.9940,
+      lng: 79.9695,
+      phone: '9848022222',
+      ownerName: 'Raghavendra Rao',
       cuisine: 'Pure Veg • Ghee Karam Dosa • Idli Vada',
       rating: 4.7,
       deliveryTime: '15-20 min',
@@ -65,6 +79,10 @@ const KODAD_DATA = {
       id: 'rest-3',
       name: 'New Grand Family Restaurant',
       location: 'Main Bazar, Kodad',
+      lat: 16.9980,
+      lng: 79.9680,
+      phone: '9848033333',
+      ownerName: 'Nagaraju G.',
       cuisine: 'South Indian • North Indian • Chinese',
       rating: 4.6,
       deliveryTime: '25-35 min',
@@ -77,6 +95,10 @@ const KODAD_DATA = {
       id: 'rest-4',
       name: 'Balaji Sweets & Bakery',
       location: 'Bus Stand Circle, Kodad',
+      lat: 16.9990,
+      lng: 79.9710,
+      phone: '9848044444',
+      ownerName: 'Balaji Prasad',
       cuisine: 'Cakes • Hot Puffs • Laddu • Gulab Jamun',
       rating: 4.9,
       deliveryTime: '15-25 min',
@@ -89,6 +111,10 @@ const KODAD_DATA = {
       id: 'rest-5',
       name: 'Highway Spice Dhaba & Fast Food',
       location: 'NH-65 Bypass Junction, Kodad',
+      lat: 17.0050,
+      lng: 79.9620,
+      phone: '9848055555',
+      ownerName: 'Gurpreet Singh',
       cuisine: 'Roti & Naan • Kaju Paneer • Chicken Tikka',
       rating: 4.7,
       deliveryTime: '25-35 min',

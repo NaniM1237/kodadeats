@@ -1,46 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="bikeBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#7c2d12" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1e3a8a" flood-opacity="0.35"/>
     </filter>
   </defs>
-  <!-- Background Rounded App Tile -->
-  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  
+  <!-- Background Rounded App Tile with Royal Blue Gradient -->
+  <rect width="512" height="512" rx="120" fill="url(#bgGrad)"/>
+  
+  <!-- Inner Subtle Accent Ring -->
+  <circle cx="256" cy="230" r="170" fill="#3b82f6" opacity="0.3"/>
   
   <!-- Food Delivery Scooter Graphic -->
-  <g filter="url(#shadow)" fill="#ffffff" transform="translate(64, 80) scale(0.75)">
-    <!-- Delivery Box on back -->
-    <rect x="70" y="140" width="110" height="110" rx="16" fill="#ffffff"/>
-    <rect x="85" y="155" width="80" height="40" rx="8" fill="#f97316"/>
-    <text x="125" y="180" font-family="Arial, sans-serif" font-weight="900" font-size="20" fill="#ffffff" text-anchor="middle">KZ</text>
+  <g filter="url(#shadow)" fill="#ffffff" transform="translate(64, 75) scale(0.75)">
+    <!-- Insulated Food Delivery Box on back -->
+    <rect x="65" y="140" width="115" height="115" rx="20" fill="#ffffff"/>
+    <rect x="80" y="155" width="85" height="45" rx="10" fill="#2563eb"/>
+    <text x="122" y="184" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#ffffff" text-anchor="middle">KE</text>
     
-    <!-- Bike Body -->
-    <path d="M170 230 L260 230 L310 160 L360 160 L370 180 L330 180 L290 240 L310 280 L180 280 Z" fill="#ffffff"/>
-    <!-- Handlebar & Windshield -->
-    <line x1="335" y1="170" x2="360" y2="120" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
-    <line x1="340" y1="120" x2="380" y2="120" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="375" cy="140" r="14" fill="#fef08a"/>
+    <!-- Bike Body Frame -->
+    <path d="M170 230 L260 230 L315 155 L365 155 L375 175 L335 175 L290 240 L310 280 L180 280 Z" fill="url(#bikeBody)"/>
+    
+    <!-- Handlebar & Front Shield -->
+    <line x1="335" y1="165" x2="365" y2="115" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+    <line x1="340" y1="115" x2="385" y2="115" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+    <!-- Headlight (Golden Glow) -->
+    <circle cx="380" cy="138" r="16" fill="#fde047"/>
     
     <!-- Rear Wheel -->
-    <circle cx="150" cy="330" r="60" fill="#18181b"/>
+    <circle cx="150" cy="330" r="60" fill="#0f172a"/>
     <circle cx="150" cy="330" r="32" fill="#ffffff"/>
-    <circle cx="150" cy="330" r="14" fill="#ea580c"/>
+    <circle cx="150" cy="330" r="14" fill="#2563eb"/>
     
     <!-- Front Wheel -->
-    <circle cx="360" cy="330" r="60" fill="#18181b"/>
+    <circle cx="360" cy="330" r="60" fill="#0f172a"/>
     <circle cx="360" cy="330" r="32" fill="#ffffff"/>
-    <circle cx="360" cy="330" r="14" fill="#ea580c"/>
+    <circle cx="360" cy="330" r="14" fill="#2563eb"/>
     
-    <!-- Speed Lines -->
-    <line x1="20" y1="170" x2="50" y2="170" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
-    <line x1="10" y1="210" x2="45" y2="210" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
-    <line x1="30" y1="250" x2="55" y2="250" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+    <!-- Speed Delivery Wind Lines -->
+    <line x1="15" y1="170" x2="50" y2="170" stroke="#93c5fd" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="5" y1="210" x2="45" y2="210" stroke="#93c5fd" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="25" y1="250" x2="55" y2="250" stroke="#93c5fd" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
   </g>
   
   <!-- Text Label -->
-  <text x="256" y="445" font-family="Arial, sans-serif" font-weight="900" font-size="52" fill="#ffffff" text-anchor="middle" letter-spacing="3">KZIP</text>
+  <text x="256" y="445" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="46" fill="#ffffff" text-anchor="middle" letter-spacing="2">KODADEATS</text>
 </svg>

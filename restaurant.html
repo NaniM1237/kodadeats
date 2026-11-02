@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KodadEats Partner - Restaurant Kitchen Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    @keyframes alertFlash {
+      0%, 100% { background-color: #2563eb; }
+      50% { background-color: #1e3a8a; }
+    }
+    .kitchen-siren-active {
+      animation: alertFlash 1s infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased select-none pb-12">
+
+  <!-- ================= INCOMING KITCHEN ORDER LOUD ALERT BANNER ================= -->
+  <div id="kitchenAlertBanner" class="hidden kitchen-siren-active text-white p-4 shadow-2xl flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl animate-bounce">🔔</span>
+      <div>
+        <h3 class="text-base font-black uppercase tracking-wide">NEW ORDER TO PREPARE!</h3>
+        <p id="kitchenAlertText" class="text-xs text-blue-100">Order #KD-0000 received. Kitchen buzzer ringing!</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="stopKitchenSiren()" class="bg-white text-blue-900 hover:bg-slate-100 font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-md transition">
+        🔕 Mute Buzzer
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= RESTAURANT HEADER ================= -->
+  <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Restaurant Identity -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-md shadow-blue-500/30">
+          👨‍🍳
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="restHeaderName" class="text-base md:text-lg font-black text-white">Kodad Biryani House</h1>
+            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+              ● Kitchen Online
+            </span>
+          </div>
+          <p id="restHeaderLocation" class="text-xs text-slate-400">Khammam Cross Road, Kodad</p>
+        </div>
+      </div>
+
+      <!-- Restaurant Selector Dropdown & Quick Actions -->
+      <div class="flex items-center gap-2.5">
+        <select id="restaurantSelect" onchange="switchRestaurant(this.value)" class="bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-xl border border-slate-600 focus:outline-none focus:border-blue-500">
+          <!-- Populated via JS -->
+        </select>
+        <button onclick="testKitchenBuzzer()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-xl border border-slate-600 flex items-center gap-1.5 transition">
+          <span>🔊</span>
+          <span class="hidden sm:inline">Test Buzzer</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN KITCHEN ORDERS VIEW ================= -->
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- KPI Metrics -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Orders Received</span>
+        <h3 id="statRestOrders" class="text-2xl font-black text-white mt-1">0</h3>
+        <span class="text-[10px] text-blue-400 font-semibold">Today's Kitchen Total</span>
+      </div>
+      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Items to Cook</span>
+        <h3 id="statItemsToCook" class="text-2xl font-black text-amber-400 mt-1">0</h3>
+        <span class="text-[10px] text-amber-300 font-semibold">Live in Preparation</span>
+      </div>
+      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Today's Kitchen Sales</span>
+        <h3 id="statRestSales" class="text-2xl font-black text-emerald-400 mt-1">₹0</h3>
+        <span class="text-[10px] text-emerald-300 font-semibold">Gross Food Value</span>
+      </div>
+      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avg. Prep Time</span>
+        <h3 class="text-2xl font-black text-white mt-1">18 min</h3>
+        <span class="text-[10px] text-blue-400 font-semibold">High Hygiene Partner</span>
+      </div>
+    </div>
+
+    <!-- Active Orders for This Restaurant -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-extrabold text-base md:text-lg text-white">Live Kitchen Order Tickets (KOT)</h3>
+        <span class="text-xs text-slate-400">Auto-refreshes in real time for this restaurant in Kodad</span>
+      </div>
+
+      <div id="restOrdersList" class="space-y-4">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="realtime-sync.js"></script>
+  <script>
+    let activeRestaurantId = 'rest-1';
+    let sirenInterval = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      populateRestaurantDropdown();
+      loadRestaurantDetails();
+      renderRestaurantOrders();
+      initRestaurantRealtime();
+    });
+
+    function populateRestaurantDropdown() {
+      const select = document.getElementById('restaurantSelect');
+      select.innerHTML = KODAD_DATA.restaurants.map(r => `
+        <option value="${r.id}" ${r.id === activeRestaurantId ? 'selected' : ''}>${r.name}</option>
+      `).join('');
+    }
+
+    function switchRestaurant(restId) {
+      activeRestaurantId = restId;
+      loadRestaurantDetails();
+      renderRestaurantOrders();
+    }
+
+    function loadRestaurantDetails() {
+      const rest = KODAD_DATA.restaurants.find(r => r.id === activeRestaurantId) || KODAD_DATA.restaurants[0];
+      document.getElementById('restHeaderName').textContent = rest.name;
+      document.getElementById('restHeaderLocation').textContent = `${rest.location} • Owner: ${rest.ownerName}`;
+    }
+
+    function renderRestaurantOrders() {
+      const allOrders = RealtimeBus.getAllOrders();
+      const restOrders = allOrders.filter(o => o.restaurant.id === activeRestaurantId);
+      const container = document.getElementById('restOrdersList');
+
+      // Update metrics
+      document.getElementById('statRestOrders').textContent = restOrders.length;
+      const sales = restOrders.reduce((acc, o) => acc + (o.subtotal || 0), 0);
+      document.getElementById('statRestSales').textContent = `₹${sales}`;
+      const activeCook = restOrders.filter(o => o.status === 'ACCEPTED' || o.status === 'PLACED').length;
+      document.getElementById('statItemsToCook').textContent = activeCook;
+
+      if (restOrders.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-800/80 rounded-2xl p-12 text-center border border-slate-700/80 text-slate-400 space-y-3">
+            <span class="text-5xl block">🍳</span>
+            <h4 class="font-extrabold text-base text-white">Kitchen Queue Clear</h4>
+            <p class="text-xs">No active orders right now for this restaurant. New orders will buzz loudly!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = restOrders.map(order => {
+        const isPlaced = order.status === 'PLACED';
+        const isAccepted = order.status === 'ACCEPTED';
+        const isAssigned = order.status === 'CAPTAIN_ASSIGNED';
+        const isPickedUp = order.status === 'PICKED_UP';
+        const isDelivered = order.status === 'DELIVERED';
+
+        let badgeBg = 'bg-slate-700 text-slate-200';
+        if (isPlaced) badgeBg = 'bg-red-500/20 text-red-400 font-black border border-red-500/40 animate-pulse';
+        if (isAccepted) badgeBg = 'bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30';
+        if (isAssigned || isPickedUp) badgeBg = 'bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30';
+        if (isDelivered) badgeBg = 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30';
+
+        return `
+          <div class="bg-slate-800 border ${isPlaced ? 'border-red-500 shadow-xl ring-2 ring-red-500/40' : 'border-slate-700'} rounded-2xl p-4 md:p-5 space-y-4">
+            
+            <!-- Order Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-lg text-white">#${order.id}</span>
+                <span class="text-xs text-slate-400">• ${order.timeFormatted || 'Today'}</span>
+                <span class="text-xs font-bold text-blue-400 bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-800">
+                  📍 Drop: ${order.customer.landmark}
+                </span>
+              </div>
+              <span class="text-xs px-3 py-1 rounded-full ${badgeBg}">
+                ● ${order.status.replace('_', ' ')}
+              </span>
+            </div>
+
+            <!-- Items to Prepare (Big Clear Font for Kitchen Cooks) -->
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700/80 space-y-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block">Food Items to Cook:</span>
+              <div class="divide-y divide-slate-800">
+                ${order.items.map(item => `
+                  <div class="py-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-black text-sm flex items-center justify-center">${item.quantity}x</span>
+                      <span class="text-sm md:text-base font-extrabold text-white">${item.name}</span>
+                    </div>
+                    <span class="text-xs font-bold text-slate-400">₹${item.price * item.quantity}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Captain & Customer Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                <span class="text-slate-400 block font-semibold mb-0.5">Customer:</span>
+                <span class="font-bold text-white">${order.customer.name} (${order.customer.phone})</span>
+                <span class="text-slate-400 block text-[11px] mt-0.5">${order.customer.address}</span>
+              </div>
+
+              <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 flex items-center justify-between">
+                <div>
+                  <span class="text-slate-400 block font-semibold mb-0.5">Pickup Captain (Rider):</span>
+                  <span class="font-bold ${order.captain ? 'text-blue-400' : 'text-slate-400'}">
+                    ${order.captain ? `${order.captain.name} (${order.captain.vehicle})` : 'Waiting for dispatch...'}
+                  </span>
+                </div>
+                ${order.captain ? `
+                  <a href="tel:${order.captain.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition">
+                    📞 Call
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Kitchen Action Buttons -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-700/60">
+              <span class="text-xs font-extrabold text-emerald-400">Food Total: ₹${order.subtotal}</span>
+
+              <div class="flex items-center gap-2">
+                ${isPlaced ? `
+                  <button onclick="kitchenAcceptOrder('${order.id}', 15)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
+                    <span>✓</span>
+                    <span>Accept (15 Min Prep)</span>
+                  </button>
+                  <button onclick="kitchenAcceptOrder('${order.id}', 25)" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center gap-1.5">
+                    <span>✓</span>
+                    <span>Accept (25 Min Prep)</span>
+                  </button>
+                  <button onclick="kitchenRejectOrder('${order.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold text-xs px-3 py-2.5 rounded-xl border border-red-500/30 transition">
+                    Reject
+                  </button>
+                ` : ''}
+
+                ${isAccepted && !order.captain ? `
+                  <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-500/20 flex items-center gap-1">
+                    <span>👨‍🍳 Food Cooking • Awaiting Captain</span>
+                  </span>
+                ` : ''}
+
+                ${isAssigned ? `
+                  <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-2 rounded-xl border border-blue-500/20 flex items-center gap-1">
+                    <span>🛵 Rider is arriving at kitchen</span>
+                  </span>
+                ` : ''}
+
+                ${isPickedUp ? `
+                  <span class="text-xs font-bold text-purple-400 bg-purple-500/10 px-3 py-2 rounded-xl border border-purple-500/20 flex items-center gap-1">
+                    <span>🚀 Food Handed Over to Rider</span>
+                  </span>
+                ` : ''}
+
+                ${isDelivered ? `
+                  <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-2 rounded-xl border border-emerald-500/20 flex items-center gap-1">
+                    <span>✓ Delivered Successfully</span>
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function kitchenAcceptOrder(orderId, prepTime) {
+      stopKitchenSiren();
+      RealtimeBus.acceptOrder(orderId, prepTime);
+      renderRestaurantOrders();
+    }
+
+    function kitchenRejectOrder(orderId) {
+      stopKitchenSiren();
+      RealtimeBus.cancelOrder(orderId, 'Kitchen at maximum capacity');
+      renderRestaurantOrders();
+    }
+
+    function startKitchenSiren(order) {
+      const banner = document.getElementById('kitchenAlertBanner');
+      banner.classList.remove('hidden');
+      document.getElementById('kitchenAlertText').textContent = `Order #${order.id} from ${order.customer.name} (${order.customer.landmark})!`;
+
+      RealtimeBus.Sounds.playIncomingOrderSiren();
+
+      if (sirenInterval) clearInterval(sirenInterval);
+      sirenInterval = setInterval(() => {
+        RealtimeBus.Sounds.playIncomingOrderSiren();
+      }, 3500);
+    }
+
+    function stopKitchenSiren() {
+      if (sirenInterval) {
+        clearInterval(sirenInterval);
+        sirenInterval = null;
+      }
+      document.getElementById('kitchenAlertBanner').classList.add('hidden');
+    }
+
+    function testKitchenBuzzer() {
+      RealtimeBus.Sounds.playIncomingOrderSiren();
+    }
+
+    function initRestaurantRealtime() {
+      RealtimeBus.on((event) => {
+        if (event.type === 'ORDER_PLACED' && event.payload && event.payload.restaurant.id === activeRestaurantId) {
+          startKitchenSiren(event.payload);
+        }
+        renderRestaurantOrders();
+      });
+    }
+  </script>
+</body>
+</html>

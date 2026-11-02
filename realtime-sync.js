@@ -1,15 +1,16 @@
 /**
- * KodadEats - Realtime Event Bus & State Sync v3.0
- * Connects to Cloud Backend Server (Render / Localhost) via REST & Socket.io
- * Generates Instant WhatsApp Dispatch Messages for Delivery Captains
+ * KodadEats - Realtime Event Bus, Auth & State Sync v4.0
+ * Connects Customer, Restaurant Partner, Captain Rider & Admin
+ * Zero 'kzip' references. 100% KodadEats.
  */
 
 const RealtimeBus = (function() {
-  const CHANNEL_NAME = 'kodad_eats_realtime_channel';
-  const STORAGE_KEY_ORDERS = 'kodad_eats_orders';
-  const STORAGE_KEY_CUSTOMERS = 'kodad_eats_customers';
-  const STORAGE_KEY_ACTIVE_ORDER = 'kodad_eats_current_order_id';
-  const STORAGE_KEY_SERVER_URL = 'kodad_eats_server_url';
+  const CHANNEL_NAME = 'kodadeats_realtime_channel';
+  const STORAGE_KEY_ORDERS = 'kodadeats_orders';
+  const STORAGE_KEY_CUSTOMERS = 'kodadeats_customers';
+  const STORAGE_KEY_ACTIVE_ORDER = 'kodadeats_current_order_id';
+  const STORAGE_KEY_CURRENT_USER = 'kodadeats_current_user';
+  const STORAGE_KEY_SERVER_URL = 'kodadeats_server_url';
 
   // Configurable Server URL (default to origin or stored URL)
   let serverUrl = localStorage.getItem(STORAGE_KEY_SERVER_URL) || (window.location.port ? window.location.origin : '');
@@ -30,8 +31,9 @@ const RealtimeBus = (function() {
     return audioCtx;
   }
 
-  // Sound Effects Generator (Pure Web Audio - zero external audio files needed!)
+  // Pure Web Audio Synthesizer (No external sound files required)
   const Sounds = {
+    // Loud repeating kitchen buzzer & admin siren
     playIncomingOrderSiren: function() {
       try {
         const ctx = getAudioContext();
@@ -54,6 +56,7 @@ const RealtimeBus = (function() {
       }
     },
 
+    // Pleasant ascending chime for customer order placed / delivered
     playSuccessChime: function() {
       try {
         const ctx = getAudioContext();
@@ -77,6 +80,7 @@ const RealtimeBus = (function() {
       }
     },
 
+    // Rider alert beep
     playRiderAlert: function() {
       try {
         const ctx = getAudioContext();
@@ -116,7 +120,7 @@ const RealtimeBus = (function() {
     }
 
     try {
-      localStorage.setItem('kodad_eats_last_event', JSON.stringify(message));
+      localStorage.setItem('kodadeats_last_event', JSON.stringify(message));
     } catch (e) {}
 
     listeners.forEach(fn => fn(message));
@@ -129,13 +133,37 @@ const RealtimeBus = (function() {
   }
 
   window.addEventListener('storage', (e) => {
-    if (e.key === 'kodad_eats_last_event' && e.newValue) {
+    if (e.key === 'kodadeats_last_event' && e.newValue) {
       try {
         const msg = JSON.parse(e.newValue);
         listeners.forEach(fn => fn(msg));
       } catch (err) {}
     }
   });
+
+  // User Profile & Authentication Management
+  function getCurrentUser() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY_CURRENT_USER);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setCurrentUser(user) {
+    try {
+      localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(user));
+      emit('USER_LOGGED_IN', user);
+    } catch (e) {}
+  }
+
+  function logoutUser() {
+    try {
+      localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
+      emit('USER_LOGGED_OUT', null);
+    } catch (e) {}
+  }
 
   // Database Management Helpers
   function getAllOrders() {
@@ -172,27 +200,6 @@ const RealtimeBus = (function() {
     return order;
   }
 
-  // Customer Management
-  function getCustomerInfo() {
-    try {
-      const data = localStorage.getItem(STORAGE_KEY_CUSTOMERS);
-      return data ? JSON.parse(data) : {
-        name: 'Ravi Teja',
-        phone: '9848123456',
-        address: 'H.No 4-128, Near Balaji Temple',
-        landmark: 'Balaji Nagar, Kodad'
-      };
-    } catch (e) {
-      return { name: 'Customer', phone: '9848000000', address: 'Main Bazar', landmark: 'Main Bazar, Kodad' };
-    }
-  }
-
-  function saveCustomerInfo(info) {
-    try {
-      localStorage.setItem(STORAGE_KEY_CUSTOMERS, JSON.stringify(info));
-    } catch (e) {}
-  }
-
   // WhatsApp Order Formatter
   function createWhatsAppOrderMessage(order) {
     const itemsText = order.items.map(i => `• ${i.quantity}x ${i.name} (₹${i.price * i.quantity})`).join('\n');
@@ -202,23 +209,23 @@ const RealtimeBus = (function() {
 *Restaurant:* ${order.restaurant.name}
 *Time:* ${order.timeFormatted || 'Now'}
 
-*ITEMS TO PREPARE:*
+*ITEMS ORDERED:*
 ${itemsText}
 
-*BILL SUMMARY:*
+*BILL DETAILS:*
 Subtotal: ₹${order.subtotal}
 Delivery Fee: ₹${order.deliveryFee}
 *TOTAL AMOUNT:* ₹${order.total}
 *Payment:* ${order.paymentMethod}
 
 ━━━━━━━━━━━━━━━━━━
-*CUSTOMER DETAILS:*
+*CUSTOMER IN KODAD:*
 *Name:* ${order.customer.name}
 *Phone:* ${order.customer.phone}
 *Address:* ${order.customer.address}
 *Landmark:* ${order.customer.landmark}
 ━━━━━━━━━━━━━━━━━━
-_Please confirm & dispatch captain immediately!_`;
+_Please prepare and dispatch KodadEats Captain!_`;
   }
 
   function getWhatsAppUrl(order, targetPhone = '') {
@@ -248,7 +255,7 @@ _Please confirm & dispatch captain immediately!_`;
       notes: orderData.notes || '',
       captain: null,
       history: [
-        { status: 'PLACED', title: 'Order Received', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+        { status: 'PLACED', title: 'Order Received in Kodad', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
       ]
     };
 
@@ -277,7 +284,7 @@ _Please confirm & dispatch captain immediately!_`;
     order.prepTime = prepTimeMinutes;
     order.history.push({
       status: 'ACCEPTED',
-      title: `Accepted by Restaurant (Prep: ~${prepTimeMinutes} mins)`,
+      title: `Accepted by Kitchen (Prep: ~${prepTimeMinutes} mins)`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
 
@@ -377,7 +384,7 @@ _Please confirm & dispatch captain immediately!_`;
     return order;
   }
 
-  function cancelOrder(orderId, reason = 'Cancelled by Customer/Admin') {
+  function cancelOrder(orderId, reason = 'Cancelled') {
     const order = getOrderById(orderId);
     if (!order) return null;
 
@@ -409,12 +416,13 @@ _Please confirm & dispatch captain immediately!_`;
     on: function(callback) {
       listeners.push(callback);
     },
+    getCurrentUser,
+    setCurrentUser,
+    logoutUser,
     getAllOrders,
     getOrderById,
     getActiveOrderId: () => localStorage.getItem(STORAGE_KEY_ACTIVE_ORDER),
     setActiveOrderId: (id) => localStorage.setItem(STORAGE_KEY_ACTIVE_ORDER, id),
-    getCustomerInfo,
-    saveCustomerInfo,
     placeOrder,
     acceptOrder,
     assignCaptain,

@@ -1,17 +1,20 @@
 /**
- * Kzip - Service Worker for PWA (Progressive Web App)
+ * KodadEats - Service Worker for PWA (Progressive Web App)
  * Enables offline caching, fast load & Android app installation
  */
 
-const CACHE_NAME = 'kzip-v1';
+const CACHE_NAME = 'kodadeats-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './admin.html',
   './captain.html',
+  './restaurant.html',
   './data.js',
   './realtime-sync.js',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,14 +40,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first, falling back to cache
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+      .then((response) => response)
+      .catch(() => caches.match(event.request))
   );
 });

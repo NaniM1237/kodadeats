@@ -41,6 +41,9 @@ app.get('/admin', (req, res) => {
 app.get('/captain', (req, res) => {
   res.sendFile(path.join(__dirname, 'captain.html'));
 });
+app.get('/restaurant', (req, res) => {
+  res.sendFile(path.join(__dirname, 'restaurant.html'));
+});
 
 // Local File Database Helper (Guarantees zero data loss even without MongoDB)
 function readLocalDB() {

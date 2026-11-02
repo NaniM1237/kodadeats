@@ -3,157 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kzip - కొదాడ ఇన్‌స్టంట్ ఫుడ్ డెలివరీ యాప్</title>
+  <title>KodadEats - కొదాడ నంబర్ 1 ఫుడ్ డెలివరీ యాప్</title>
   <!-- PWA & Mobile App Meta Tags -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ea580c">
+  <meta name="theme-color" content="#2563eb">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Kzip">
+  <meta name="apple-mobile-web-app-title" content="KodadEats">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" type="image/png" href="icon-192.png">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS for Live Kodad Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- Canvas Confetti & Leaflet JS -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .pulse-dot { animation: pulse 1.8s infinite; }
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
+    #trackingMap { height: 210px; width: 100%; border-radius: 1rem; z-index: 10; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 pb-24 md:pb-12 antialiased select-none">
+<body class="bg-slate-50 text-slate-900 pb-28 md:pb-14 antialiased select-none">
 
-  <!-- ================= TOP MULTI-PORTAL SWITCHER BANNER ================= -->
-  <div class="bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 text-white text-xs py-2 px-4 shadow-md sticky top-0 z-50 flex flex-wrap items-center justify-between gap-2">
-    <div class="flex items-center gap-2 font-medium">
-      <span class="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-emerald-300"></span>
-      <span><b>Kzip Realtime Business Engine</b> (Live in Kodad)</span>
-    </div>
-    <div class="flex items-center gap-2 font-semibold">
-      <span class="text-white/80 hidden sm:inline">Open in separate tabs to test live sync:</span>
-      <a href="admin.html" target="_blank" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-md transition backdrop-blur-sm border border-white/30 flex items-center gap-1">
-        📊 Admin / Restaurant Portal
-      </a>
-      <a href="captain.html" target="_blank" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-md transition backdrop-blur-sm border border-white/30 flex items-center gap-1">
-        🛵 Captain / Rider Portal
-      </a>
-    </div>
-  </div>
-
-  <!-- ================= HEADER NAVIGATION ================= -->
-  <header class="bg-white border-b border-gray-200 sticky top-8 z-40 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+  <!-- ================= TOP ZOMATO-STYLE HEADER NAVIGATION ================= -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
       
-      <!-- Brand Logo -->
-      <div class="flex items-center gap-3">
-        <a href="index.html" class="flex items-center gap-2">
-          <div class="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center text-white text-2xl shadow-md shadow-orange-500/30">
-            🛵
-          </div>
-          <div>
-            <h1 class="text-xl font-extrabold tracking-tight text-gray-900 flex items-center gap-0.5">
-              K<span class="text-orange-600">zip</span>
-            </h1>
-            <p class="text-[10px] text-gray-500 font-medium">కొదాడ ఇన్‌స్టంట్ డెలివరీ</p>
-          </div>
-        </a>
-
-        <!-- Location Dropdown Pill -->
-        <button onclick="openLocationModal()" class="hidden md:flex items-center gap-1.5 bg-orange-50 hover:bg-orange-100 text-orange-950 px-3 py-1.5 rounded-full border border-orange-200 text-xs font-semibold transition ml-2">
-          <span class="text-orange-600 text-sm">📍</span>
-          <span id="currentLocationText" class="truncate max-w-[200px]">Balaji Nagar, Kodad</span>
-          <span class="text-orange-600 text-[10px]">▼</span>
+      <!-- Left: Location Selector with 📍 Symbol -->
+      <div class="flex items-center gap-2">
+        <button onclick="openLocationModal()" class="flex items-center gap-1.5 bg-blue-50/80 hover:bg-blue-100 text-blue-950 px-3 py-1.5 rounded-full border border-blue-200 text-xs font-bold transition shadow-xs">
+          <span class="text-blue-600 text-sm">📍</span>
+          <span id="currentLocationText" class="truncate max-w-[140px] sm:max-w-[210px]">Balaji Nagar, Kodad</span>
+          <span class="text-blue-600 text-[10px]">▼</span>
         </button>
       </div>
 
-      <!-- Search Bar -->
-      <div class="flex-1 max-w-md hidden sm:block">
-        <div class="relative">
-          <input 
-            id="searchInput"
-            type="text" 
-            placeholder="Search for Biryani, Dosa, Tiffins or Restaurant..." 
-            oninput="handleSearch(this.value)"
-            class="w-full bg-gray-100 text-sm pl-10 pr-4 py-2 rounded-full border border-transparent focus:border-orange-500 focus:bg-white focus:outline-none transition shadow-inner"
-          >
-          <span class="absolute left-3.5 top-2.5 text-gray-400 text-sm">🔍</span>
+      <!-- Center: Blue Bike Logo + Brand Name -->
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-md shadow-blue-600/30">
+          🛵
         </div>
-      </div>
+        <div class="hidden sm:block">
+          <h1 class="text-xl font-black tracking-tight text-slate-900 flex items-center">
+            Kodad<span class="text-blue-600">Eats</span>
+          </h1>
+          <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider">కొదాడ ఫాస్ట్ ఫుడ్ డెలివరీ</p>
+        </div>
+      </a>
 
-      <!-- Right Header Actions (Cart & Orders) -->
-      <div class="flex items-center gap-3">
-        <!-- Install App Button (PWA) -->
-        <button id="installAppHeaderBtn" onclick="triggerPWAInstall()" class="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-extrabold px-3 py-2 rounded-full shadow-md flex items-center gap-1.5 transition">
-          <span>📲</span>
-          <span>Install App</span>
-        </button>
-
+      <!-- Right: Search, Cart & Customer Profile Avatar with Initial -->
+      <div class="flex items-center gap-2 sm:gap-3">
         <!-- Live Order Button (Appears if active order exists) -->
         <button id="trackActiveOrderBtn" onclick="openTrackingModal()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-full shadow-md flex items-center gap-1.5 transition animate-pulse">
-          <span>🛵 Track Live Order</span>
+          <span>🛵 Live Order</span>
         </button>
 
         <!-- Cart Button -->
-        <button onclick="toggleCartDrawer()" class="relative bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-md shadow-orange-600/30 transition">
+        <button onclick="toggleCartDrawer()" class="relative bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-md shadow-blue-600/25 transition">
           <span>🛒</span>
-          <span id="cartCountBadge" class="hidden bg-white text-orange-600 text-xs font-extrabold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+          <span id="cartCountBadge" class="hidden bg-white text-blue-600 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
           <span id="cartTotalHeader">₹0</span>
         </button>
+
+        <!-- Profile Avatar Pill with Initial Letter (e.g., 'R' for Ravi) -->
+        <div class="relative">
+          <button id="userProfileBtn" onclick="toggleProfileDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-700 to-sky-500 text-white font-black text-sm flex items-center justify-center shadow-md ring-2 ring-blue-100 transition hover:scale-105">
+            <span id="userInitialText">R</span>
+          </button>
+
+          <!-- Profile Dropdown Menu -->
+          <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 space-y-2 z-50">
+            <div class="flex items-center gap-2.5 pb-2.5 border-b border-slate-100">
+              <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-base">
+                <span id="dropdownInitial">R</span>
+              </div>
+              <div class="overflow-hidden">
+                <h4 id="dropdownUserName" class="font-bold text-xs text-slate-900 truncate">Ravi Teja</h4>
+                <p id="dropdownUserPhone" class="text-[11px] text-slate-500">+91 9848123456</p>
+                <span class="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.2 rounded-full inline-block mt-0.5">Customer Profile</span>
+              </div>
+            </div>
+
+            <div class="space-y-1 text-xs font-semibold text-slate-700">
+              <button onclick="openLocationModal()" class="w-full text-left p-2 rounded-xl hover:bg-slate-50 flex items-center gap-2 transition">
+                <span>📍</span>
+                <span>Change Delivery Address</span>
+              </button>
+              <button onclick="openLoginModal()" class="w-full text-left p-2 rounded-xl hover:bg-slate-50 flex items-center gap-2 transition">
+                <span>👤</span>
+                <span>Edit Profile / Switch Role</span>
+              </button>
+              <button onclick="logoutCurrentUser()" class="w-full text-left p-2 rounded-xl hover:bg-red-50 text-red-600 flex items-center gap-2 transition">
+                <span>🚪</span>
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
 
-    <!-- Mobile Location & Search Sub-bar -->
-    <div class="sm:hidden px-4 pb-2.5 flex flex-col gap-2">
-      <button onclick="openLocationModal()" class="flex items-center gap-1 text-xs text-gray-600 font-medium">
-        <span class="text-orange-600">📍 Delivering to:</span>
-        <span id="mobileLocationText" class="font-bold text-gray-900 truncate">Balaji Nagar, Kodad</span>
-        <span class="text-orange-600">▼</span>
-      </button>
+    <!-- Mobile Search Bar -->
+    <div class="px-4 pb-2.5 sm:hidden">
       <div class="relative">
         <input 
           type="text" 
-          placeholder="Search Biryani, Dosa in Kodad..." 
+          placeholder="Search Biryani, Dosa, Tiffins in Kodad..." 
           oninput="handleSearch(this.value)"
-          class="w-full bg-gray-100 text-xs pl-8 pr-3 py-2 rounded-lg focus:outline-none focus:bg-white border focus:border-orange-500"
+          class="w-full bg-slate-100 text-xs pl-8 pr-3 py-2 rounded-xl focus:outline-none focus:bg-white border focus:border-blue-500 transition"
         >
-        <span class="absolute left-2.5 top-2 text-gray-400 text-xs">🔍</span>
+        <span class="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
       </div>
     </div>
   </header>
 
   <!-- ================= HERO PROMOTIONAL BANNER ================= -->
   <section class="max-w-7xl mx-auto px-4 pt-4 pb-2">
-    <div class="bg-gradient-to-r from-orange-500 via-amber-500 to-red-500 rounded-2xl p-5 md:p-8 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 rounded-3xl p-5 md:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="space-y-2 z-10 text-center md:text-left">
-        <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">
-          🔥 Kodad Special Offer
+        <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider">
+          🔥 Kodad Special • Fast Delivery
         </div>
-        <h2 class="text-2xl md:text-4xl font-extrabold leading-tight">
+        <h2 class="text-2xl md:text-4xl font-black leading-tight">
           Craving Hot Biryani or Tiffins? <br>
-          <span class="text-yellow-200">Delivered in 20 Mins in Kodad!</span>
+          <span class="text-amber-300">Delivered in 20 Mins in Kodad!</span>
         </h2>
         <p class="text-white/90 text-xs md:text-sm max-w-lg">
-          Order from your favorite local Kodad restaurants. Flat ₹50 OFF on your first order with code <span class="bg-black/30 font-mono px-2 py-0.5 rounded font-bold">KODAD50</span>
+          Order from top hygienic restaurants across Kodad. Flat ₹50 OFF on your first order with code <span class="bg-black/30 font-mono px-2 py-0.5 rounded font-bold">KODAD50</span>
         </p>
       </div>
-      <div class="flex items-center gap-4 z-10">
-        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-          <span class="text-2xl font-bold block">15-25m</span>
-          <span class="text-[11px] text-white/80">Avg. Delivery</span>
+
+      <div class="flex items-center gap-3 z-10">
+        <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 text-center">
+          <span class="text-xl md:text-2xl font-black block">15-25m</span>
+          <span class="text-[10px] text-white/80">Avg. Delivery</span>
         </div>
-        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-          <span class="text-2xl font-bold block">₹25</span>
-          <span class="text-[11px] text-white/80">Flat Local Fee</span>
+        <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 text-center">
+          <span class="text-xl md:text-2xl font-black block">₹25</span>
+          <span class="text-[10px] text-white/80">Flat Local Fee</span>
         </div>
-        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-          <span class="text-2xl font-bold block">COD</span>
-          <span class="text-[11px] text-white/80">Cash/UPI Accepted</span>
+        <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 text-center">
+          <span class="text-xl md:text-2xl font-black block">COD</span>
+          <span class="text-[10px] text-white/80">Cash / UPI QR</span>
         </div>
       </div>
     </div>
@@ -162,11 +163,11 @@
   <!-- ================= CATEGORY FILTER PILLS ================= -->
   <section class="max-w-7xl mx-auto px-4 py-4">
     <div class="flex items-center justify-between mb-3">
-      <h3 class="text-lg font-bold text-gray-900">What are you craving today?</h3>
+      <h3 class="text-base md:text-lg font-black text-slate-900">What are you craving today?</h3>
       <!-- Veg Toggle -->
-      <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold shadow-xs">
+      <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold shadow-xs">
         <input type="checkbox" id="vegOnlyToggle" onchange="toggleVegOnly(this.checked)" class="accent-emerald-600 w-4 h-4 rounded">
-        <span class="text-emerald-700">🟢 Pure Veg Only</span>
+        <span class="text-emerald-700">🟢 Veg Only</span>
       </label>
     </div>
 
@@ -179,8 +180,8 @@
   <section class="max-w-7xl mx-auto px-4 py-2">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-xl font-bold text-gray-900">Popular Restaurants in Kodad</h3>
-        <p class="text-xs text-gray-500">Top hygiene rated kitchen partners near you</p>
+        <h3 class="text-xl font-black text-slate-900">Popular Restaurants in Kodad</h3>
+        <p class="text-xs text-slate-500">Tap any restaurant to explore full menu</p>
       </div>
     </div>
 
@@ -191,10 +192,10 @@
 
   <!-- ================= FOOD MENU ITEMS GRID ================= -->
   <section class="max-w-7xl mx-auto px-4 py-6">
-    <div class="flex items-center justify-between mb-4 border-t border-gray-200 pt-6">
+    <div class="flex items-center justify-between mb-4 border-t border-slate-200 pt-6">
       <div>
-        <h3 id="dishesHeading" class="text-xl font-bold text-gray-900">All Dishes & Specialties</h3>
-        <p class="text-xs text-gray-500">Freshly prepared and packed with care</p>
+        <h3 id="dishesHeading" class="text-xl font-black text-slate-900">All Dishes & Specialties</h3>
+        <p class="text-xs text-slate-500">Freshly prepared and packed with hygienic care</p>
       </div>
     </div>
 
@@ -203,24 +204,40 @@
     </div>
   </section>
 
+  <!-- ================= FLOATING BOTTOM CHECKOUT BAR (ZOMATO STYLE) ================= -->
+  <div id="mobileBottomCartBar" class="hidden fixed bottom-3 inset-x-3 z-40 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20 animate-in fade-in slide-in-from-bottom-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl">
+        🛒
+      </div>
+      <div>
+        <span id="mobileBottomCartItems" class="text-[11px] font-black uppercase tracking-wide text-blue-100 block">1 ITEM ADDED</span>
+        <span id="mobileBottomCartTotal" class="text-base font-black text-white">₹0</span>
+      </div>
+    </div>
+    <button onclick="toggleCartDrawer()" class="bg-white text-blue-600 hover:bg-blue-50 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-1.5 transition">
+      <span>View Cart & Checkout</span>
+      <span>➔</span>
+    </button>
+  </div>
+
   <!-- ================= CART SLIDE-OUT DRAWER ================= -->
   <div id="cartDrawer" class="hidden fixed inset-0 z-50 overflow-hidden">
-    <!-- Backdrop -->
-    <div onclick="toggleCartDrawer()" class="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"></div>
+    <div onclick="toggleCartDrawer()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
 
     <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
         
         <!-- Cart Header -->
-        <div class="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-          <div class="flex items-center gap-2">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2.5">
             <span class="text-2xl">🛒</span>
             <div>
-              <h3 class="font-bold text-base text-gray-900">Your Kzip Order</h3>
-              <p class="text-xs text-gray-500" id="cartStoreTitle">Select items to order</p>
+              <h3 class="font-extrabold text-base text-slate-900">Your KodadEats Order</h3>
+              <p class="text-xs text-slate-500" id="cartStoreTitle">Select dishes to order</p>
             </div>
           </div>
-          <button onclick="toggleCartDrawer()" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-gray-600">✕</button>
+          <button onclick="toggleCartDrawer()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center font-bold text-slate-600 transition">✕</button>
         </div>
 
         <!-- Cart Items List & Customer Details Form -->
@@ -231,83 +248,84 @@
             <!-- Populated via JS -->
           </div>
 
-          <!-- Customer Address & Contact in Kodad -->
-          <div class="bg-orange-50/60 border border-orange-200 rounded-xl p-3.5 space-y-3">
-            <h4 class="font-bold text-xs uppercase tracking-wide text-orange-950 flex items-center gap-1.5">
-              <span>📍 Delivery Location in Kodad</span>
+          <!-- Customer Address in Kodad -->
+          <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-3">
+            <h4 class="font-black text-xs uppercase tracking-wide text-blue-950 flex items-center justify-between">
+              <span>📍 Delivery Details in Kodad</span>
+              <span class="text-blue-600 font-bold text-[10px]">Saved Profile</span>
             </h4>
 
             <div>
-              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Your Full Name:</label>
-              <input id="custNameInput" type="text" value="Ravi Teja" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+              <label class="text-[11px] font-bold text-slate-600 block mb-1">Your Full Name:</label>
+              <input id="custNameInput" type="text" value="Ravi Teja" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Phone Number (for Captain calls):</label>
-              <input id="custPhoneInput" type="tel" value="9848123456" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+              <label class="text-[11px] font-bold text-slate-600 block mb-1">Phone Number (for Rider calls):</label>
+              <input id="custPhoneInput" type="tel" value="9848123456" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-              <label class="text-[11px] font-semibold text-gray-600 block mb-1">House / Door No & Street:</label>
-              <input id="custAddressInput" type="text" value="H.No 4-128, Near Balaji Temple" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
+              <label class="text-[11px] font-bold text-slate-600 block mb-1">House / Door No & Street:</label>
+              <input id="custAddressInput" type="text" value="H.No 4-128, Near Balaji Temple" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Select Kodad Landmark / Area:</label>
-              <select id="custLandmarkSelect" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-orange-500">
-                <!-- Populated via JS from KODAD_DATA.landmarks -->
+              <label class="text-[11px] font-bold text-slate-600 block mb-1">Kodad Landmark:</label>
+              <select id="custLandmarkSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
+                <!-- Populated via JS -->
               </select>
             </div>
           </div>
 
-          <!-- Payment Method -->
-          <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
-            <h4 class="font-bold text-xs uppercase tracking-wide text-gray-700">Payment Option</h4>
-            <div class="space-y-1.5 text-xs font-medium">
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer">
-                <input type="radio" name="paymentOption" value="Cash on Delivery (COD)" checked class="accent-orange-600">
+          <!-- Payment Options -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-bold text-xs uppercase tracking-wide text-slate-700">Payment Option</h4>
+            <div class="space-y-1.5 text-xs font-semibold">
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer">
+                <input type="radio" name="paymentOption" value="Cash on Delivery (COD)" checked class="accent-blue-600 w-4 h-4">
                 <span>💵 Cash on Delivery (COD)</span>
               </label>
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer">
-                <input type="radio" name="paymentOption" value="Pay with PhonePe / GPay QR" class="accent-orange-600">
-                <span>📱 Pay via PhonePe / GPay QR (On Delivery)</span>
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer">
+                <input type="radio" name="paymentOption" value="Pay with PhonePe / GPay QR" class="accent-blue-600 w-4 h-4">
+                <span>📱 Pay via PhonePe / GPay QR (Scan on Delivery)</span>
               </label>
             </div>
           </div>
 
           <!-- Bill Summary -->
-          <div class="bg-white border border-gray-200 rounded-xl p-3.5 space-y-2 text-xs">
-            <div class="flex justify-between text-gray-600">
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 text-xs font-semibold">
+            <div class="flex justify-between text-slate-600">
               <span>Item Subtotal</span>
               <span id="billSubtotal">₹0</span>
             </div>
-            <div class="flex justify-between text-gray-600">
+            <div class="flex justify-between text-slate-600">
               <span>Kodad Local Delivery Fee</span>
               <span id="billDelivery">₹25</span>
             </div>
-            <div class="flex justify-between text-gray-600">
+            <div class="flex justify-between text-slate-600">
               <span>Restaurant Packaging</span>
               <span>₹10</span>
             </div>
-            <div id="discountRow" class="hidden flex justify-between text-emerald-600 font-semibold">
+            <div id="discountRow" class="hidden flex justify-between text-emerald-600 font-bold">
               <span>Kodad First Order Discount</span>
               <span id="billDiscount">-₹50</span>
             </div>
-            <hr class="border-gray-200 my-1">
-            <div class="flex justify-between text-base font-extrabold text-gray-900">
-              <span>To Pay</span>
-              <span id="billGrandTotal" class="text-orange-600">₹0</span>
+            <hr class="border-slate-200 my-1">
+            <div class="flex justify-between text-base font-black text-slate-900">
+              <span>Total Bill</span>
+              <span id="billGrandTotal" class="text-blue-600">₹0</span>
             </div>
           </div>
 
         </div>
 
         <!-- Checkout Action Button -->
-        <div class="p-4 bg-gray-50 border-t border-gray-200">
+        <div class="p-4 bg-slate-50 border-t border-slate-200">
           <button 
             id="placeOrderBtn"
             onclick="executeCheckout()" 
-            class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-orange-600/30 flex items-center justify-between transition disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-between transition disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           >
             <span class="flex items-center gap-2">
               <span>Confirm & Place Order</span>
@@ -315,8 +333,8 @@
             </span>
             <span id="placeOrderAmount">₹0</span>
           </button>
-          <p class="text-[10px] text-center text-gray-500 mt-2">
-            🔔 Instant loud notification will be dispatched to Admin & Captain!
+          <p class="text-[10px] text-center text-slate-500 mt-2">
+            🔔 Instant loud buzzer alert will be dispatched to Restaurant & Captain!
           </p>
         </div>
 
@@ -324,15 +342,15 @@
     </div>
   </div>
 
-  <!-- ================= LIVE ORDER TRACKING MODAL ================= -->
-  <div id="trackingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200 max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95">
+  <!-- ================= LIVE ORDER TRACKING MODAL WITH LEAFLET MAP ================= -->
+  <div id="trackingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-200 max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95">
       
       <!-- Modal Header -->
-      <div class="p-4 bg-gradient-to-r from-orange-600 to-red-600 text-white flex items-center justify-between">
+      <div class="p-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white flex items-center justify-between">
         <div>
-          <span class="text-[10px] uppercase font-bold tracking-wider bg-white/20 px-2 py-0.5 rounded">Real-time Order Tracker</span>
-          <h3 id="trackOrderIdHeader" class="text-lg font-extrabold mt-0.5">Order #KD-0000</h3>
+          <span class="text-[10px] uppercase font-black tracking-wider bg-white/20 px-2 py-0.5 rounded">Live Kodad GPS Tracker</span>
+          <h3 id="trackOrderIdHeader" class="text-lg font-black mt-0.5">Order #KD-0000</h3>
         </div>
         <button onclick="closeTrackingModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center font-bold text-white transition">✕</button>
       </div>
@@ -340,15 +358,23 @@
       <!-- Tracking Content -->
       <div class="flex-1 overflow-y-auto p-4 space-y-4">
         
-        <!-- Live Status Highlight Box -->
-        <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+        <!-- Live Map Canvas (Leaflet.js) -->
+        <div class="relative">
+          <div id="trackingMap"></div>
+          <div class="absolute bottom-2 left-2 z-[400] bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-800 shadow">
+            📍 Kodad Town Live Map
+          </div>
+        </div>
+
+        <!-- Status Highlight Box -->
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
           <div id="statusIconBig" class="text-4xl mb-1">⏳</div>
-          <h4 id="statusTitleBig" class="text-base font-bold text-orange-950">Order Placed</h4>
-          <p id="statusDescBig" class="text-xs text-gray-600 mt-1">
-            Waiting for restaurant to accept your order in Kodad.
+          <h4 id="statusTitleBig" class="text-base font-black text-blue-950">Order Placed</h4>
+          <p id="statusDescBig" class="text-xs text-slate-600 mt-1">
+            Waiting for restaurant kitchen in Kodad to accept.
           </p>
-          <div class="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-orange-700">
-            <span class="pulse-dot w-2 h-2 rounded-full bg-orange-600"></span>
+          <div class="mt-2.5 flex items-center justify-center gap-2 text-xs font-bold text-blue-700">
+            <span class="pulse-dot w-2 h-2 rounded-full bg-blue-600"></span>
             <span>Estimated delivery: 20-25 mins</span>
           </div>
         </div>
@@ -359,116 +385,149 @@
           <div class="flex items-start gap-3">
             <div id="stepDot-1" class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">✓</div>
             <div>
-              <h5 class="text-xs font-bold text-gray-900">Order Received & Placed</h5>
-              <p class="text-[11px] text-gray-500">Sent to Kodad restaurant kitchen</p>
+              <h5 class="text-xs font-bold text-slate-900">Order Placed</h5>
+              <p class="text-[11px] text-slate-500">Sent to Kodad kitchen</p>
             </div>
           </div>
           <!-- Step 2 -->
           <div class="flex items-start gap-3">
-            <div id="stepDot-2" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+            <div id="stepDot-2" class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
             <div>
-              <h5 class="text-xs font-bold text-gray-900">Restaurant Accepted & Cooking</h5>
-              <p id="stepDesc-2" class="text-[11px] text-gray-500">Awaiting kitchen confirmation</p>
+              <h5 class="text-xs font-bold text-slate-900">Restaurant Cooking Food</h5>
+              <p class="text-[11px] text-slate-500">Awaiting kitchen confirmation</p>
             </div>
           </div>
           <!-- Step 3 -->
           <div class="flex items-start gap-3">
-            <div id="stepDot-3" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+            <div id="stepDot-3" class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
             <div>
-              <h5 class="text-xs font-bold text-gray-900">Captain / Rider Assigned</h5>
-              <p id="stepDesc-3" class="text-[11px] text-gray-500">Searching for nearby Kodad delivery partner</p>
+              <h5 class="text-xs font-bold text-slate-900">Captain / Rider Assigned</h5>
+              <p class="text-[11px] text-slate-500">Nearby delivery partner on the way to restaurant</p>
             </div>
           </div>
           <!-- Step 4 -->
           <div class="flex items-start gap-3">
-            <div id="stepDot-4" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
+            <div id="stepDot-4" class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
             <div>
-              <h5 class="text-xs font-bold text-gray-900">Out for Delivery (On the way)</h5>
-              <p id="stepDesc-4" class="text-[11px] text-gray-500">Captain is riding towards your address</p>
+              <h5 class="text-xs font-bold text-slate-900">Out for Delivery (Rider en route)</h5>
+              <p class="text-[11px] text-slate-500">Captain riding towards your Kodad address</p>
             </div>
           </div>
           <!-- Step 5 -->
           <div class="flex items-start gap-3">
-            <div id="stepDot-5" class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">5</div>
+            <div id="stepDot-5" class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0">5</div>
             <div>
-              <h5 class="text-xs font-bold text-gray-900">Delivered</h5>
-              <p class="text-[11px] text-gray-500">Enjoy your hot Kodad meal!</p>
+              <h5 class="text-xs font-bold text-slate-900">Delivered</h5>
+              <p class="text-[11px] text-slate-500">Enjoy your hot Kodad meal!</p>
             </div>
           </div>
         </div>
 
-        <!-- Captain (Rider) Profile Card (Shown when assigned) -->
-        <div id="captainCard" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-3.5 flex items-center justify-between">
+        <!-- Captain Profile Card -->
+        <div id="captainCard" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-orange-100 border-2 border-orange-500 flex items-center justify-center text-2xl">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 border-2 border-blue-500 flex items-center justify-center text-2xl">
               🛵
             </div>
             <div>
-              <span class="text-[10px] font-extrabold uppercase tracking-wide text-orange-600 block">Your Kodad Captain</span>
-              <h5 id="captainNameText" class="font-bold text-sm text-gray-900">Ramesh G.</h5>
-              <p id="captainVehicleText" class="text-[11px] text-gray-500">Hero Splendor (TS-05-AB-1234)</p>
+              <span class="text-[10px] font-extrabold uppercase tracking-wide text-blue-600 block">Your Kodad Captain</span>
+              <h5 id="captainNameText" class="font-bold text-sm text-slate-900">Ramesh G.</h5>
+              <p id="captainVehicleText" class="text-[11px] text-slate-500">Hero Splendor (TS-05-AB-1234)</p>
             </div>
           </div>
-          <a id="captainCallBtn" href="tel:9848012345" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 shadow-sm transition">
-            <span>📞 Call Captain</span>
+          <a id="captainCallBtn" href="tel:9848012345" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1 shadow-sm transition">
+            <span>📞 Call</span>
           </a>
         </div>
 
         <!-- Order Items Summary in Tracker -->
-        <div class="bg-gray-50 rounded-xl p-3 text-xs space-y-1.5 border border-gray-200">
-          <span class="font-bold text-gray-700 block mb-1">Items in this order:</span>
-          <div id="trackItemsList" class="space-y-1 text-gray-600">
-            <!-- Populated via JS -->
-          </div>
-          <div class="pt-2 border-t border-gray-200 flex justify-between font-bold text-gray-900">
+        <div class="bg-slate-50 rounded-2xl p-3 text-xs space-y-1.5 border border-slate-200">
+          <span class="font-bold text-slate-700 block mb-1">Items ordered:</span>
+          <div id="trackItemsList" class="space-y-1 text-slate-600"></div>
+          <div class="pt-2 border-t border-slate-200 flex justify-between font-bold text-slate-900">
             <span>Amount to pay (<span id="trackPaymentMethod">COD</span>):</span>
-            <span id="trackTotalAmount" class="text-orange-600">₹0</span>
+            <span id="trackTotalAmount" class="text-blue-600">₹0</span>
           </div>
         </div>
 
       </div>
 
-      <!-- Tracker Footer -->
-      <div class="p-3 bg-gray-100 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2">
-        <a id="trackWhatsAppSupportBtn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition shadow-sm">
+      <!-- Tracker Footer with WhatsApp Dispatch -->
+      <div class="p-3 bg-slate-100 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+        <a id="trackWhatsAppSupportBtn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition shadow-sm">
           <span>💬</span>
           <span>Send Order on WhatsApp</span>
         </a>
-        <button onclick="closeTrackingModal()" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Close</button>
+        <button onclick="closeTrackingModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= USER LOGIN & ROLE SWITCHER MODAL ================= -->
+  <div id="loginModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+      
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-lg">🛵</div>
+          <h4 class="font-black text-base text-slate-900">KodadEats Account</h4>
+        </div>
+        <button onclick="closeLoginModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-500">Sign in to save your Kodad addresses or switch to partner portals:</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">Your Name:</label>
+          <input id="loginNameInput" type="text" placeholder="e.g. Ravi Teja" value="Ravi Teja" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">Mobile Number (10 Digits):</label>
+          <input id="loginPhoneInput" type="tel" placeholder="e.g. 9848123456" value="9848123456" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
+        </div>
+
+        <button onclick="saveCustomerLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 rounded-xl text-xs shadow-md shadow-blue-600/30 transition">
+          Continue as Customer ➔
+        </button>
+      </div>
+
+      <!-- Quick Role Switcher for Partners & Admin -->
+      <div class="pt-3 border-t border-slate-100 space-y-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block text-center">Business & Partner Portals</span>
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <a href="restaurant.html" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-1">
+            <span class="text-lg">👨‍🍳</span>
+            <span class="text-[10px] font-bold text-slate-800">Restaurant</span>
+          </a>
+          <a href="captain.html" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-1">
+            <span class="text-lg">🛵</span>
+            <span class="text-[10px] font-bold text-slate-800">Captain Rider</span>
+          </a>
+          <a href="admin.html" class="p-2 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-1">
+            <span class="text-lg">⚡</span>
+            <span class="text-[10px] font-bold text-slate-800">Admin Ops</span>
+          </a>
+        </div>
       </div>
 
     </div>
   </div>
 
   <!-- ================= LOCATION PICKER MODAL ================= -->
-  <div id="locationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+  <div id="locationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
-        <h4 class="font-bold text-base text-gray-900">Choose Delivery Area in Kodad</h4>
-        <button onclick="closeLocationModal()" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+        <h4 class="font-black text-base text-slate-900">Choose Delivery Area in Kodad</h4>
+        <button onclick="closeLocationModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
       </div>
-      <p class="text-xs text-gray-500">Select your landmark so our Kodad captains can deliver faster:</p>
+      <p class="text-xs text-slate-500">Select your landmark so our Kodad captains can deliver fast:</p>
       <div id="locationOptionsList" class="space-y-1.5 max-h-60 overflow-y-auto">
         <!-- Populated via JS -->
       </div>
     </div>
-  </div>
-
-  <!-- ================= FLOATING BOTTOM CHECKOUT BAR (ZOMATO STYLE) ================= -->
-  <div id="mobileBottomCartBar" class="hidden fixed bottom-3 inset-x-3 z-40 bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20">
-    <div class="flex items-center gap-2.5">
-      <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl">
-        🛒
-      </div>
-      <div>
-        <span id="mobileBottomCartItems" class="text-[11px] font-extrabold uppercase tracking-wide text-white/90 block">1 ITEM ADDED</span>
-        <span id="mobileBottomCartTotal" class="text-base font-black text-white">₹0</span>
-      </div>
-    </div>
-    <button onclick="toggleCartDrawer()" class="bg-white text-orange-600 hover:bg-orange-50 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-1.5 transition">
-      <span>View Cart & Checkout</span>
-      <span>➔</span>
-    </button>
   </div>
 
   <!-- Scripts -->
@@ -479,10 +538,13 @@
     let cart = [];
     let selectedCategory = 'all';
     let isVegOnly = false;
-    let selectedLandmark = KODAD_DATA.landmarks[5]; // Balaji Nagar
+    let selectedLandmark = KODAD_DATA.landmarks[0].name; // Balaji Nagar
     let activeOrderId = RealtimeBus.getActiveOrderId();
+    let leafletMap = null;
+    let riderMarker = null;
 
     document.addEventListener('DOMContentLoaded', () => {
+      initUserProfile();
       renderCategories();
       renderRestaurants();
       renderProducts();
@@ -491,29 +553,105 @@
       checkActiveOrder();
     });
 
+    // Profile & Authentication Initialization
+    function initUserProfile() {
+      let user = RealtimeBus.getCurrentUser();
+      if (!user) {
+        user = {
+          name: 'Ravi Teja',
+          phone: '9848123456',
+          address: 'H.No 4-128, Near Balaji Temple',
+          landmark: 'Balaji Nagar, Kodad',
+          role: 'customer'
+        };
+        RealtimeBus.setCurrentUser(user);
+      }
+
+      updateUserUI(user);
+    }
+
+    function updateUserUI(user) {
+      const initial = (user.name || 'C').charAt(0).toUpperCase();
+      document.getElementById('userInitialText').textContent = initial;
+      document.getElementById('dropdownInitial').textContent = initial;
+      document.getElementById('dropdownUserName').textContent = user.name;
+      document.getElementById('dropdownUserPhone').textContent = `+91 ${user.phone}`;
+      
+      const custName = document.getElementById('custNameInput');
+      const custPhone = document.getElementById('custPhoneInput');
+      const custAddr = document.getElementById('custAddressInput');
+      if (custName) custName.value = user.name;
+      if (custPhone) custPhone.value = user.phone;
+      if (custAddr) custAddr.value = user.address;
+    }
+
+    function toggleProfileDropdown() {
+      const dd = document.getElementById('profileDropdown');
+      dd.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = document.getElementById('userProfileBtn');
+      const dd = document.getElementById('profileDropdown');
+      if (dd && !dd.contains(e.target) && !btn.contains(e.target)) {
+        dd.classList.add('hidden');
+      }
+    });
+
+    function openLoginModal() {
+      document.getElementById('profileDropdown').classList.add('hidden');
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').classList.add('hidden');
+    }
+
+    function saveCustomerLogin() {
+      const name = document.getElementById('loginNameInput').value.trim() || 'Ravi Teja';
+      const phone = document.getElementById('loginPhoneInput').value.trim() || '9848123456';
+      
+      const user = {
+        name,
+        phone,
+        address: 'Main Road, Kodad',
+        landmark: selectedLandmark,
+        role: 'customer'
+      };
+
+      RealtimeBus.setCurrentUser(user);
+      updateUserUI(user);
+      closeLoginModal();
+    }
+
+    function logoutCurrentUser() {
+      RealtimeBus.logoutUser();
+      initUserProfile();
+      document.getElementById('profileDropdown').classList.add('hidden');
+    }
+
     // Populate Landmarks
     function populateLandmarkDropdowns() {
       const select = document.getElementById('custLandmarkSelect');
       const modalList = document.getElementById('locationOptionsList');
       if (select) {
-        select.innerHTML = KODAD_DATA.landmarks.map(l => `<option value="${l}" ${l === selectedLandmark ? 'selected' : ''}>${l}</option>`).join('');
+        select.innerHTML = KODAD_DATA.landmarks.map(l => `<option value="${l.name}" ${l.name === selectedLandmark ? 'selected' : ''}>${l.name}</option>`).join('');
       }
       if (modalList) {
         modalList.innerHTML = KODAD_DATA.landmarks.map(l => `
-          <button onclick="selectLandmark('${l}')" class="w-full text-left p-2.5 rounded-lg hover:bg-orange-50 hover:text-orange-600 text-xs font-medium border border-gray-100 flex items-center gap-2 transition">
+          <button onclick="selectLandmark('${l.name}')" class="w-full text-left p-2.5 rounded-xl hover:bg-blue-50 hover:text-blue-600 text-xs font-bold border border-slate-100 flex items-center gap-2 transition">
             <span>📍</span>
-            <span>${l}</span>
+            <span>${l.name}</span>
           </button>
         `).join('');
       }
     }
 
-    function selectLandmark(landmark) {
-      selectedLandmark = landmark;
-      document.getElementById('currentLocationText').textContent = landmark;
-      document.getElementById('mobileLocationText').textContent = landmark;
+    function selectLandmark(landmarkName) {
+      selectedLandmark = landmarkName;
+      document.getElementById('currentLocationText').textContent = landmarkName;
       const select = document.getElementById('custLandmarkSelect');
-      if (select) select.value = landmark;
+      if (select) select.value = landmarkName;
       closeLocationModal();
     }
 
@@ -527,10 +665,10 @@
       container.innerHTML = KODAD_DATA.categories.map(cat => `
         <button 
           onclick="filterCategory('${cat.id}')" 
-          class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition shadow-xs ${
+          class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition shadow-xs ${
             selectedCategory === cat.id 
-              ? 'bg-orange-600 text-white border-orange-600 shadow-md' 
-              : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
+              ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
+              : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
           }"
         >
           <span>${cat.icon}</span>
@@ -565,32 +703,32 @@
       const grid = document.getElementById('restaurantsGrid');
       if (!grid) return;
       grid.innerHTML = KODAD_DATA.restaurants.map(r => `
-        <div onclick="filterByRestaurant('${r.id}', '${r.name}')" class="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-500 hover:shadow-xl transition cursor-pointer group flex flex-col justify-between">
+        <div onclick="filterByRestaurant('${r.id}', '${r.name}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-500 hover:shadow-xl transition cursor-pointer group flex flex-col justify-between">
           <div class="relative h-44 overflow-hidden">
             <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-gray-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+            <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
               ${r.badge}
             </span>
-            <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-md">
+            <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-lg">
               ⏱️ ${r.deliveryTime}
             </div>
           </div>
           <div class="p-4 flex-1 flex flex-col justify-between">
             <div>
               <div class="flex items-start justify-between gap-2">
-                <h4 class="font-extrabold text-base text-gray-900 leading-tight group-hover:text-orange-600 transition">${r.name}</h4>
-                <span class="bg-emerald-600 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                <h4 class="font-black text-base text-slate-900 leading-tight group-hover:text-blue-600 transition">${r.name}</h4>
+                <span class="bg-emerald-600 text-white text-xs font-black px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
                   ★ ${r.rating}
                 </span>
               </div>
-              <p class="text-xs text-gray-500 mt-1">${r.cuisine}</p>
-              <div class="flex items-center gap-3 text-[11px] text-gray-500 mt-3 pt-3 border-t border-gray-100">
+              <p class="text-xs text-slate-500 mt-1">${r.cuisine}</p>
+              <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-3 pt-3 border-t border-slate-100">
                 <span>📍 ${r.location}</span>
                 <span>•</span>
                 <span>${r.distance}</span>
               </div>
             </div>
-            <button class="w-full mt-3 bg-orange-50 group-hover:bg-orange-600 text-orange-600 group-hover:text-white font-extrabold text-xs py-2.5 rounded-xl border border-orange-200 group-hover:border-orange-600 transition flex items-center justify-center gap-1.5 shadow-xs">
+            <button class="w-full mt-3 bg-blue-50 group-hover:bg-blue-600 text-blue-600 group-hover:text-white font-black text-xs py-2.5 rounded-xl border border-blue-200 group-hover:border-blue-600 transition flex items-center justify-center gap-1.5 shadow-xs">
               <span>View Dishes & Order</span>
               <span>➔</span>
             </button>
@@ -603,7 +741,7 @@
       const filtered = KODAD_DATA.products.filter(p => p.restId === restId);
       const heading = document.getElementById('dishesHeading');
       if (heading) {
-        heading.innerHTML = `${restName} <span class="text-xs text-orange-600 font-semibold bg-orange-50 px-2.5 py-1 rounded-full ml-2">Selected Restaurant</span>`;
+        heading.innerHTML = `${restName} <span class="text-xs text-blue-600 font-bold bg-blue-50 px-2.5 py-1 rounded-full ml-2">Selected Restaurant</span>`;
         heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       renderProducts(filtered);
@@ -629,36 +767,36 @@
         const qty = inCartItem ? inCartItem.quantity : 0;
 
         return `
-          <div class="bg-white rounded-2xl p-3 border border-gray-200 flex flex-col justify-between hover:border-orange-300 transition shadow-xs">
-            <div class="relative h-40 rounded-xl overflow-hidden mb-3">
+          <div class="bg-white rounded-3xl p-3.5 border border-slate-200 flex flex-col justify-between hover:border-blue-400 transition shadow-xs">
+            <div class="relative h-40 rounded-2xl overflow-hidden mb-3">
               <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'} text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+              <span class="absolute top-2 left-2 ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'} text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow">
                 ${item.isVeg ? '🟢 Veg' : '🔴 Non-Veg'}
               </span>
-              ${item.badge ? `<span class="absolute bottom-2 left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">${item.badge}</span>` : ''}
+              ${item.badge ? `<span class="absolute bottom-2 left-2 bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow">${item.badge}</span>` : ''}
             </div>
 
             <div class="flex-1 flex flex-col justify-between">
               <div>
-                <span class="text-[10px] font-semibold text-gray-500 block truncate">${item.restName}</span>
-                <h4 class="font-bold text-sm text-gray-900 mt-0.5 leading-snug">${item.name}</h4>
-                <p class="text-[11px] text-gray-500 line-clamp-2 mt-1">${item.description}</p>
+                <span class="text-[10px] font-bold text-slate-400 block truncate">${item.restName}</span>
+                <h4 class="font-extrabold text-sm text-slate-900 mt-0.5 leading-snug">${item.name}</h4>
+                <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">${item.description}</p>
               </div>
 
-              <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
+              <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-100">
                 <div class="flex items-baseline gap-1.5">
-                  <span class="text-base font-extrabold text-gray-900">₹${item.price}</span>
-                  ${item.originalPrice ? `<span class="text-xs text-gray-400 line-through">₹${item.originalPrice}</span>` : ''}
+                  <span class="text-base font-black text-slate-900">₹${item.price}</span>
+                  ${item.originalPrice ? `<span class="text-xs text-slate-400 line-through">₹${item.originalPrice}</span>` : ''}
                 </div>
 
                 ${qty > 0 ? `
-                  <div class="flex items-center bg-orange-600 text-white rounded-lg px-2 py-1 gap-2 font-bold text-xs shadow-sm">
-                    <button onclick="updateCart('${item.id}', -1)" class="hover:opacity-80 px-1 font-extrabold text-sm">−</button>
+                  <div class="flex items-center bg-blue-600 text-white rounded-xl px-2 py-1 gap-2 font-black text-xs shadow-sm">
+                    <button onclick="updateCart('${item.id}', -1)" class="hover:opacity-80 px-1 font-black text-sm">−</button>
                     <span>${qty}</span>
-                    <button onclick="updateCart('${item.id}', 1)" class="hover:opacity-80 px-1 font-extrabold text-sm">+</button>
+                    <button onclick="updateCart('${item.id}', 1)" class="hover:opacity-80 px-1 font-black text-sm">+</button>
                   </div>
                 ` : `
-                  <button onclick="updateCart('${item.id}', 1)" class="bg-orange-50 hover:bg-orange-600 text-orange-600 hover:text-white border border-orange-200 px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-xs">
+                  <button onclick="updateCart('${item.id}', 1)" class="bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 px-3.5 py-1.5 rounded-xl text-xs font-black transition shadow-xs">
                     + ADD
                   </button>
                 `}
@@ -706,6 +844,18 @@
         badge.classList.add('hidden');
       }
 
+      // Bottom Floating Cart Bar for Mobile
+      const bottomBar = document.getElementById('mobileBottomCartBar');
+      if (bottomBar) {
+        if (count > 0) {
+          bottomBar.classList.remove('hidden');
+          document.getElementById('mobileBottomCartItems').textContent = `${count} ${count === 1 ? 'ITEM' : 'ITEMS'} ADDED • ₹${grandTotal}`;
+          document.getElementById('mobileBottomCartTotal').textContent = `₹${grandTotal}`;
+        } else {
+          bottomBar.classList.add('hidden');
+        }
+      }
+
       // Drawer values
       document.getElementById('billSubtotal').textContent = `₹${subtotal}`;
       document.getElementById('billDelivery').textContent = `₹${deliveryFee}`;
@@ -723,25 +873,13 @@
       const placeBtn = document.getElementById('placeOrderBtn');
       placeBtn.disabled = count === 0;
 
-      // Bottom Floating Cart Bar for Mobile (Zomato/Swiggy style)
-      const bottomBar = document.getElementById('mobileBottomCartBar');
-      if (bottomBar) {
-        if (count > 0) {
-          bottomBar.classList.remove('hidden');
-          document.getElementById('mobileBottomCartItems').textContent = `${count} ${count === 1 ? 'ITEM' : 'ITEMS'} ADDED • ₹${grandTotal}`;
-          document.getElementById('mobileBottomCartTotal').textContent = `₹${grandTotal}`;
-        } else {
-          bottomBar.classList.add('hidden');
-        }
-      }
-
       // Cart Items List
       const listContainer = document.getElementById('cartItemsList');
       if (count === 0) {
         listContainer.innerHTML = `
-          <div class="text-center py-8 text-gray-400 space-y-2">
+          <div class="text-center py-8 text-slate-400 space-y-2">
             <span class="text-4xl block">🛍️</span>
-            <p class="text-sm font-semibold">Your cart is empty</p>
+            <p class="text-sm font-bold text-slate-700">Your cart is empty</p>
             <p class="text-xs">Add delicious biryani or tiffins to get started!</p>
           </div>
         `;
@@ -752,18 +890,18 @@
       document.getElementById('cartStoreTitle').textContent = `${cart[0].restName} (${count} items)`;
 
       listContainer.innerHTML = cart.map(item => `
-        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+        <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
           <div class="flex items-center gap-2.5">
-            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover">
+            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover">
             <div>
-              <h5 class="text-xs font-bold text-gray-900 truncate max-w-[170px]">${item.name}</h5>
-              <span class="text-xs font-bold text-orange-600">₹${item.price}</span>
+              <h5 class="text-xs font-bold text-slate-900 truncate max-w-[170px]">${item.name}</h5>
+              <span class="text-xs font-black text-blue-600">₹${item.price}</span>
             </div>
           </div>
-          <div class="flex items-center bg-white border border-gray-200 rounded-lg px-2 py-0.5 gap-2 text-xs font-bold">
-            <button onclick="updateCart('${item.id}', -1)" class="text-orange-600 font-extrabold text-sm px-1">−</button>
+          <div class="flex items-center bg-white border border-slate-200 rounded-xl px-2 py-0.5 gap-2 text-xs font-bold">
+            <button onclick="updateCart('${item.id}', -1)" class="text-blue-600 font-black text-sm px-1">−</button>
             <span>${item.quantity}</span>
-            <button onclick="updateCart('${item.id}', 1)" class="text-orange-600 font-extrabold text-sm px-1">+</button>
+            <button onclick="updateCart('${item.id}', 1)" class="text-blue-600 font-black text-sm px-1">+</button>
           </div>
         </div>
       `).join('');
@@ -807,32 +945,21 @@
         paymentMethod: paymentMethod
       };
 
-      // Place order via RealtimeBus
       const placedOrder = RealtimeBus.placeOrder(orderData);
       activeOrderId = placedOrder.id;
 
-      // Save customer info for next time
-      RealtimeBus.saveCustomerInfo(orderData.customer);
-
-      // Reset cart & close drawer
       cart = [];
       renderCartUI();
       renderProducts();
       toggleCartDrawer();
 
-      // Trigger Confetti
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.6 }
-      });
+      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
 
-      // Open Tracking Modal
       openTrackingModal(placedOrder);
       checkActiveOrder();
     }
 
-    // Tracking Modal
+    // Live Map & Tracking Modal
     function openTrackingModal(givenOrder = null) {
       const order = givenOrder || RealtimeBus.getOrderById(activeOrderId);
       if (!order) return;
@@ -841,7 +968,6 @@
       document.getElementById('trackTotalAmount').textContent = `₹${order.total}`;
       document.getElementById('trackPaymentMethod').textContent = order.paymentMethod.includes('Cash') ? 'COD' : 'UPI';
 
-      // Items list
       document.getElementById('trackItemsList').innerHTML = order.items.map(i => `
         <div class="flex justify-between">
           <span>${i.quantity}x ${i.name}</span>
@@ -856,6 +982,76 @@
 
       updateTrackerVisuals(order);
       document.getElementById('trackingModal').classList.remove('hidden');
+
+      // Initialize Leaflet Map of Kodad
+      setTimeout(() => {
+        initTrackingMap(order);
+      }, 200);
+    }
+
+    function initTrackingMap(order) {
+      const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || KODAD_DATA.restaurants[0];
+      const landmark = KODAD_DATA.landmarks.find(l => l.name === order.customer.landmark) || KODAD_DATA.landmarks[0];
+
+      if (!leafletMap) {
+        leafletMap = L.map('trackingMap').setView([KODAD_DATA.center.lat, KODAD_DATA.center.lng], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }).addTo(leafletMap);
+      } else {
+        leafletMap.invalidateSize();
+      }
+
+      // Clear existing markers
+      leafletMap.eachLayer((layer) => {
+        if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+          leafletMap.removeLayer(layer);
+        }
+      });
+
+      // Restaurant Icon (Green)
+      const restIcon = L.divIcon({
+        className: 'custom-rest-icon',
+        html: `<div style="background-color:#2563eb; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); border:2px solid white; font-size:16px;">🏪</div>`,
+        iconSize: [32, 32]
+      });
+
+      // Customer Icon (Red)
+      const custIcon = L.divIcon({
+        className: 'custom-cust-icon',
+        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); border:2px solid white; font-size:16px;">📍</div>`,
+        iconSize: [32, 32]
+      });
+
+      // Rider Scooter Icon (Blue 🛵)
+      const riderIcon = L.divIcon({
+        className: 'custom-rider-icon',
+        html: `<div style="background-color:#2563eb; color:white; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 14px rgba(37,99,235,0.4); border:3px solid white; font-size:20px;">🛵</div>`,
+        iconSize: [38, 38]
+      });
+
+      L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(leafletMap).bindPopup(`<b>${rest.name}</b><br>Kitchen Location`).openPopup();
+      L.marker([landmark.lat, landmark.lng], { icon: custIcon }).addTo(leafletMap).bindPopup(`<b>Drop: ${order.customer.name}</b><br>${landmark.name}`);
+
+      // Draw route line
+      const latlngs = [
+        [rest.lat, rest.lng],
+        [(rest.lat + landmark.lat) / 2, (rest.lng + landmark.lng) / 2],
+        [landmark.lat, landmark.lng]
+      ];
+      L.polyline(latlngs, { color: '#2563eb', weight: 4, dashArray: '8, 8' }).addTo(leafletMap);
+
+      // Rider Position
+      let riderPos = [rest.lat, rest.lng];
+      if (order.status === 'PICKED_UP') {
+        riderPos = [(rest.lat + landmark.lat) / 2, (rest.lng + landmark.lng) / 2];
+      } else if (order.status === 'DELIVERED') {
+        riderPos = [landmark.lat, landmark.lng];
+      }
+
+      riderMarker = L.marker(riderPos, { icon: riderIcon }).addTo(leafletMap).bindPopup('<b>KodadEats Captain</b><br>Live Scooter Location');
+
+      leafletMap.fitBounds(L.latLngBounds([rest, landmark]), { padding: [40, 40] });
     }
 
     function closeTrackingModal() {
@@ -877,9 +1073,8 @@
       const descBig = document.getElementById('statusDescBig');
       const captainCard = document.getElementById('captainCard');
 
-      // Reset
       [s1, s2, s3, s4, s5].forEach((d, i) => {
-        d.className = 'w-7 h-7 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0';
+        d.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0';
         d.textContent = i + 1;
       });
 
@@ -889,7 +1084,7 @@
       if (status === 'PLACED') {
         iconBig.textContent = '⏳';
         titleBig.textContent = 'Order Placed & Sent to Kitchen';
-        descBig.textContent = `Waiting for ${order.restaurant.name} to confirm. A loud siren is ringing on Admin screen!`;
+        descBig.textContent = `Waiting for ${order.restaurant.name} kitchen to confirm in Kodad.`;
         captainCard.classList.add('hidden');
       } else if (status === 'ACCEPTED') {
         s2.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0';
@@ -923,7 +1118,7 @@
         });
         iconBig.textContent = '🎉';
         titleBig.textContent = 'Order Delivered Successfully!';
-        descBig.textContent = 'Thank you for ordering with Kzip. Enjoy your meal in Kodad!';
+        descBig.textContent = 'Thank you for ordering with KodadEats. Enjoy your meal in Kodad!';
         showCaptainDetails(order.captain);
       }
     }
@@ -957,51 +1152,17 @@
         if (event.payload && event.payload.id === activeOrderId) {
           updateTrackerVisuals(event.payload);
           checkActiveOrder();
+          if (leafletMap) initTrackingMap(event.payload);
         }
       });
     }
 
-    // PWA Service Worker & Install Prompt Registration
-    let deferredPrompt = null;
+    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[PWA] Service Worker registered with scope:', reg.scope))
-          .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const installBtn = document.getElementById('installAppHeaderBtn');
-      if (installBtn) {
-        installBtn.classList.remove('hidden');
-        installBtn.classList.add('animate-pulse');
-      }
-    });
-
-    function triggerPWAInstall() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('[PWA] User accepted the install prompt');
-            const installBtn = document.getElementById('installAppHeaderBtn');
-            if (installBtn) installBtn.classList.add('hidden');
-          }
-          deferredPrompt = null;
-        });
-      } else {
-        alert('To install Kzip as an App:\n\n📱 On Android: Tap Chrome 3 dots (⋮) -> Tap "Add to Home screen" or "Install App".\n\n🍏 On iPhone: Tap the Share button (⬆) -> Tap "Add to Home Screen".');
-      }
-    }
-
-    window.addEventListener('appinstalled', () => {
-      console.log('[PWA] Kzip App installed successfully!');
-      const installBtn = document.getElementById('installAppHeaderBtn');
-      if (installBtn) installBtn.classList.add('hidden');
-    });
   </script>
 </body>
 </html>
