@@ -454,6 +454,23 @@
     </div>
   </div>
 
+  <!-- ================= FLOATING BOTTOM CHECKOUT BAR (ZOMATO STYLE) ================= -->
+  <div id="mobileBottomCartBar" class="hidden fixed bottom-3 inset-x-3 z-40 bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl">
+        🛒
+      </div>
+      <div>
+        <span id="mobileBottomCartItems" class="text-[11px] font-extrabold uppercase tracking-wide text-white/90 block">1 ITEM ADDED</span>
+        <span id="mobileBottomCartTotal" class="text-base font-black text-white">₹0</span>
+      </div>
+    </div>
+    <button onclick="toggleCartDrawer()" class="bg-white text-orange-600 hover:bg-orange-50 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-1.5 transition">
+      <span>View Cart & Checkout</span>
+      <span>➔</span>
+    </button>
+  </div>
+
   <!-- Scripts -->
   <script src="data.js"></script>
   <script src="realtime-sync.js"></script>
@@ -548,7 +565,7 @@
       const grid = document.getElementById('restaurantsGrid');
       if (!grid) return;
       grid.innerHTML = KODAD_DATA.restaurants.map(r => `
-        <div class="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition cursor-pointer group">
+        <div onclick="filterByRestaurant('${r.id}', '${r.name}')" class="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-500 hover:shadow-xl transition cursor-pointer group flex flex-col justify-between">
           <div class="relative h-44 overflow-hidden">
             <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-gray-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
@@ -558,22 +575,38 @@
               ⏱️ ${r.deliveryTime}
             </div>
           </div>
-          <div class="p-4">
-            <div class="flex items-start justify-between gap-2">
-              <h4 class="font-extrabold text-base text-gray-900 leading-tight group-hover:text-orange-600 transition">${r.name}</h4>
-              <span class="bg-emerald-600 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                ★ ${r.rating}
-              </span>
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-extrabold text-base text-gray-900 leading-tight group-hover:text-orange-600 transition">${r.name}</h4>
+                <span class="bg-emerald-600 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                  ★ ${r.rating}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">${r.cuisine}</p>
+              <div class="flex items-center gap-3 text-[11px] text-gray-500 mt-3 pt-3 border-t border-gray-100">
+                <span>📍 ${r.location}</span>
+                <span>•</span>
+                <span>${r.distance}</span>
+              </div>
             </div>
-            <p class="text-xs text-gray-500 mt-1">${r.cuisine}</p>
-            <div class="flex items-center gap-3 text-[11px] text-gray-500 mt-3 pt-3 border-t border-gray-100">
-              <span>📍 ${r.location}</span>
-              <span>•</span>
-              <span>${r.distance}</span>
-            </div>
+            <button class="w-full mt-3 bg-orange-50 group-hover:bg-orange-600 text-orange-600 group-hover:text-white font-extrabold text-xs py-2.5 rounded-xl border border-orange-200 group-hover:border-orange-600 transition flex items-center justify-center gap-1.5 shadow-xs">
+              <span>View Dishes & Order</span>
+              <span>➔</span>
+            </button>
           </div>
         </div>
       `).join('');
+    }
+
+    function filterByRestaurant(restId, restName) {
+      const filtered = KODAD_DATA.products.filter(p => p.restId === restId);
+      const heading = document.getElementById('dishesHeading');
+      if (heading) {
+        heading.innerHTML = `${restName} <span class="text-xs text-orange-600 font-semibold bg-orange-50 px-2.5 py-1 rounded-full ml-2">Selected Restaurant</span>`;
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      renderProducts(filtered);
     }
 
     // Render Products
@@ -689,6 +722,18 @@
 
       const placeBtn = document.getElementById('placeOrderBtn');
       placeBtn.disabled = count === 0;
+
+      // Bottom Floating Cart Bar for Mobile (Zomato/Swiggy style)
+      const bottomBar = document.getElementById('mobileBottomCartBar');
+      if (bottomBar) {
+        if (count > 0) {
+          bottomBar.classList.remove('hidden');
+          document.getElementById('mobileBottomCartItems').textContent = `${count} ${count === 1 ? 'ITEM' : 'ITEMS'} ADDED • ₹${grandTotal}`;
+          document.getElementById('mobileBottomCartTotal').textContent = `₹${grandTotal}`;
+        } else {
+          bottomBar.classList.add('hidden');
+        }
+      }
 
       // Cart Items List
       const listContainer = document.getElementById('cartItemsList');
