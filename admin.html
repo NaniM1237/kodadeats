@@ -345,6 +345,12 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap'
         }).addTo(adminMap);
+      } else {
+        adminMap.eachLayer(layer => {
+          if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+            adminMap.removeLayer(layer);
+          }
+        });
       }
 
       // Plot All 5 Restaurants
@@ -363,6 +369,22 @@
           iconSize: [30, 30]
         });
         L.marker([c.lat, c.lng], { icon }).addTo(adminMap).bindPopup(`<b>${c.name} (Online)</b><br>${c.vehicle}`);
+      });
+
+      // Plot Active Customer Orders & Live Route Polylines
+      const activeOrders = RealtimeBus.getAllOrders().filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED');
+      activeOrders.forEach(o => {
+        const rest = KODAD_DATA.restaurants.find(r => r.id === o.restaurant.id) || KODAD_DATA.restaurants[0];
+        const landmark = KODAD_DATA.landmarks.find(l => l.name === o.customer.landmark) || KODAD_DATA.landmarks[0];
+        const custLat = o.customer.lat || landmark.lat;
+        const custLng = o.customer.lng || landmark.lng;
+
+        const custIcon = L.divIcon({
+          html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(239,68,68,0.4); border:2px solid white; font-size:14px;">${o.customer.lat ? '🏠' : '📍'}</div>`,
+          iconSize: [28, 28]
+        });
+        L.marker([custLat, custLng], { icon: custIcon }).addTo(adminMap).bindPopup(`<b>#${o.id} - ${o.customer.name}</b><br>${o.customer.address}<br>Status: ${o.status}`);
+        L.polyline([[rest.lat, rest.lng], [custLat, custLng]], { color: '#ef4444', weight: 3, dashArray: '4, 6' }).addTo(adminMap);
       });
     }
 
@@ -514,6 +536,8 @@
           </div>
         `;
       }).join('');
+
+      initAdminLiveMap();
     }
 
     function adminAcceptOrder(orderId) {

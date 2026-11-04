@@ -59,11 +59,17 @@
         </div>
       </a>
 
-      <!-- Right: Search, Cart & Customer Profile Avatar with Initial -->
+      <!-- Right: Search, Cart, Install App & Customer Profile Avatar with Initial -->
       <div class="flex items-center gap-2 sm:gap-3">
         <!-- Live Order Button (Appears if active order exists) -->
         <button id="trackActiveOrderBtn" onclick="openTrackingModal()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-full shadow-md flex items-center gap-1.5 transition animate-pulse">
           <span>🛵 Live Order</span>
+        </button>
+
+        <!-- Install App Button -->
+        <button onclick="openAppDownloadModal()" class="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full border border-blue-200 text-xs font-black transition shadow-xs">
+          <span>📲</span>
+          <span class="hidden sm:inline">Install App</span>
         </button>
 
         <!-- Cart Button -->
@@ -131,8 +137,13 @@
   <section class="max-w-7xl mx-auto px-4 pt-4 pb-2">
     <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 rounded-3xl p-5 md:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="space-y-2 z-10 text-center md:text-left">
-        <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider">
-          🔥 Kodad Special • Fast Delivery
+        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+          <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider">
+            🔥 Kodad Special • Fast Delivery
+          </span>
+          <button onclick="openAppDownloadModal()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-[11px] px-3 py-1 rounded-full shadow-md transition flex items-center gap-1">
+            <span>📲 Install App on Phone</span>
+          </button>
         </div>
         <h2 class="text-2xl md:text-4xl font-black leading-tight">
           Craving Hot Biryani or Tiffins? <br>
@@ -275,6 +286,18 @@
               <select id="custLandmarkSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
                 <!-- Populated via JS -->
               </select>
+            </div>
+
+            <!-- Live GPS House Pin Locator -->
+            <div class="pt-1">
+              <button type="button" onclick="captureCustomerLiveGPS()" id="gpsCaptureBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs py-2.5 px-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition">
+                <span>📍</span>
+                <span id="gpsCaptureBtnText">Use My Exact Live House GPS (One-Tap)</span>
+              </button>
+              <div id="gpsStatusCard" class="hidden mt-2 p-2 bg-emerald-50 border border-emerald-300 rounded-xl text-[11px] text-emerald-850 font-bold flex items-center justify-between">
+                <span id="gpsCoordsDisplay">📍 Live Home GPS: Locked</span>
+                <button type="button" onclick="clearLiveGPS()" class="text-xs text-red-600 hover:text-red-800 font-black px-1">✕ Clear</button>
+              </div>
             </div>
           </div>
 
@@ -523,10 +546,80 @@
         <h4 class="font-black text-base text-slate-900">Choose Delivery Area in Kodad</h4>
         <button onclick="closeLocationModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
       </div>
-      <p class="text-xs text-slate-500">Select your landmark so our Kodad captains can deliver fast:</p>
+
+      <!-- GPS One-Tap in Location Modal -->
+      <button onclick="captureCustomerLiveGPS(); closeLocationModal();" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-2xl p-3 flex items-center justify-between text-xs font-bold transition shadow-xs">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">📍</span>
+          <div class="text-left">
+            <span class="block text-emerald-950 font-black">Use Current Live GPS Location</span>
+            <span class="text-[10px] text-emerald-700 font-medium">Detect your exact home coordinates</span>
+          </div>
+        </div>
+        <span class="text-emerald-700 font-black">➔</span>
+      </button>
+
+      <p class="text-xs text-slate-500">Or select your nearest Kodad landmark:</p>
       <div id="locationOptionsList" class="space-y-1.5 max-h-60 overflow-y-auto">
         <!-- Populated via JS -->
       </div>
+    </div>
+  </div>
+
+  <!-- ================= APP DOWNLOAD & INSTALL MODAL ================= -->
+  <div id="appDownloadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-md rounded-3xl p-5 md:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl shadow-md shadow-blue-600/30">
+            🛵
+          </div>
+          <div>
+            <h4 class="font-black text-base text-slate-900">Download KodadEats App</h4>
+            <p class="text-[11px] text-slate-500 font-bold">Fast Food Delivery in Kodad</p>
+          </div>
+        </div>
+        <button onclick="closeAppDownloadModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black transition flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- Instant Install for Android Chrome -->
+      <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl space-y-2">
+        <span class="text-xs font-black text-blue-900 block">⚡ Instant One-Tap Install</span>
+        <p class="text-[11px] text-blue-700">Install KodadEats straight to your phone's home screen. Opens instantly like a Play Store app with the blue scooter logo!</p>
+        <button onclick="triggerPwaPrompt()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 px-4 rounded-xl text-xs shadow-md shadow-blue-600/30 transition flex items-center justify-center gap-2">
+          <span>📲</span>
+          <span>Install App on this Phone</span>
+        </button>
+      </div>
+
+      <!-- Instructions for Android & iPhone -->
+      <div class="space-y-2 text-xs text-slate-600">
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+          <span class="font-black text-slate-800 block text-xs">🤖 For Android Phone (Chrome):</span>
+          <p class="text-[11px] text-slate-600 leading-relaxed">1. Open this website in Google Chrome.<br>2. Tap the <b>three dots (⋮)</b> in the top right.<br>3. Tap <b>"Install app"</b> or <b>"Add to Home Screen"</b>.<br>4. KodadEats will be installed directly on your home screen!</p>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+          <span class="font-black text-slate-800 block text-xs">🍏 For iPhone (Safari):</span>
+          <p class="text-[11px] text-slate-600 leading-relaxed">1. Open this link in Safari.<br>2. Tap the <b>Share button (⎋)</b> at the bottom.<br>3. Tap <b>"Add to Home Screen"</b>.</p>
+        </div>
+      </div>
+
+      <!-- Share Link with Friends & Customers -->
+      <div class="pt-2 border-t border-slate-100 space-y-2">
+        <span class="text-[11px] font-bold text-slate-700 block">Share App Link on WhatsApp:</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="copyAppShareLink()" id="copyShareBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5">
+            <span>📋</span>
+            <span id="copyBtnText">Copy App Link</span>
+          </button>
+          <a id="shareAppWhatsAppBtn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm">
+            <span>💬</span>
+            <span>WhatsApp Invite</span>
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -538,16 +631,21 @@
     let cart = [];
     let selectedCategory = 'all';
     let isVegOnly = false;
+    let selectedRestaurantId = null;
+    let selectedRestaurantName = null;
+    let searchQuery = '';
+    let customerLiveCoords = null;
     let selectedLandmark = KODAD_DATA.landmarks[0].name; // Balaji Nagar
     let activeOrderId = RealtimeBus.getActiveOrderId();
     let leafletMap = null;
     let riderMarker = null;
+    let deferredInstallPrompt = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       initUserProfile();
       renderCategories();
       renderRestaurants();
-      renderProducts();
+      applyFilters();
       populateLandmarkDropdowns();
       initRealtimeListener();
       checkActiveOrder();
@@ -658,7 +756,55 @@
     function openLocationModal() { document.getElementById('locationModal').classList.remove('hidden'); }
     function closeLocationModal() { document.getElementById('locationModal').classList.add('hidden'); }
 
-    // Render Categories
+    // Live GPS Location Logic for Customer Home
+    function captureCustomerLiveGPS() {
+      const btn = document.getElementById('gpsCaptureBtnText');
+      const card = document.getElementById('gpsStatusCard');
+      const display = document.getElementById('gpsCoordsDisplay');
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      if (btn) btn.textContent = "⏳ Fetching your live GPS...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          customerLiveCoords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          if (btn) btn.textContent = "✓ Live House GPS Locked!";
+          if (card && display) {
+            card.classList.remove('hidden');
+            display.innerHTML = `📍 Live GPS: <b>${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}</b>`;
+          }
+          const locText = document.getElementById('currentLocationText');
+          if (locText) {
+            locText.textContent = `📍 Live GPS (${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)})`;
+          }
+        },
+        (error) => {
+          console.warn("GPS error:", error);
+          if (btn) btn.textContent = "Use My Exact Live House GPS (One-Tap)";
+          alert("Could not access your GPS coordinates. Please ensure Location Permissions are enabled in Chrome/Safari or select your nearest landmark.");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function clearLiveGPS() {
+      customerLiveCoords = null;
+      const btn = document.getElementById('gpsCaptureBtnText');
+      const card = document.getElementById('gpsStatusCard');
+      if (btn) btn.textContent = "Use My Exact Live House GPS (One-Tap)";
+      if (card) card.classList.add('hidden');
+      const locText = document.getElementById('currentLocationText');
+      if (locText) locText.textContent = selectedLandmark;
+    }
+
+    // Category & Dishes Filter Logic
     function renderCategories() {
       const container = document.getElementById('categoryContainer');
       if (!container) return;
@@ -678,81 +824,55 @@
     }
 
     function filterCategory(catId) {
-      selectedCategory = catId;
+      if (selectedCategory === catId && catId !== 'all') {
+        selectedCategory = 'all';
+      } else {
+        selectedCategory = catId;
+      }
       renderCategories();
-      renderProducts();
+      applyFilters();
     }
 
     function toggleVegOnly(checked) {
       isVegOnly = checked;
-      renderProducts();
+      applyFilters();
     }
 
     function handleSearch(term) {
-      const q = term.toLowerCase().trim();
-      const filtered = KODAD_DATA.products.filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        p.restName.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q)
-      );
-      renderProducts(filtered);
-    }
-
-    // Render Restaurants
-    function renderRestaurants() {
-      const grid = document.getElementById('restaurantsGrid');
-      if (!grid) return;
-      grid.innerHTML = KODAD_DATA.restaurants.map(r => `
-        <div onclick="filterByRestaurant('${r.id}', '${r.name}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-500 hover:shadow-xl transition cursor-pointer group flex flex-col justify-between">
-          <div class="relative h-44 overflow-hidden">
-            <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
-              ${r.badge}
-            </span>
-            <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-lg">
-              ⏱️ ${r.deliveryTime}
-            </div>
-          </div>
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <div class="flex items-start justify-between gap-2">
-                <h4 class="font-black text-base text-slate-900 leading-tight group-hover:text-blue-600 transition">${r.name}</h4>
-                <span class="bg-emerald-600 text-white text-xs font-black px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
-                  ★ ${r.rating}
-                </span>
-              </div>
-              <p class="text-xs text-slate-500 mt-1">${r.cuisine}</p>
-              <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-3 pt-3 border-t border-slate-100">
-                <span>📍 ${r.location}</span>
-                <span>•</span>
-                <span>${r.distance}</span>
-              </div>
-            </div>
-            <button class="w-full mt-3 bg-blue-50 group-hover:bg-blue-600 text-blue-600 group-hover:text-white font-black text-xs py-2.5 rounded-xl border border-blue-200 group-hover:border-blue-600 transition flex items-center justify-center gap-1.5 shadow-xs">
-              <span>View Dishes & Order</span>
-              <span>➔</span>
-            </button>
-          </div>
-        </div>
-      `).join('');
+      searchQuery = term;
+      applyFilters();
     }
 
     function filterByRestaurant(restId, restName) {
-      const filtered = KODAD_DATA.products.filter(p => p.restId === restId);
+      selectedRestaurantId = restId;
+      selectedRestaurantName = restName;
+      applyFilters();
       const heading = document.getElementById('dishesHeading');
       if (heading) {
-        heading.innerHTML = `${restName} <span class="text-xs text-blue-600 font-bold bg-blue-50 px-2.5 py-1 rounded-full ml-2">Selected Restaurant</span>`;
         heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-      renderProducts(filtered);
     }
 
-    // Render Products
-    function renderProducts(customList = null) {
-      const grid = document.getElementById('productsGrid');
-      if (!grid) return;
+    function resetAllFilters() {
+      selectedCategory = 'all';
+      isVegOnly = false;
+      selectedRestaurantId = null;
+      selectedRestaurantName = null;
+      searchQuery = '';
+      const vegToggle = document.getElementById('vegOnlyToggle');
+      if (vegToggle) vegToggle.checked = false;
+      const searchInputs = document.querySelectorAll('input[type="text"][placeholder*="Search"]');
+      searchInputs.forEach(i => i.value = '');
+      renderCategories();
+      applyFilters();
+    }
 
-      let list = customList || KODAD_DATA.products;
+    function applyFilters() {
+      let list = [...KODAD_DATA.products];
+
+      if (selectedRestaurantId) {
+        list = list.filter(p => p.restId === selectedRestaurantId);
+      }
 
       if (selectedCategory !== 'all') {
         list = list.filter(p => p.category === selectedCategory);
@@ -760,6 +880,74 @@
 
       if (isVegOnly) {
         list = list.filter(p => p.isVeg);
+      }
+
+      if (searchQuery && searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        list = list.filter(p => 
+          p.name.toLowerCase().includes(q) || 
+          p.restName.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q)
+        );
+      }
+
+      updateDishesHeading(list.length);
+      renderProductsGrid(list);
+    }
+
+    function updateDishesHeading(count) {
+      const heading = document.getElementById('dishesHeading');
+      if (!heading) return;
+
+      let title = 'All Dishes & Specialties';
+      if (selectedRestaurantName) {
+        title = `🍽️ ${selectedRestaurantName} Menu`;
+      } else if (selectedCategory !== 'all') {
+        const catObj = KODAD_DATA.categories.find(c => c.id === selectedCategory);
+        title = catObj ? `${catObj.icon} ${catObj.name}` : 'Dishes';
+      }
+
+      if (isVegOnly) {
+        title = `🌱 Pure Veg ${title.replace('🍽️ ', '').replace('🍗 ', '').replace('🥞 ', '').replace('All Dishes', 'Dishes')}`;
+      }
+
+      const hasActiveFilters = selectedCategory !== 'all' || isVegOnly || selectedRestaurantId || (searchQuery && searchQuery.trim().length > 0);
+
+      heading.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3 w-full">
+          <div class="flex items-center gap-2">
+            <span>${title}</span>
+            <span class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2.5 py-0.5 rounded-full">${count} ${count === 1 ? 'dish' : 'dishes'}</span>
+          </div>
+          ${hasActiveFilters ? `
+            <button onclick="resetAllFilters()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full border border-red-200 transition shadow-xs flex items-center gap-1">
+              <span>✕</span>
+              <span>Clear Filter</span>
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderProductsGrid(list) {
+      const grid = document.getElementById('productsGrid');
+      if (!grid) return;
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 px-4 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
+            <span class="text-5xl block">🥗</span>
+            <h4 class="font-extrabold text-base text-slate-800">No dishes match your active filter</h4>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto">
+              ${isVegOnly ? 'No Pure Veg dishes found for this filter.' : 'No dishes found matching your search.'} Try changing your selection or resetting filters.
+            </p>
+            <button onclick="resetAllFilters()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md transition">
+              Show All Dishes in Kodad
+            </button>
+          </div>
+        `;
+        return;
       }
 
       grid.innerHTML = list.map(item => {
@@ -805,6 +993,10 @@
           </div>
         `;
       }).join('');
+    }
+
+    function renderProducts() {
+      applyFilters();
     }
 
     // Cart Management
@@ -922,6 +1114,10 @@
       const custLandmark = document.getElementById('custLandmarkSelect').value;
       const paymentMethod = document.querySelector('input[name="paymentOption"]:checked')?.value || 'Cash on Delivery (COD)';
 
+      const landmarkObj = KODAD_DATA.landmarks.find(l => l.name === custLandmark) || KODAD_DATA.landmarks[0];
+      const custLat = customerLiveCoords ? customerLiveCoords.lat : landmarkObj.lat;
+      const custLng = customerLiveCoords ? customerLiveCoords.lng : landmarkObj.lng;
+
       const subtotal = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
       const discount = subtotal >= 300 ? 50 : 0;
       const total = subtotal + 25 + 10 - discount;
@@ -930,8 +1126,11 @@
         customer: {
           name: custName,
           phone: custPhone,
-          address: custAddress,
-          landmark: custLandmark
+          address: custAddress + (customerLiveCoords ? ' [📍 Exact GPS Locked]' : ''),
+          landmark: custLandmark,
+          lat: custLat,
+          lng: custLng,
+          isExactGPS: !!customerLiveCoords
         },
         restaurant: {
           id: cart[0].restId,
@@ -950,7 +1149,7 @@
 
       cart = [];
       renderCartUI();
-      renderProducts();
+      applyFilters();
       toggleCartDrawer();
 
       confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
@@ -992,6 +1191,9 @@
     function initTrackingMap(order) {
       const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || KODAD_DATA.restaurants[0];
       const landmark = KODAD_DATA.landmarks.find(l => l.name === order.customer.landmark) || KODAD_DATA.landmarks[0];
+      const custLat = order.customer.lat || landmark.lat;
+      const custLng = order.customer.lng || landmark.lng;
+      const isExactGPS = !!order.customer.lat;
 
       if (!leafletMap) {
         leafletMap = L.map('trackingMap').setView([KODAD_DATA.center.lat, KODAD_DATA.center.lng], 14);
@@ -1009,18 +1211,18 @@
         }
       });
 
-      // Restaurant Icon (Green)
+      // Restaurant Icon (Blue Kitchen 🏪)
       const restIcon = L.divIcon({
         className: 'custom-rest-icon',
         html: `<div style="background-color:#2563eb; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); border:2px solid white; font-size:16px;">🏪</div>`,
         iconSize: [32, 32]
       });
 
-      // Customer Icon (Red)
+      // Customer Icon (Red House 🏠 if exact GPS, else 📍)
       const custIcon = L.divIcon({
         className: 'custom-cust-icon',
-        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); border:2px solid white; font-size:16px;">📍</div>`,
-        iconSize: [32, 32]
+        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(239,68,68,0.4); border:2px solid white; font-size:16px;">${isExactGPS ? '🏠' : '📍'}</div>`,
+        iconSize: [34, 34]
       });
 
       // Rider Scooter Icon (Blue 🛵)
@@ -1031,27 +1233,27 @@
       });
 
       L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(leafletMap).bindPopup(`<b>${rest.name}</b><br>Kitchen Location`).openPopup();
-      L.marker([landmark.lat, landmark.lng], { icon: custIcon }).addTo(leafletMap).bindPopup(`<b>Drop: ${order.customer.name}</b><br>${landmark.name}`);
+      L.marker([custLat, custLng], { icon: custIcon }).addTo(leafletMap).bindPopup(`<b>Drop: ${order.customer.name}</b><br>${isExactGPS ? '📍 Verified Exact House GPS' : landmark.name}`);
 
       // Draw route line
       const latlngs = [
         [rest.lat, rest.lng],
-        [(rest.lat + landmark.lat) / 2, (rest.lng + landmark.lng) / 2],
-        [landmark.lat, landmark.lng]
+        [(rest.lat + custLat) / 2, (rest.lng + custLng) / 2],
+        [custLat, custLng]
       ];
       L.polyline(latlngs, { color: '#2563eb', weight: 4, dashArray: '8, 8' }).addTo(leafletMap);
 
       // Rider Position
       let riderPos = [rest.lat, rest.lng];
       if (order.status === 'PICKED_UP') {
-        riderPos = [(rest.lat + landmark.lat) / 2, (rest.lng + landmark.lng) / 2];
+        riderPos = [(rest.lat + custLat) / 2, (rest.lng + custLng) / 2];
       } else if (order.status === 'DELIVERED') {
-        riderPos = [landmark.lat, landmark.lng];
+        riderPos = [custLat, custLng];
       }
 
-      riderMarker = L.marker(riderPos, { icon: riderIcon }).addTo(leafletMap).bindPopup('<b>KodadEats Captain</b><br>Live Scooter Location');
+      riderMarker = L.marker(riderPos, { icon: riderIcon }).addTo(leafletMap).bindPopup('<b>KodadEats Captain 🛵</b><br>Live Scooter Location');
 
-      leafletMap.fitBounds(L.latLngBounds([rest, landmark]), { padding: [40, 40] });
+      leafletMap.fitBounds(L.latLngBounds([[rest.lat, rest.lng], [custLat, custLng]]), { padding: [40, 40] });
     }
 
     function closeTrackingModal() {
@@ -1156,6 +1358,53 @@
         }
       });
     }
+
+    // App Download & PWA Functions
+    function openAppDownloadModal() {
+      const shareUrl = window.location.origin + window.location.pathname;
+      const shareWaBtn = document.getElementById('shareAppWhatsAppBtn');
+      if (shareWaBtn) {
+        const text = encodeURIComponent(`🛵 *KodadEats (కొదాడ ఈట్స్)* - Order Biryani, Tiffins & Sweets delivered in 20 mins across Kodad!\n\nTap link to open & order: ${shareUrl}`);
+        shareWaBtn.href = `https://api.whatsapp.com/send?text=${text}`;
+      }
+      document.getElementById('appDownloadModal').classList.remove('hidden');
+    }
+
+    function closeAppDownloadModal() {
+      document.getElementById('appDownloadModal').classList.add('hidden');
+    }
+
+    function triggerPwaPrompt() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('KodadEats app installed');
+          }
+          deferredInstallPrompt = null;
+        });
+      } else {
+        alert("To install on your phone:\n\n1. In Chrome: Tap the 3 dots (⋮) in the top-right corner.\n2. Tap 'Install app' or 'Add to Home screen'.\n\nThe app will install directly with the Blue Scooter icon!");
+      }
+    }
+
+    function copyAppShareLink() {
+      const url = window.location.origin + window.location.pathname;
+      navigator.clipboard.writeText(url).then(() => {
+        const btnText = document.getElementById('copyBtnText');
+        if (btnText) {
+          btnText.textContent = "✓ Link Copied!";
+          setTimeout(() => { btnText.textContent = "Copy App Link"; }, 2500);
+        }
+      }).catch(() => {
+        alert("App link: " + url);
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
 
     // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {

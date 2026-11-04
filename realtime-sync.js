@@ -203,6 +203,9 @@ const RealtimeBus = (function() {
   // WhatsApp Order Formatter
   function createWhatsAppOrderMessage(order) {
     const itemsText = order.items.map(i => `• ${i.quantity}x ${i.name} (₹${i.price * i.quantity})`).join('\n');
+    const gpsLink = (order.customer.lat && order.customer.lng) 
+      ? `\n*Live House GPS Navigation:* https://www.google.com/maps/dir/?api=1&destination=${order.customer.lat},${order.customer.lng}` 
+      : '';
     return `🛵 *KODADEATS ORDER ALERT* 🛵
 ━━━━━━━━━━━━━━━━━━
 *Order ID:* #${order.id}
@@ -223,7 +226,7 @@ Delivery Fee: ₹${order.deliveryFee}
 *Name:* ${order.customer.name}
 *Phone:* ${order.customer.phone}
 *Address:* ${order.customer.address}
-*Landmark:* ${order.customer.landmark}
+*Landmark:* ${order.customer.landmark}${gpsLink}
 ━━━━━━━━━━━━━━━━━━
 _Please prepare and dispatch KodadEats Captain!_`;
   }

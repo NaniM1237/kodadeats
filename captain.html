@@ -202,11 +202,20 @@
           </div>
 
           <!-- Live Route Map for Rider -->
-          <div class="relative">
-            <div id="captainMap"></div>
-            <div class="absolute bottom-2 left-2 z-[400] bg-slate-900/90 text-white px-2 py-0.5 rounded text-[10px] font-bold">
-              🗺️ Live Kodad Route
+          <div class="space-y-2">
+            <div class="relative">
+              <div id="captainMap"></div>
+              <div class="absolute bottom-2 left-2 z-[400] bg-slate-900/90 text-white px-2 py-0.5 rounded text-[10px] font-bold">
+                🗺️ Live Kodad Route
+              </div>
             </div>
+
+            <!-- Direct Google Maps Turn-by-Turn Bike Navigation -->
+            <a href="https://www.google.com/maps/dir/?api=1&origin=${KODAD_DATA.restaurants.find(r => r.id === activeOrder.restaurant.id)?.lat || 16.9972},${KODAD_DATA.restaurants.find(r => r.id === activeOrder.restaurant.id)?.lng || 79.9678}&destination=${activeOrder.customer.lat || KODAD_DATA.landmarks.find(l => l.name === activeOrder.customer.landmark)?.lat || 16.9972},${activeOrder.customer.lng || KODAD_DATA.landmarks.find(l => l.name === activeOrder.customer.landmark)?.lng || 79.9678}&travelmode=two_wheeler" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold py-2.5 px-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs transition border border-emerald-400/30">
+              <span class="text-base">🗺️</span>
+              <span>Open Turn-by-Turn GPS in Google Maps (Bike Route)</span>
+              <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Free Live GPS</span>
+            </a>
           </div>
 
           <!-- 1. Restaurant Pickup -->
@@ -287,6 +296,9 @@
     function initCaptainMap(order) {
       const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || KODAD_DATA.restaurants[0];
       const landmark = KODAD_DATA.landmarks.find(l => l.name === order.customer.landmark) || KODAD_DATA.landmarks[0];
+      const custLat = order.customer.lat || landmark.lat;
+      const custLng = order.customer.lng || landmark.lng;
+      const isExactGPS = !!order.customer.lat;
 
       if (!captainMap) {
         captainMap = L.map('captainMap').setView([KODAD_DATA.center.lat, KODAD_DATA.center.lng], 14);
@@ -309,15 +321,15 @@
       });
 
       const custIcon = L.divIcon({
-        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); border:2px solid white; font-size:16px;">📍</div>`,
-        iconSize: [30, 30]
+        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(239,68,68,0.4); border:2px solid white; font-size:16px;">${isExactGPS ? '🏠' : '📍'}</div>`,
+        iconSize: [32, 32]
       });
 
-      L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(captainMap).bindPopup(`<b>${rest.name}</b> (Pickup)`);
-      L.marker([landmark.lat, landmark.lng], { icon: custIcon }).addTo(captainMap).bindPopup(`<b>${order.customer.name}</b> (${landmark.name})`);
+      L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(captainMap).bindPopup(`<b>${rest.name}</b><br>Kitchen Pickup`);
+      L.marker([custLat, custLng], { icon: custIcon }).addTo(captainMap).bindPopup(`<b>${order.customer.name}</b><br>${isExactGPS ? '📍 Exact House GPS' : landmark.name}`);
 
-      L.polyline([[rest.lat, rest.lng], [landmark.lat, landmark.lng]], { color: '#2563eb', weight: 4, dashArray: '6, 6' }).addTo(captainMap);
-      captainMap.fitBounds(L.latLngBounds([rest, landmark]), { padding: [30, 30] });
+      L.polyline([[rest.lat, rest.lng], [custLat, custLng]], { color: '#2563eb', weight: 4, dashArray: '6, 6' }).addTo(captainMap);
+      captainMap.fitBounds(L.latLngBounds([[rest.lat, rest.lng], [custLat, custLng]]), { padding: [30, 30] });
     }
 
     function captainConfirmPickup(orderId) {
