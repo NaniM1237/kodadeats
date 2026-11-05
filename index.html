@@ -70,9 +70,25 @@
     </div>
   </div>
 
+  <script>
+    // Fail-Safe Splash Dismiss: Guarantees splash never freezes the user on screen
+    setTimeout(function() {
+      var s = document.getElementById('splashScreen');
+      if (s && s.style.display !== 'none') {
+        s.style.transition = 'opacity 0.25s ease';
+        s.style.opacity = '0';
+        s.style.pointerEvents = 'none';
+        setTimeout(function() { s.style.display = 'none'; }, 250);
+      }
+    }, 500);
+  </script>
+
   <!-- ================= 2. MANDATORY ONBOARDING & LOGIN GATE ================= -->
   <div id="authGateModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-    <div class="bg-white w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-slate-900 border border-white/20">
+    <div class="relative bg-white w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-slate-900 border border-white/20">
+      
+      <!-- Skip / Close Button -->
+      <button onclick="closeAuthGateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition">✕</button>
       
       <!-- Logo Header -->
       <div class="text-center space-y-1.5">
@@ -135,6 +151,12 @@
 
         <button onclick="handleQuickAuth()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
           <span>Start Ordering on KodadEats ➔</span>
+        </button>
+      </div>
+
+      <div class="text-center pt-1">
+        <button onclick="closeAuthGateModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 hover:underline transition py-1 px-3">
+          Skip & Explore Kodad Restaurants First ➔
         </button>
       </div>
 
@@ -1013,7 +1035,7 @@
     let activeCoupon = null;
     let profileOrderHistoryFilter = 'all';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function startApp() {
       initUserProfile();
       initSplashScreen();
       renderPromoCarousel();
@@ -1025,7 +1047,13 @@
       populateLandmarkDropdowns();
       initRealtimeListener();
       checkActiveOrder();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startApp);
+    } else {
+      startApp();
+    }
 
     // 1. Splash Screen & High-Speed Initialization (Zero Blinking / Instant Launch)
     function initSplashScreen() {
@@ -1062,11 +1090,11 @@
     function initUserProfile() {
       const user = RealtimeBus.getCurrentUser();
       const mainApp = document.getElementById('mainAppContent');
+      if (mainApp) mainApp.classList.remove('hidden');
+
       if (!user || !user.isLoggedIn) {
-        if (mainApp) mainApp.classList.add('hidden');
         openAuthGateModal();
       } else {
-        if (mainApp) mainApp.classList.remove('hidden');
         updateUserUI(user);
       }
     }
@@ -1179,8 +1207,6 @@
         closeProfileDrawer();
         const initialEl = document.getElementById('userInitialText');
         if (initialEl) initialEl.textContent = '👤';
-        const mainApp = document.getElementById('mainAppContent');
-        if (mainApp) mainApp.classList.add('hidden');
         openAuthGateModal();
       }
     }
@@ -1625,51 +1651,6 @@
                   </div>
                 ` : `
                   <button onclick="updateCart('${item.id}', 1)" class="bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 px-4 py-1.5 rounded-xl text-xs font-black transition-all shadow-xs active:scale-95">
-                    + ADD
-                  </button>
-                `}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-      grid.innerHTML = list.map(item => {
-        const inCartItem = cart.find(c => c.id === item.id);
-        const qty = inCartItem ? inCartItem.quantity : 0;
-
-        return `
-          <div class="bg-white rounded-3xl p-3.5 border border-slate-200 flex flex-col justify-between hover:border-blue-400 transition shadow-xs">
-            <div class="relative h-40 rounded-2xl overflow-hidden mb-3">
-              <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'} text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow">
-                ${item.isVeg ? '🟢 Veg' : '🔴 Non-Veg'}
-              </span>
-              ${item.badge ? `<span class="absolute bottom-2 left-2 bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow">${item.badge}</span>` : ''}
-            </div>
-
-            <div class="flex-1 flex flex-col justify-between">
-              <div>
-                <span class="text-[10px] font-bold text-slate-400 block truncate">${item.restName}</span>
-                <h4 class="font-extrabold text-sm text-slate-900 mt-0.5 leading-snug">${item.name}</h4>
-                <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">${item.description}</p>
-              </div>
-
-              <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-100">
-                <div class="flex items-baseline gap-1.5">
-                  <span class="text-base font-black text-slate-900">₹${item.price}</span>
-                  ${item.originalPrice ? `<span class="text-xs text-slate-400 line-through">₹${item.originalPrice}</span>` : ''}
-                </div>
-
-                ${qty > 0 ? `
-                  <div class="flex items-center bg-blue-600 text-white rounded-xl px-2 py-1 gap-2 font-black text-xs shadow-sm">
-                    <button onclick="updateCart('${item.id}', -1)" class="hover:opacity-80 px-1 font-black text-sm">−</button>
-                    <span>${qty}</span>
-                    <button onclick="updateCart('${item.id}', 1)" class="hover:opacity-80 px-1 font-black text-sm">+</button>
-                  </div>
-                ` : `
-                  <button onclick="updateCart('${item.id}', 1)" class="bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 px-3.5 py-1.5 rounded-xl text-xs font-black transition shadow-xs">
                     + ADD
                   </button>
                 `}

@@ -13,7 +13,10 @@ const RealtimeBus = (function() {
   const STORAGE_KEY_SERVER_URL = 'kodadeats_server_url';
 
   // Configurable Server URL (default to origin or stored URL)
-  let serverUrl = localStorage.getItem(STORAGE_KEY_SERVER_URL) || (window.location.port ? window.location.origin : '');
+  let serverUrl = '';
+  try {
+    serverUrl = localStorage.getItem(STORAGE_KEY_SERVER_URL) || (window.location.port ? window.location.origin : '');
+  } catch (e) {}
 
   // Audio Synthesizer Context
   let audioCtx = null;
@@ -520,8 +523,12 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getUpiPaymentDetails,
     getAllOrders,
     getOrderById,
-    getActiveOrderId: () => localStorage.getItem(STORAGE_KEY_ACTIVE_ORDER),
-    setActiveOrderId: (id) => localStorage.setItem(STORAGE_KEY_ACTIVE_ORDER, id),
+    getActiveOrderId: () => {
+      try { return localStorage.getItem(STORAGE_KEY_ACTIVE_ORDER); } catch (e) { return null; }
+    },
+    setActiveOrderId: (id) => {
+      try { localStorage.setItem(STORAGE_KEY_ACTIVE_ORDER, id); } catch (e) {}
+    },
     placeOrder,
     acceptOrder,
     assignCaptain,
