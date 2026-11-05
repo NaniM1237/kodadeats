@@ -37,13 +37,13 @@
 <body class="bg-slate-50 text-slate-900 pb-28 md:pb-14 antialiased select-none">
 
   <!-- ================= 1. SPLASH SCREEN WITH ANIMATED BLUE SCOOTER ================= -->
-  <div id="splashScreen" class="fixed inset-0 z-[120] bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-900 flex flex-col items-center justify-center text-white transition-opacity duration-500 select-none">
-    <div class="text-center space-y-4 animate-in fade-in zoom-in-90 duration-700 px-4">
+  <div id="splashScreen" class="fixed inset-0 z-[120] bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-900 flex flex-col items-center justify-center text-white transition-opacity duration-300 select-none">
+    <div class="text-center space-y-4 px-4">
       
       <!-- Glowing Animated Scooter -->
       <div class="relative w-28 h-28 mx-auto flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full bg-white/20 animate-ping opacity-75"></div>
-        <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md border border-white/30 flex items-center justify-center text-5xl shadow-2xl shadow-blue-900/50">
+        <div class="absolute -inset-2 rounded-full bg-blue-400/20 blur-md"></div>
+        <div class="relative w-24 h-24 rounded-3xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-5xl shadow-2xl shadow-blue-900/50 ring-4 ring-white/10">
           🛵
         </div>
       </div>
@@ -60,7 +60,7 @@
 
       <!-- Loading Bar -->
       <div class="w-48 h-1.5 bg-white/20 rounded-full mx-auto overflow-hidden">
-        <div class="w-full h-full bg-amber-400 rounded-full animate-pulse"></div>
+        <div id="splashProgressBar" class="h-full bg-amber-400 rounded-full transition-all duration-300 ease-out" style="width: 30%;"></div>
       </div>
       
       <span class="text-[11px] text-blue-200 font-semibold block">
@@ -203,7 +203,8 @@
         <!-- Right: Search, Cart, Install App & Customer Profile Avatar with Initial -->
         <div class="flex items-center gap-2 sm:gap-3">
           <!-- Live Order Button (Appears if active order exists) -->
-          <button id="trackActiveOrderBtn" onclick="openTrackingModal()" class="hidden bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black px-3 py-1.5 rounded-2xl shadow-md flex items-center gap-1.5 transition animate-pulse">
+          <button id="trackActiveOrderBtn" onclick="openTrackingModal()" class="hidden bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-xs font-black px-3 py-1.5 rounded-2xl shadow-md flex items-center gap-1.5 transition">
+            <span class="w-2 h-2 rounded-full bg-white"></span>
             <span>🛵 Live Order</span>
           </button>
 
@@ -1013,6 +1014,7 @@
     let profileOrderHistoryFilter = 'all';
 
     document.addEventListener('DOMContentLoaded', () => {
+      initUserProfile();
       initSplashScreen();
       renderPromoCarousel();
       renderCategories();
@@ -1025,18 +1027,35 @@
       checkActiveOrder();
     });
 
-    // 1. Splash Screen & Initialization
+    // 1. Splash Screen & High-Speed Initialization (Zero Blinking / Instant Launch)
     function initSplashScreen() {
       const splash = document.getElementById('splashScreen');
       if (!splash) return;
+
+      // Skip splash on subsequent page visits / reloads in the same session for instantaneous 0ms open
+      if (sessionStorage.getItem('kodadeats_splash_seen') === '1') {
+        splash.style.display = 'none';
+        initSmartCravingToast();
+        return;
+      }
+
+      sessionStorage.setItem('kodadeats_splash_seen', '1');
+
+      const bar = document.getElementById('splashProgressBar');
+      if (bar) {
+        requestAnimationFrame(() => {
+          bar.style.width = '100%';
+        });
+      }
+
+      // Fast, silky-smooth 350ms duration (No strobe, no lag, no blinking)
       setTimeout(() => {
         splash.classList.add('opacity-0', 'pointer-events-none');
         setTimeout(() => {
-          splash.classList.add('hidden');
-          initUserProfile();
+          splash.style.display = 'none';
           initSmartCravingToast();
-        }, 500);
-      }, 1300);
+        }, 200);
+      }, 350);
     }
 
     // 2. Profile & Authentication Initialization
@@ -1127,6 +1146,7 @@
         updateUserUI(user);
         closeAuthGateModal();
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+        setTimeout(initSmartCravingToast, 2000);
       }
     }
 
@@ -1150,6 +1170,7 @@
       updateUserUI(user);
       closeAuthGateModal();
       confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+      setTimeout(initSmartCravingToast, 2000);
     }
 
     function logoutCurrentUser() {
@@ -1165,23 +1186,28 @@
     }
 
     // 3. Smart Craving Toast Notification
+    let activeCravingCategory = 'biryani';
+
     function initSmartCravingToast() {
+      const user = RealtimeBus.getCurrentUser();
+      if (!user || !user.isLoggedIn) return; // Only notify active customers browsing the feed
+
       const hour = new Date().getHours();
       let icon = '🍗';
       let title = 'Craving Hot Biryani in Kodad?';
       let message = 'Special Chicken Dum Biryani is hot & ready in 20 mins!';
-      let category = 'biryani';
+      activeCravingCategory = 'biryani';
 
       if (hour >= 16 && hour < 20) {
         icon = '🥞';
         title = 'Evening Tiffins Time!';
         message = 'Crispy Ghee Karam Dosa from Sri Raghavendra is ready!';
-        category = 'tiffins';
+        activeCravingCategory = 'tiffins';
       } else if (hour >= 20 || hour < 4) {
         icon = '🍲';
         title = 'Family Dinner Time!';
         message = 'Order delicious meals & biryani with flat ₹50 OFF!';
-        category = 'biryani';
+        activeCravingCategory = 'biryani';
       }
 
       const toast = document.getElementById('cravingToast');
@@ -1195,7 +1221,7 @@
         toast.classList.remove('translate-y-[-150%]', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
         RealtimeBus.Sounds.playBell();
-      }, 2200);
+      }, 1500);
     }
 
     function dismissCravingToast() {
@@ -1208,7 +1234,7 @@
 
     function acceptCravingToast() {
       dismissCravingToast();
-      filterCategory('biryani');
+      filterCategory(activeCravingCategory);
     }
 
     // 4. Zomato Promotional Carousel
@@ -1559,7 +1585,7 @@
         return `
           <div class="bg-white rounded-3xl p-3.5 border border-slate-200/80 flex flex-col justify-between hover:border-blue-400 hover:shadow-lg transition-all duration-300 shadow-sm group">
             <div class="relative h-44 rounded-2xl overflow-hidden mb-3 bg-slate-100">
-              <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
               
               <!-- Veg / Non-Veg Icon & Badges -->
               <div class="absolute top-2 left-2 flex items-center gap-1.5">
@@ -1690,7 +1716,7 @@
       grid.innerHTML = KODAD_DATA.restaurants.map(r => `
         <div onclick="filterByRestaurant('${r.id}', '${r.name}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-500 hover:shadow-xl transition cursor-pointer group flex flex-col justify-between">
           <div class="relative h-44 overflow-hidden">
-            <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <img src="${r.image}" alt="${r.name}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
               ${r.badge}
             </span>
@@ -1932,7 +1958,7 @@
         list.innerHTML = KODAD_DATA.addOns.map(add => `
           <div class="flex-shrink-0 w-36 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
             <div class="h-16 rounded-xl overflow-hidden mb-1.5">
-              <img src="${add.image}" alt="${add.name}" class="w-full h-full object-cover">
+              <img src="${add.image}" alt="${add.name}" loading="lazy" decoding="async" class="w-full h-full object-cover">
             </div>
             <h6 class="text-[10px] font-bold text-slate-900 truncate leading-tight">${add.name}</h6>
             <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-100">
@@ -1949,7 +1975,7 @@
         homeList.innerHTML = KODAD_DATA.addOns.map(add => `
           <div class="min-w-[170px] max-w-[185px] bg-white rounded-2xl p-2.5 border border-slate-200 shadow-xs flex flex-col justify-between flex-shrink-0 hover:shadow-md hover:border-blue-400 transition">
             <div class="h-24 rounded-xl overflow-hidden mb-2 relative">
-              <img src="${add.image}" alt="${add.name}" class="w-full h-full object-cover">
+              <img src="${add.image}" alt="${add.name}" loading="lazy" decoding="async" class="w-full h-full object-cover">
               <span class="absolute top-1 left-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded">Pure Veg</span>
             </div>
             <div>
