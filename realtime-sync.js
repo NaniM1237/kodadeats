@@ -413,6 +413,75 @@ _Please prepare and dispatch KodadEats Captain!_`;
     return order;
   }
 
+  // Customer Order History & Loyalty Operations
+  function getUserOrderHistory(phone = '') {
+    const all = getAllOrders();
+    if (!phone) return all;
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    return all.filter(o => {
+      const oPhone = (o.customer?.phone || '').replace(/\D/g, '').slice(-10);
+      return !cleanPhone || oPhone === cleanPhone;
+    });
+  }
+
+  function getUserDeliveredCount(phone = '') {
+    const history = getUserOrderHistory(phone);
+    return history.filter(o => o.status === 'DELIVERED').length;
+  }
+
+  function validateCoupon(code, subtotal, phone = '') {
+    const cleanCode = (code || '').toUpperCase().trim();
+    const coupon = (typeof KODAD_DATA !== 'undefined' ? KODAD_DATA.coupons : []).find(c => c.code === cleanCode);
+    if (!coupon) {
+      return { valid: false, message: 'Invalid coupon code.' };
+    }
+    if (subtotal < coupon.minOrder) {
+      return { valid: false, message: `Minimum order of ₹${coupon.minOrder} required for ${coupon.code}.` };
+    }
+    if (coupon.isVipOnly) {
+      const deliveredCount = getUserDeliveredCount(phone);
+      if (deliveredCount < 10) {
+        return { 
+          valid: false, 
+          message: `VIP Reward! Complete 10 orders to unlock this coupon (${deliveredCount}/10 completed).` 
+        };
+      }
+    }
+    return { valid: true, discount: coupon.discount, coupon };
+  }
+
+  function getUpiPaymentDetails(amount, orderId = 'KD-0000') {
+    const upiId = (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.upiConfig && KODAD_DATA.upiConfig.upiId) 
+      ? KODAD_DATA.upiConfig.upiId 
+      : 'manda.nani07-2@okaxis';
+    const merchantName = (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.upiConfig && KODAD_DATA.upiConfig.merchantName)
+      ? KODAD_DATA.upiConfig.merchantName
+      : 'Nani Manda';
+    const gpayQr = (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.upiConfig && KODAD_DATA.upiConfig.gpayQrImage)
+      ? KODAD_DATA.upiConfig.gpayQrImage
+      : 'upi-gpay-qr.jpg';
+    const phonePeQr = (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.upiConfig && KODAD_DATA.upiConfig.phonePeQrImage)
+      ? KODAD_DATA.upiConfig.phonePeQrImage
+      : 'upi-phonepe-qr.jpg';
+    
+    const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('KodadEats Order #' + orderId)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
+
+    return {
+      upiId,
+      merchantName,
+      amount,
+      orderId,
+      upiUri,
+      qrUrl,
+      gpayQrImage: gpayQr,
+      phonePeQrImage: phonePeQr,
+      intentPhonePe: `phonepe://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`,
+      intentGPay: `gpay://upi/pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`,
+      intentPaytm: `paytmmp://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`
+    };
+  }
+
   return {
     Sounds,
     emit,
@@ -422,6 +491,10 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getCurrentUser,
     setCurrentUser,
     logoutUser,
+    getUserOrderHistory,
+    getUserDeliveredCount,
+    validateCoupon,
+    getUpiPaymentDetails,
     getAllOrders,
     getOrderById,
     getActiveOrderId: () => localStorage.getItem(STORAGE_KEY_ACTIVE_ORDER),

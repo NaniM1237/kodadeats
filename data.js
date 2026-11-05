@@ -9,6 +9,15 @@ const KODAD_DATA = {
   currency: '₹',
   themeColor: '#2563eb', // Professional Royal Blue
 
+  // Official KodadEats UPI Payment Configuration
+  upiConfig: {
+    upiId: 'manda.nani07-2@okaxis',
+    merchantName: 'Nani Manda',
+    businessLabel: 'KodadEats Official',
+    gpayQrImage: 'upi-gpay-qr.jpg',
+    phonePeQrImage: 'upi-phonepe-qr.jpg'
+  },
+
   // Kodad Center Coordinates
   center: { lat: 16.9972, lng: 79.9678 },
 
@@ -196,7 +205,7 @@ const KODAD_DATA = {
       isVeg: true,
       rating: 4.8,
       description: 'Ultra soft feather-light rice idlis soaked in piping hot lentil vegetable sambar with fresh podi.',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1589301773859-bb436b76426c?auto=format&fit=crop&w=600&q=80',
       badge: 'Breakfast Hit'
     },
     {
@@ -270,7 +279,7 @@ const KODAD_DATA = {
       isVeg: false,
       rating: 4.8,
       description: 'Flaky golden baked puff pastry stuffed with hard-boiled eggs and spiced onion masala.',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1628294895950-9805252327bc?auto=format&fit=crop&w=600&q=80',
       badge: 'Evening Snack'
     },
     {
@@ -356,7 +365,7 @@ const KODAD_DATA = {
       isVeg: true,
       rating: 4.8,
       description: 'Charcoal-grilled smoky paneer tikka cubes tossed in rich masala and layered over fragrant saffron basmati rice.',
-      image: 'https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1567184109411-b28f21ee097a?auto=format&fit=crop&w=600&q=80',
       badge: 'Pure Veg Special'
     },
     {
@@ -370,7 +379,7 @@ const KODAD_DATA = {
       isVeg: false,
       rating: 4.8,
       description: 'Spicy Kodad style Andhra shallow-fried chicken pieces with crispy curry leaves served over steaming biryani rice.',
-      image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=600&q=80',
       badge: 'Local Hit'
     },
     {
@@ -384,7 +393,7 @@ const KODAD_DATA = {
       isVeg: true,
       rating: 4.8,
       description: 'Pure desi ghee roasted whole cashews layered with long-grain basmati rice, fried brown onions, mint, and saffron.',
-      image: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=600&q=80',
       badge: 'Pure Veg'
     },
     {
@@ -415,5 +424,63 @@ const KODAD_DATA = {
       image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80',
       badge: 'Hot & Sweet'
     }
+  ],
+
+  // Zomato-style Promo Slides Carousel
+  banners: [
+    {
+      id: 'banner-vip',
+      title: '🎉 VIP Milestone Reward',
+      subtitle: 'Complete 10 orders to unlock ₹100, ₹75 & ₹50 OFF VIP Coupons!',
+      badge: 'LOYALTY REWARDS',
+      bgGradient: 'from-amber-500 via-orange-600 to-red-600',
+      actionText: 'Check Coupons',
+      actionType: 'coupons'
+    },
+    {
+      id: 'banner-biryani',
+      title: '🍗 Kodad Biryani Dhamaka',
+      subtitle: 'Flat ₹50 OFF on orders above ₹300 with code KODAD50',
+      badge: 'POPULAR OFFER',
+      bgGradient: 'from-blue-600 via-indigo-600 to-blue-800',
+      actionText: 'Order Biryani',
+      actionType: 'category',
+      categoryId: 'biryani'
+    },
+    {
+      id: 'banner-fast',
+      title: '⚡ 20-Min Flash Delivery',
+      subtitle: 'Hot & steaming food across Balaji Nagar, Khammam X Road & Kodad',
+      badge: 'HYPERLOCAL SPEED',
+      bgGradient: 'from-emerald-600 via-teal-600 to-cyan-700',
+      actionText: 'Fast Deliveries',
+      actionType: 'fast'
+    },
+    {
+      id: 'banner-veg',
+      title: '🌱 Pure Veg Specials',
+      subtitle: 'Ghee Karam Dosa, Idli & Motichoor Laddu delivered fresh daily',
+      badge: '100% PURE VEG',
+      bgGradient: 'from-green-600 via-emerald-600 to-lime-700',
+      actionText: 'Explore Veg',
+      actionType: 'veg'
+    }
+  ],
+
+  // Related Add-on Items ("Customers Also Added")
+  addOns: [
+    { id: 'add-1', name: 'Spicy Mirchi Ka Salan (Extra)', price: 30, isVeg: true, image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-2', name: 'Chilled Thick Curd Raita', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-3', name: 'Thick Badam Milk (Chilled 300ml)', price: 45, isVeg: true, image: 'https://images.unsplash.com/photo-1558857563-b371f32a7620?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-4', name: 'Hot Desi Ghee Gulab Jamun (2 Pcs)', price: 40, isVeg: true, image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-5', name: 'Crispy Medu Vada (1 Pc)', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-6', name: 'Mineral Water Bottle (1L)', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=300&q=80' }
+  ],
+
+  // Discount Coupons (with 10-orders VIP unlocking)
+  coupons: [
+    { code: 'KODAD50', discount: 50, minOrder: 300, description: 'Flat ₹50 OFF on orders above ₹300', isVipOnly: false },
+    { code: 'KODAD75', discount: 75, minOrder: 400, description: 'VIP Reward: ₹75 OFF on orders above ₹400', isVipOnly: true },
+    { code: 'KODAD100', discount: 100, minOrder: 500, description: 'VIP Mega Reward: ₹100 OFF on orders above ₹500', isVipOnly: true }
   ]
 };

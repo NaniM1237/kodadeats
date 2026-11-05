@@ -100,6 +100,59 @@
 
   </div>
 
+  <!-- ================= CAPTAIN DOORSTEP UPI QR MODAL ================= -->
+  <div id="captainUpiModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-slate-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black">₹</div>
+          <div>
+            <h4 class="font-black text-sm text-slate-900">KodadEats Doorstep UPI</h4>
+            <p class="text-[10px] text-slate-500 font-semibold" id="captainQrOrderId">Order #KD-0000</p>
+          </div>
+        </div>
+        <button onclick="closeCaptainUpiModal()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="text-center space-y-2">
+        <span class="text-xs font-bold text-slate-500">Scan to pay with Any UPI App</span>
+        <div class="text-2xl font-black text-blue-600" id="captainQrAmount">₹0</div>
+
+        <!-- Tab switches: Auto Amount / GPay / PhonePe -->
+        <div class="flex items-center justify-center gap-1.5 p-1 bg-slate-100 rounded-xl text-[11px] font-bold">
+          <button id="capTabDynamic" onclick="switchCaptainQrMode('dynamic')" class="px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold">⚡ Exact ₹Total</button>
+          <button id="capTabGpay" onclick="switchCaptainQrMode('gpay')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">🟢 GPay QR</button>
+          <button id="capTabPhonepe" onclick="switchCaptainQrMode('phonepe')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">🟣 PhonePe QR</button>
+        </div>
+
+        <!-- Generated QR Code Image -->
+        <div class="p-3 bg-slate-50 border-2 border-dashed border-blue-300 rounded-2xl inline-block mx-auto shadow-inner">
+          <img id="captainQrCodeImg" src="" alt="UPI QR Code" class="w-48 h-48 mx-auto object-contain rounded-xl">
+        </div>
+
+        <div class="bg-blue-50 text-blue-900 p-2 rounded-xl text-xs font-mono font-bold flex items-center justify-between">
+          <div class="text-left">
+            <span class="block text-[10px] text-slate-500 font-sans font-medium">Account: Nani Manda</span>
+            <span id="captainQrUpiId">manda.nani07-2@okaxis</span>
+          </div>
+          <span class="text-[10px] bg-blue-200 px-1.5 py-0.5 rounded text-blue-800">Verified</span>
+        </div>
+        
+        <p class="text-[11px] text-slate-500">Supports Google Pay, PhonePe, Paytm & BHIM</p>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100 space-y-2">
+        <button onclick="markCaptainOrderPaidOnline()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+          <span>✓</span>
+          <span>Customer Paid via UPI (Convert COD to Paid)</span>
+        </button>
+        <button onclick="closeCaptainUpiModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition">
+          Cancel / Collect Cash
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="data.js"></script>
   <script src="realtime-sync.js"></script>
   <script>
@@ -108,6 +161,60 @@
     let completedDeliveries = 6;
     let todayEarnings = 240;
     let captainMap = null;
+    let currentUpiOrderId = null;
+    let currentCaptainUpiData = null;
+    let currentCaptainQrMode = 'dynamic';
+
+    function openCaptainUpiModal(orderId, amount) {
+      currentUpiOrderId = orderId;
+      currentCaptainUpiData = RealtimeBus.getUpiPaymentDetails(amount, orderId);
+      document.getElementById('captainQrOrderId').textContent = `Order #${orderId}`;
+      document.getElementById('captainQrAmount').textContent = `₹${amount}`;
+      document.getElementById('captainQrUpiId').textContent = currentCaptainUpiData.upiId;
+      switchCaptainQrMode('dynamic');
+      document.getElementById('captainUpiModal').classList.remove('hidden');
+    }
+
+    function switchCaptainQrMode(mode) {
+      currentCaptainQrMode = mode;
+      const img = document.getElementById('captainQrCodeImg');
+      const tabDyn = document.getElementById('capTabDynamic');
+      const tabGpay = document.getElementById('capTabGpay');
+      const tabPhonepe = document.getElementById('capTabPhonepe');
+
+      [tabDyn, tabGpay, tabPhonepe].forEach(b => {
+        if (b) b.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900';
+      });
+
+      if (mode === 'gpay') {
+        if (tabGpay) tabGpay.className = 'px-2.5 py-1 rounded-lg bg-white text-emerald-600 shadow-xs font-extrabold';
+        img.src = (currentCaptainUpiData && currentCaptainUpiData.gpayQrImage) ? currentCaptainUpiData.gpayQrImage : 'upi-gpay-qr.jpg';
+      } else if (mode === 'phonepe') {
+        if (tabPhonepe) tabPhonepe.className = 'px-2.5 py-1 rounded-lg bg-white text-purple-600 shadow-xs font-extrabold';
+        img.src = (currentCaptainUpiData && currentCaptainUpiData.phonePeQrImage) ? currentCaptainUpiData.phonePeQrImage : 'upi-phonepe-qr.jpg';
+      } else {
+        if (tabDyn) tabDyn.className = 'px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold';
+        img.src = currentCaptainUpiData ? currentCaptainUpiData.qrUrl : '';
+      }
+    }
+
+    function closeCaptainUpiModal() {
+      document.getElementById('captainUpiModal').classList.add('hidden');
+    }
+
+    function markCaptainOrderPaidOnline() {
+      if (!currentUpiOrderId) return;
+      const order = RealtimeBus.getOrderById(currentUpiOrderId);
+      if (order) {
+        order.paymentMethod = 'Paid Online (UPI at Doorstep)';
+        order.paymentStatus = 'Paid';
+        order.total = order.total;
+        RealtimeBus.emit('ORDER_UPDATED', order);
+      }
+      closeCaptainUpiModal();
+      checkAssignedDeliveries();
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCaptainUI();
@@ -262,14 +369,23 @@
           </div>
 
           <!-- 3. Payment Notice -->
-          <div class="p-3 rounded-2xl ${isCOD ? 'bg-amber-950/40 border border-amber-500/50' : 'bg-emerald-950/40 border border-emerald-500/50'} flex items-center justify-between text-xs">
-            <div>
-              <span class="text-slate-400 block font-semibold">Payment to Collect:</span>
-              <span class="font-black text-sm ${isCOD ? 'text-amber-400' : 'text-emerald-400'}">
-                ${isCOD ? `Collect Cash: ₹${activeOrder.total}` : 'Paid Online (Do not collect cash)'}
-              </span>
+          <div class="space-y-2">
+            <div class="p-3 rounded-2xl ${isCOD ? 'bg-amber-950/40 border border-amber-500/50' : 'bg-emerald-950/40 border border-emerald-500/50'} flex items-center justify-between text-xs">
+              <div>
+                <span class="text-slate-400 block font-semibold">Payment to Collect:</span>
+                <span class="font-black text-sm ${isCOD ? 'text-amber-400' : 'text-emerald-400'}">
+                  ${isCOD ? `Collect Cash: ₹${activeOrder.total}` : 'Paid Online (Do not collect cash)'}
+                </span>
+              </div>
+              <span class="text-2xl">${isCOD ? '💵' : '✅'}</span>
             </div>
-            <span class="text-2xl">${isCOD ? '💵' : '✅'}</span>
+
+            <!-- Doorstep Instant UPI QR Code Button -->
+            <button onclick="openCaptainUpiModal('${activeOrder.id}', ${activeOrder.total})" class="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs border border-sky-400/40">
+              <span class="text-base">📱</span>
+              <span>Customer paying via UPI? Show QR Code</span>
+              <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">GPay / PhonePe</span>
+            </button>
           </div>
 
           <!-- 4. Action Button -->
