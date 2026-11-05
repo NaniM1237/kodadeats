@@ -45,11 +45,11 @@ const KODAD_DATA = {
     { id: 'beverages', name: 'Tea, Coffee & Juices', icon: '🧋' }
   ],
 
-  captains: [
-    { id: 'cap-1', name: 'Ramesh G.', phone: '9848012345', vehicle: 'Hero Splendor (TS-05-AB-1234)', rating: 4.9, active: true, lat: 16.9995, lng: 79.9705, ordersCompleted: 142 },
-    { id: 'cap-2', name: 'Suresh K.', phone: '9848054321', vehicle: 'Honda Activa (TS-05-CD-5678)', rating: 4.8, active: true, lat: 16.9940, lng: 79.9685, ordersCompleted: 98 },
-    { id: 'cap-3', name: 'Venkatesh M.', phone: '9848098765', vehicle: 'Bajaj Pulsar (TS-05-EF-9012)', rating: 4.9, active: true, lat: 17.0012, lng: 79.9660, ordersCompleted: 210 }
-  ],
+  // Authorized Admin Mobile Numbers (Restricted to Owner only)
+  adminAuthorizedPhones: ['9640103505', '9182348241'],
+
+  // Real Captains Pool (Populated dynamically when delivery riders register & log in)
+  captains: [],
 
   restaurants: [
     {

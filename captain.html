@@ -21,15 +21,85 @@
       70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(37, 99, 235, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
     }
-    #captainMap { height: 210px; width: 100%; border-radius: 1rem; z-index: 10; }
+    #captainMap { height: 230px; width: 100%; border-radius: 1.25rem; z-index: 10; }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen antialiased select-none pb-12">
 
-  <!-- ================= CAPTAIN APP CONTAINER (MOBILE CARD LOOK) ================= -->
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-xl shadow-md shadow-blue-500/30">
+          🛵
+        </div>
+        <div>
+          <h1 class="text-sm font-black text-white flex items-center gap-1.5">
+            Kodad<span class="text-amber-400">Eats</span>
+            <span class="bg-blue-500/20 text-blue-400 text-[10px] font-extrabold px-2 py-0.2 rounded-full border border-blue-500/30">Captain</span>
+          </h1>
+          <p class="text-[10px] text-slate-400">Delivery Fleet Network</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition flex items-center gap-1">
+          <span>🍽️ Customer</span>
+        </a>
+        <button onclick="handleCaptainLogout()" title="Switch / Logout Rider" class="bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-slate-700 transition">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CAPTAIN REGISTRATION & LOGIN GATE ================= -->
+  <div id="captainAuthModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-white">
+      <div class="text-center space-y-1">
+        <div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-blue-600/40">
+          🛵
+        </div>
+        <h3 class="text-xl font-black text-white mt-2">Delivery Captain Login</h3>
+        <p class="text-xs text-slate-400">Deliver food in Kodad & earn ₹40 per order</p>
+      </div>
+
+      <div class="space-y-3 pt-2">
+        <div>
+          <label class="text-[11px] font-bold text-slate-300 block mb-1">Mobile Number (+91):</label>
+          <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-blue-500 transition">
+            <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
+            <input id="capLoginPhone" type="tel" maxlength="10" placeholder="9848012345" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-300 block mb-1">Captain Real Full Name:</label>
+          <input id="capLoginName" type="text" placeholder="e.g. Naresh Varma" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-300 block mb-1">Bike / Vehicle Model & Number:</label>
+          <input id="capLoginVehicle" type="text" placeholder="e.g. Hero Splendor (TS-05-AB-1234)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-blue-500">
+        </div>
+
+        <button onclick="submitCaptainLogin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-blue-600/30 transition">
+          Sign In / Register Captain Fleet ➔
+        </button>
+      </div>
+
+      <div class="text-center pt-1 border-t border-slate-800">
+        <a href="index.html" class="text-xs text-blue-400 hover:underline font-bold">
+          ← Back to Customer App
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CAPTAIN APP MAIN CONTAINER ================= -->
   <div class="max-w-md mx-auto px-4 py-4 space-y-4">
 
-    <!-- Captain Header & Profile -->
+    <!-- Captain Profile & Duty Card -->
     <div class="bg-slate-800/90 border border-slate-700 rounded-3xl p-4 shadow-xl space-y-3">
       
       <div class="flex items-center justify-between">
@@ -39,28 +109,21 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h2 id="captainName" class="text-base font-black text-white">Ramesh G.</h2>
-              <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/30">Captain #1</span>
+              <h2 id="captainDisplayName" class="text-base font-black text-white">Captain Rider</h2>
+              <span id="captainIdBadge" class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/30">CAP-0000</span>
             </div>
-            <p id="captainVehicle" class="text-xs text-slate-400">Hero Splendor (TS-05-AB-1234)</p>
+            <p id="captainDisplayVehicle" class="text-xs text-slate-400">Bike (Kodad Delivery)</p>
           </div>
         </div>
-
-        <!-- Captain Switcher Dropdown (For Testing) -->
-        <select id="captainSelect" onchange="switchCaptain(this.value)" class="bg-slate-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl border border-slate-600 focus:outline-none">
-          <option value="cap-1" selected>Ramesh G.</option>
-          <option value="cap-2">Suresh K.</option>
-          <option value="cap-3">Venkatesh M.</option>
-        </select>
       </div>
 
       <!-- Online / Offline Duty Switch -->
       <div class="flex items-center justify-between p-3 bg-slate-900/80 rounded-2xl border border-slate-700/60">
-        <div class="flex items-center gap-2">
-          <span id="dutyIndicator" class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div class="flex items-center gap-2.5">
+          <span id="dutyIndicator" class="w-3.5 h-3.5 rounded-full bg-emerald-400"></span>
           <div>
             <span id="dutyStatusText" class="text-xs font-black text-white block">ON DUTY (Ready in Kodad)</span>
-            <span class="text-[10px] text-slate-400">Receiving instant dispatch alerts</span>
+            <span class="text-[10px] text-slate-400">Receiving instant customer orders</span>
           </div>
         </div>
         <button onclick="toggleDuty()" id="dutyBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3.5 py-1.5 rounded-xl shadow-sm transition">
@@ -71,29 +134,29 @@
       <!-- Quick Earnings & Stats Cards -->
       <div class="grid grid-cols-3 gap-2 text-center text-xs">
         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/60">
-          <span class="text-slate-400 text-[10px] block font-semibold">Today's Trips</span>
-          <span id="statTripsCount" class="text-base font-black text-white mt-0.5 block">6</span>
+          <span class="text-slate-400 text-[10px] block font-semibold">My Trips</span>
+          <span id="statTripsCount" class="text-base font-black text-white mt-0.5 block">0</span>
         </div>
         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/60">
           <span class="text-slate-400 text-[10px] block font-semibold">Earnings (₹)</span>
-          <span id="statEarnings" class="text-base font-black text-emerald-400 mt-0.5 block">₹240</span>
+          <span id="statEarnings" class="text-base font-black text-emerald-400 mt-0.5 block">₹0</span>
         </div>
         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/60">
-          <span class="text-slate-400 text-[10px] block font-semibold">Rider Rating</span>
-          <span class="text-base font-black text-amber-400 mt-0.5 block">★ 4.9</span>
+          <span class="text-slate-400 text-[10px] block font-semibold">Trip Payout</span>
+          <span class="text-base font-black text-amber-400 mt-0.5 block">₹40/trip</span>
         </div>
       </div>
 
     </div>
 
-    <!-- Active Delivery Task (Or Idle State) -->
+    <!-- Active Delivery Task (Or Incoming Alert / Idle State) -->
     <div id="activeTaskContainer"></div>
 
     <!-- Past Deliveries History -->
     <div class="bg-slate-800/60 border border-slate-700 rounded-3xl p-4 shadow-xl space-y-3">
       <h3 class="font-extrabold text-sm text-white flex items-center justify-between">
-        <span>Recent Deliveries in Kodad</span>
-        <span class="text-[10px] font-semibold text-slate-400">₹40 per delivery payout</span>
+        <span>My Completed Deliveries</span>
+        <span class="text-[10px] font-semibold text-emerald-400">₹40 per delivery</span>
       </h3>
       <div id="historyList" class="space-y-2 text-xs"></div>
     </div>
@@ -137,101 +200,82 @@
           </div>
           <span class="text-[10px] bg-blue-200 px-1.5 py-0.5 rounded text-blue-800">Verified</span>
         </div>
-        
-        <p class="text-[11px] text-slate-500">Supports Google Pay, PhonePe, Paytm & BHIM</p>
-      </div>
 
-      <div class="pt-2 border-t border-slate-100 space-y-2">
-        <button onclick="markCaptainOrderPaidOnline()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
-          <span>✓</span>
-          <span>Customer Paid via UPI (Convert COD to Paid)</span>
-        </button>
-        <button onclick="closeCaptainUpiModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-xs transition">
-          Cancel / Collect Cash
+        <button onclick="markCaptainOrderPaidOnline()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+          <span>✓ Customer Paid Online via UPI</span>
         </button>
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="data.js"></script>
   <script src="realtime-sync.js"></script>
   <script>
-    let currentCaptainId = 'cap-1';
-    let isOnDuty = true;
-    let completedDeliveries = 6;
-    let todayEarnings = 240;
     let captainMap = null;
+    let currentCaptain = null;
+    let isOnDuty = true;
     let currentUpiOrderId = null;
     let currentCaptainUpiData = null;
-    let currentCaptainQrMode = 'dynamic';
 
-    function openCaptainUpiModal(orderId, amount) {
-      currentUpiOrderId = orderId;
-      currentCaptainUpiData = RealtimeBus.getUpiPaymentDetails(amount, orderId);
-      document.getElementById('captainQrOrderId').textContent = `Order #${orderId}`;
-      document.getElementById('captainQrAmount').textContent = `₹${amount}`;
-      document.getElementById('captainQrUpiId').textContent = currentCaptainUpiData.upiId;
-      switchCaptainQrMode('dynamic');
-      document.getElementById('captainUpiModal').classList.remove('hidden');
+    document.addEventListener('DOMContentLoaded', () => {
+      initCaptainApp();
+      initCaptainRealtime();
+    });
+
+    function initCaptainApp() {
+      currentCaptain = RealtimeBus.getCurrentCaptain();
+      if (!currentCaptain) {
+        document.getElementById('captainAuthModal').classList.remove('hidden');
+      } else {
+        document.getElementById('captainAuthModal').classList.add('hidden');
+        renderCaptainProfile();
+        checkAssignedDeliveries();
+      }
     }
 
-    function switchCaptainQrMode(mode) {
-      currentCaptainQrMode = mode;
-      const img = document.getElementById('captainQrCodeImg');
-      const tabDyn = document.getElementById('capTabDynamic');
-      const tabGpay = document.getElementById('capTabGpay');
-      const tabPhonepe = document.getElementById('capTabPhonepe');
+    function submitCaptainLogin() {
+      const phone = document.getElementById('capLoginPhone').value.trim();
+      const name = document.getElementById('capLoginName').value.trim();
+      const vehicle = document.getElementById('capLoginVehicle').value.trim();
 
-      [tabDyn, tabGpay, tabPhonepe].forEach(b => {
-        if (b) b.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900';
+      const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+      if (cleanPhone.length < 10) {
+        alert("Please enter a valid 10-digit mobile number!");
+        return;
+      }
+      if (!name) {
+        alert("Please enter your real full name!");
+        return;
+      }
+
+      currentCaptain = RealtimeBus.registerCaptain({
+        phone: cleanPhone,
+        name: name,
+        vehicle: vehicle || 'Hero Splendor (Kodad)'
       });
 
-      if (mode === 'gpay') {
-        if (tabGpay) tabGpay.className = 'px-2.5 py-1 rounded-lg bg-white text-emerald-600 shadow-xs font-extrabold';
-        img.src = (currentCaptainUpiData && currentCaptainUpiData.gpayQrImage) ? currentCaptainUpiData.gpayQrImage : 'upi-gpay-qr.jpg';
-      } else if (mode === 'phonepe') {
-        if (tabPhonepe) tabPhonepe.className = 'px-2.5 py-1 rounded-lg bg-white text-purple-600 shadow-xs font-extrabold';
-        img.src = (currentCaptainUpiData && currentCaptainUpiData.phonePeQrImage) ? currentCaptainUpiData.phonePeQrImage : 'upi-phonepe-qr.jpg';
-      } else {
-        if (tabDyn) tabDyn.className = 'px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold';
-        img.src = currentCaptainUpiData ? currentCaptainUpiData.qrUrl : '';
-      }
-    }
-
-    function closeCaptainUpiModal() {
-      document.getElementById('captainUpiModal').classList.add('hidden');
-    }
-
-    function markCaptainOrderPaidOnline() {
-      if (!currentUpiOrderId) return;
-      const order = RealtimeBus.getOrderById(currentUpiOrderId);
-      if (order) {
-        order.paymentMethod = 'Paid Online (UPI at Doorstep)';
-        order.paymentStatus = 'Paid';
-        order.total = order.total;
-        RealtimeBus.emit('ORDER_UPDATED', order);
-      }
-      closeCaptainUpiModal();
+      document.getElementById('captainAuthModal').classList.add('hidden');
+      renderCaptainProfile();
       checkAssignedDeliveries();
       confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadCaptainUI();
-      checkAssignedDeliveries();
-      initCaptainRealtime();
-    });
-
-    function switchCaptain(capId) {
-      currentCaptainId = capId;
-      loadCaptainUI();
-      checkAssignedDeliveries();
+    function handleCaptainLogout() {
+      if (confirm("Do you want to log out of Captain Portal?")) {
+        RealtimeBus.logoutCaptain();
+        currentCaptain = null;
+        document.getElementById('captainAuthModal').classList.remove('hidden');
+      }
     }
 
-    function loadCaptainUI() {
-      const cap = KODAD_DATA.captains.find(c => c.id === currentCaptainId) || KODAD_DATA.captains[0];
-      document.getElementById('captainName').textContent = cap.name;
-      document.getElementById('captainVehicle').textContent = cap.vehicle;
+    function renderCaptainProfile() {
+      if (!currentCaptain) return;
+      document.getElementById('captainDisplayName').textContent = currentCaptain.name;
+      document.getElementById('captainIdBadge').textContent = currentCaptain.id;
+      document.getElementById('captainDisplayVehicle').textContent = currentCaptain.vehicle;
+      document.getElementById('statTripsCount').textContent = currentCaptain.ordersCompleted || 0;
+      document.getElementById('statEarnings').textContent = `₹${currentCaptain.earningsTotal || 0}`;
     }
 
     function toggleDuty() {
@@ -241,12 +285,12 @@
       const btn = document.getElementById('dutyBtn');
 
       if (isOnDuty) {
-        dutyIndicator.className = 'w-3 h-3 rounded-full bg-emerald-400 animate-pulse';
+        dutyIndicator.className = 'w-3.5 h-3.5 rounded-full bg-emerald-400';
         statusText.textContent = 'ON DUTY (Ready in Kodad)';
         btn.textContent = 'Go Offline';
         btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3.5 py-1.5 rounded-xl shadow-sm transition';
       } else {
-        dutyIndicator.className = 'w-3 h-3 rounded-full bg-red-500';
+        dutyIndicator.className = 'w-3.5 h-3.5 rounded-full bg-red-500';
         statusText.textContent = 'OFF DUTY (Paused)';
         btn.textContent = 'Go Online';
         btn.className = 'bg-slate-700 hover:bg-slate-600 text-white text-xs font-black px-3.5 py-1.5 rounded-xl shadow-sm transition';
@@ -255,6 +299,7 @@
     }
 
     function checkAssignedDeliveries() {
+      if (!currentCaptain) return;
       const container = document.getElementById('activeTaskContainer');
       const orders = RealtimeBus.getAllOrders();
 
@@ -263,140 +308,251 @@
           <div class="bg-slate-800/60 border border-slate-700 rounded-3xl p-8 text-center text-slate-400 space-y-2">
             <span class="text-4xl block">💤</span>
             <h4 class="font-bold text-sm text-white">You are Currently Offline</h4>
-            <p class="text-xs">Click 'Go Online' above to start receiving deliveries in Kodad.</p>
+            <p class="text-xs">Tap 'Go Online' above to start receiving deliveries in Kodad.</p>
           </div>
         `;
         return;
       }
 
-      const activeOrder = orders.find(o => 
+      // Check if captain has an ongoing active order (Assigned or Picked Up)
+      const myActiveOrder = orders.find(o => 
         (o.status === 'CAPTAIN_ASSIGNED' || o.status === 'PICKED_UP') && 
-        o.captain && o.captain.id === currentCaptainId
+        o.captain && o.captain.id === currentCaptain.id
       );
 
-      if (!activeOrder) {
-        container.innerHTML = `
-          <div class="bg-slate-800/90 border border-slate-700 rounded-3xl p-8 text-center text-slate-400 space-y-3 shadow-xl">
-            <div class="w-16 h-16 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center text-3xl mx-auto pulse-ring">
-              📍
-            </div>
-            <h4 class="font-black text-base text-white">Searching for Nearby Deliveries</h4>
-            <p class="text-xs text-slate-400 max-w-xs mx-auto">
-              Stay near Khammam X Road, Bus Stand or Gandhi Chowk in Kodad. A loud alert chime will ring when an order is assigned!
-            </p>
-          </div>
-        `;
+      if (myActiveOrder) {
+        renderActiveDeliveryLifecycle(myActiveOrder);
         return;
       }
 
-      const isPickedUp = activeOrder.status === 'PICKED_UP';
-      const isCOD = activeOrder.paymentMethod.includes('Cash');
+      // Check if there is an unassigned incoming order in Kodad (Not declined by this captain)
+      const incomingOrder = orders.find(o => 
+        (o.status === 'PLACED' || o.status === 'ACCEPTED') && 
+        !o.captain && 
+        (!o.declinedCaptains || !o.declinedCaptains.includes(currentCaptain.id))
+      );
+
+      if (incomingOrder) {
+        renderIncomingRequestCard(incomingOrder);
+        return;
+      }
+
+      // Idle State
+      container.innerHTML = `
+        <div class="bg-slate-800/90 border border-slate-700 rounded-3xl p-8 text-center text-slate-400 space-y-3 shadow-xl">
+          <div class="w-16 h-16 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center text-3xl mx-auto pulse-ring">
+            📍
+          </div>
+          <h4 class="font-black text-base text-white">Searching for Deliveries in Kodad</h4>
+          <p class="text-xs text-slate-400 max-w-xs mx-auto">
+            Stay near Khammam X Road, Bus Stand Circle or Gandhi Chowk. You will receive an instant loud alert with Accept / Decline options!
+          </p>
+        </div>
+      `;
+    }
+
+    // Requirement 5: Accept / Decline Incoming Order Notification
+    function renderIncomingRequestCard(order) {
+      const container = document.getElementById('activeTaskContainer');
+      const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || { name: order.restaurant.name, location: 'Kodad' };
+      const itemsList = order.items.map(i => `${i.quantity}x ${i.name}`).join(', ');
 
       container.innerHTML = `
-        <div class="bg-slate-800 border-2 border-blue-500 rounded-3xl p-4 md:p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+        <div class="bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 border-2 border-amber-400 rounded-3xl p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+          
+          <div class="flex items-center justify-between pb-3 border-b border-slate-700/80">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+              <span class="text-xs font-black uppercase text-amber-300 tracking-wider">⚡ NEW ORDER REQUEST IN KODAD</span>
+            </div>
+            <span class="text-xs font-mono font-bold text-slate-300">#${order.id}</span>
+          </div>
+
+          <!-- Trip Overview & Earnings -->
+          <div class="bg-slate-800/90 p-3.5 rounded-2xl border border-slate-700/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Your Payout</span>
+                <span class="text-xl font-black text-emerald-400">₹40.00</span>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Est. Time</span>
+                <span class="text-sm font-black text-white">15-20 Mins</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-slate-300 pt-2 border-t border-slate-700">
+              <div class="flex items-center gap-2">
+                <span>🏪</span>
+                <span class="font-bold text-white">${order.restaurant.name}</span>
+              </div>
+              <div class="flex items-center gap-2 mt-1">
+                <span>📍</span>
+                <span class="font-bold text-blue-300">${order.customer.landmark || 'Kodad'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Ordered -->
+          <div class="text-[11px] text-slate-400 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-slate-300 font-bold block mb-0.5">Order Items:</span>
+            <span>${itemsList}</span>
+          </div>
+
+          <!-- Action Buttons: ACCEPT or DECLINE -->
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <button onclick="handleDeclineOrder('${order.id}')" class="w-full bg-slate-800 hover:bg-red-950 text-red-300 hover:text-red-200 border border-red-500/40 font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
+              <span>✕</span>
+              <span>Decline</span>
+            </button>
+            <button onclick="handleAcceptOrder('${order.id}')" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30">
+              <span>✓</span>
+              <span>Accept Trip (₹40)</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function handleAcceptOrder(orderId) {
+      if (!currentCaptain) return;
+      RealtimeBus.captainAcceptOrder(orderId, currentCaptain);
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      checkAssignedDeliveries();
+    }
+
+    function handleDeclineOrder(orderId) {
+      if (!currentCaptain) return;
+      RealtimeBus.captainDeclineOrder(orderId, currentCaptain.id);
+      checkAssignedDeliveries();
+    }
+
+    // Requirement 5: Active Delivery Lifecycle with 2-Stage Route Maps
+    function renderActiveDeliveryLifecycle(order) {
+      const container = document.getElementById('activeTaskContainer');
+      const isPickedUp = order.status === 'PICKED_UP';
+      const isCOD = order.paymentMethod.includes('Cash');
+      const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || { name: order.restaurant.name, lat: 17.0015, lng: 79.9660 };
+      const landmark = KODAD_DATA.landmarks.find(l => l.name === order.customer.landmark) || KODAD_DATA.landmarks[0];
+      const custLat = order.customer.lat || landmark.lat;
+      const custLng = order.customer.lng || landmark.lng;
+
+      // Google Maps Turn-by-Turn GPS Links
+      const googleMapsPickupUrl = `https://www.google.com/maps/dir/?api=1&origin=${KODAD_DATA.center.lat},${KODAD_DATA.center.lng}&destination=${rest.lat},${rest.lng}&travelmode=two_wheeler`;
+      const googleMapsDeliveryUrl = `https://www.google.com/maps/dir/?api=1&origin=${rest.lat},${rest.lng}&destination=${custLat},${custLng}&travelmode=two_wheeler`;
+
+      container.innerHTML = `
+        <div class="bg-slate-800 border-2 ${isPickedUp ? 'border-emerald-500' : 'border-blue-500'} rounded-3xl p-4 md:p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
           
           <div class="flex items-center justify-between pb-3 border-b border-slate-700">
             <div>
-              <span class="bg-blue-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                ${isPickedUp ? '🚀 En Route to Customer' : '🔔 Pick Up Required'}
+              <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isPickedUp ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}">
+                ${isPickedUp ? '🚀 Stage 2: En Route to Customer' : '🟡 Stage 1: Pickup from Kitchen'}
               </span>
-              <h3 class="text-lg font-black text-white mt-1">Order #${activeOrder.id}</h3>
+              <h3 class="text-base font-black text-white mt-1">Order #${order.id}</h3>
             </div>
             <div class="text-right">
-              <span class="text-xs text-slate-400 block font-semibold">Your Payout</span>
+              <span class="text-[10px] text-slate-400 block font-semibold uppercase">Trip Payout</span>
               <span class="text-emerald-400 font-black text-sm">₹40.00</span>
             </div>
           </div>
 
-          <!-- Live Route Map for Rider -->
+          <!-- Live Leaflet Route Map -->
           <div class="space-y-2">
             <div class="relative">
               <div id="captainMap"></div>
               <div class="absolute bottom-2 left-2 z-[400] bg-slate-900/90 text-white px-2 py-0.5 rounded text-[10px] font-bold">
-                🗺️ Live Kodad Route
+                ${isPickedUp ? '🗺️ Route: Kitchen ➔ Customer House' : '🗺️ Route: You ➔ Restaurant Kitchen'}
               </div>
             </div>
 
-            <!-- Direct Google Maps Turn-by-Turn Bike Navigation -->
-            <a href="https://www.google.com/maps/dir/?api=1&origin=${KODAD_DATA.restaurants.find(r => r.id === activeOrder.restaurant.id)?.lat || 16.9972},${KODAD_DATA.restaurants.find(r => r.id === activeOrder.restaurant.id)?.lng || 79.9678}&destination=${activeOrder.customer.lat || KODAD_DATA.landmarks.find(l => l.name === activeOrder.customer.landmark)?.lat || 16.9972},${activeOrder.customer.lng || KODAD_DATA.landmarks.find(l => l.name === activeOrder.customer.landmark)?.lng || 79.9678}&travelmode=two_wheeler" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold py-2.5 px-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs transition border border-emerald-400/30">
-              <span class="text-base">🗺️</span>
-              <span>Open Turn-by-Turn GPS in Google Maps (Bike Route)</span>
-              <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Free Live GPS</span>
-            </a>
+            <!-- Stage-Specific Google Maps Navigation Link -->
+            ${!isPickedUp ? `
+              <a href="${googleMapsPickupUrl}" target="_blank" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-extrabold py-2.5 px-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs transition">
+                <span>🗺️</span>
+                <span>Open Google Maps Bike Route to Kitchen</span>
+              </a>
+            ` : `
+              <a href="${googleMapsDeliveryUrl}" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-extrabold py-2.5 px-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs transition">
+                <span>🗺️</span>
+                <span>Open Google Maps Bike Route to Customer House</span>
+              </a>
+            `}
           </div>
 
-          <!-- 1. Restaurant Pickup -->
-          <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-700/80 space-y-2">
+          <!-- Pickup Location Card -->
+          <div class="bg-slate-900/90 p-3 rounded-2xl border ${!isPickedUp ? 'border-blue-500/80 bg-blue-950/20' : 'border-slate-800'} space-y-1.5">
             <div class="flex items-start justify-between">
-              <div class="flex items-start gap-2.5">
+              <div class="flex items-start gap-2">
                 <span class="text-xl">🏪</span>
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-blue-400 block">Pickup Location (Kitchen)</span>
-                  <h4 class="font-black text-sm text-white">${activeOrder.restaurant.name}</h4>
-                  <p class="text-xs text-slate-400">${activeOrder.restaurant.name}, Kodad</p>
+                  <span class="text-[10px] uppercase font-bold ${!isPickedUp ? 'text-amber-300' : 'text-slate-400'} block">1. Kitchen Pickup</span>
+                  <h4 class="font-black text-sm text-white">${order.restaurant.name}</h4>
+                  <p class="text-xs text-slate-400">Khammam X Road, Kodad</p>
                 </div>
               </div>
-              <a href="https://maps.google.com/?q=${encodeURIComponent(activeOrder.restaurant.name + ' Kodad')}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold text-xs p-2 rounded-xl border border-slate-700 flex items-center gap-1 transition">
-                🗺️ Maps
+              <a href="tel:9848011111" class="bg-slate-800 hover:bg-slate-700 text-blue-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700 font-bold">
+                📞 Call
               </a>
             </div>
             <div class="text-[11px] text-slate-300 pt-1 border-t border-slate-800">
-              <span>Items: <b>${activeOrder.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</b></span>
+              <span>Items: <b>${order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</b></span>
             </div>
           </div>
 
-          <!-- 2. Customer Drop -->
-          <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-700/80 space-y-2">
+          <!-- Customer Drop Location Card -->
+          <div class="bg-slate-900/90 p-3 rounded-2xl border ${isPickedUp ? 'border-emerald-500/80 bg-emerald-950/20' : 'border-slate-800'} space-y-2">
             <div class="flex items-start justify-between">
-              <div class="flex items-start gap-2.5">
+              <div class="flex items-start gap-2">
                 <span class="text-xl">📍</span>
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-emerald-400 block">Delivery Drop (Customer)</span>
-                  <h4 class="font-black text-sm text-white">${activeOrder.customer.name}</h4>
-                  <p class="text-xs text-slate-300">${activeOrder.customer.address}</p>
-                  <p class="text-xs font-bold text-blue-400">Landmark: ${activeOrder.customer.landmark}</p>
+                  <span class="text-[10px] uppercase font-bold ${isPickedUp ? 'text-emerald-400' : 'text-slate-400'} block">2. Customer Drop</span>
+                  <h4 class="font-black text-sm text-white">${order.customer.name}</h4>
+                  <p class="text-xs text-slate-300">${order.customer.address}</p>
+                  <p class="text-xs font-bold text-blue-400">Landmark: ${order.customer.landmark}</p>
                 </div>
               </div>
               <div class="flex items-center gap-1.5">
-                <a href="https://wa.me/91${activeOrder.customer.phone.replace(/\\D/g, '').slice(-10)}?text=${encodeURIComponent('Hello ' + activeOrder.customer.name + ', I am your KodadEats Captain. I am on the way with your food to ' + activeOrder.customer.landmark + '!')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-2.5 py-2 rounded-xl shadow-sm flex items-center gap-1 transition">
+                <a href="https://wa.me/91${order.customer.phone.replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent('Hello ' + order.customer.name + ', I am your KodadEats Captain. I am on the way with your food order!')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-2.5 py-2 rounded-xl shadow-sm flex items-center gap-1 transition">
                   <span>💬 WA</span>
                 </a>
-                <a href="tel:${activeOrder.customer.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-3 py-2 rounded-xl shadow-sm flex items-center gap-1 transition">
+                <a href="tel:${order.customer.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-2.5 py-2 rounded-xl shadow-sm flex items-center gap-1 transition">
                   <span>📞 Call</span>
                 </a>
               </div>
             </div>
           </div>
 
-          <!-- 3. Payment Notice -->
+          <!-- Payment Details & Doorstep UPI QR -->
           <div class="space-y-2">
             <div class="p-3 rounded-2xl ${isCOD ? 'bg-amber-950/40 border border-amber-500/50' : 'bg-emerald-950/40 border border-emerald-500/50'} flex items-center justify-between text-xs">
               <div>
                 <span class="text-slate-400 block font-semibold">Payment to Collect:</span>
                 <span class="font-black text-sm ${isCOD ? 'text-amber-400' : 'text-emerald-400'}">
-                  ${isCOD ? `Collect Cash: ₹${activeOrder.total}` : 'Paid Online (Do not collect cash)'}
+                  ${isCOD ? `Collect Cash: ₹${order.total}` : 'Paid Online (Do not collect cash)'}
                 </span>
               </div>
               <span class="text-2xl">${isCOD ? '💵' : '✅'}</span>
             </div>
 
             <!-- Doorstep Instant UPI QR Code Button -->
-            <button onclick="openCaptainUpiModal('${activeOrder.id}', ${activeOrder.total})" class="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs border border-sky-400/40">
+            <button onclick="openCaptainUpiModal('${order.id}', ${order.total})" class="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs border border-sky-400/40">
               <span class="text-base">📱</span>
-              <span>Customer paying via UPI? Show QR Code</span>
+              <span>Customer Paying via UPI? Show QR Code</span>
               <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">GPay / PhonePe</span>
             </button>
           </div>
 
-          <!-- 4. Action Button -->
+          <!-- Main Lifecycle Action Button -->
           <div class="pt-2">
             ${!isPickedUp ? `
-              <button onclick="captainConfirmPickup('${activeOrder.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm">
-                <span>📦 I Have Picked Up Food from Kitchen</span>
+              <button onclick="handleConfirmPickup('${order.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm">
+                <span>📦 I Have Picked Up Food from Kitchen ➔</span>
               </button>
             ` : `
-              <button onclick="captainConfirmDelivered('${activeOrder.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 text-sm animate-pulse">
-                <span>✓ Delivered to Customer (Complete Trip)</span>
+              <button onclick="handleConfirmDelivered('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 text-sm">
+                <span>✓ Order Delivered to Customer (Complete Trip)</span>
               </button>
             `}
           </div>
@@ -405,16 +561,30 @@
       `;
 
       setTimeout(() => {
-        initCaptainMap(activeOrder);
+        initCaptainMap(order, isPickedUp);
       }, 200);
     }
 
-    function initCaptainMap(order) {
-      const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || KODAD_DATA.restaurants[0];
+    function handleConfirmPickup(orderId) {
+      RealtimeBus.markPickedUp(orderId);
+      checkAssignedDeliveries();
+    }
+
+    function handleConfirmDelivered(orderId) {
+      RealtimeBus.markDelivered(orderId);
+      currentCaptain = RealtimeBus.getCurrentCaptain();
+      renderCaptainProfile();
+      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+      checkAssignedDeliveries();
+      renderHistory();
+    }
+
+    // Dynamic 2-Stage Route Map
+    function initCaptainMap(order, isPickedUp) {
+      const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || { name: order.restaurant.name, lat: 17.0015, lng: 79.9660 };
       const landmark = KODAD_DATA.landmarks.find(l => l.name === order.customer.landmark) || KODAD_DATA.landmarks[0];
       const custLat = order.customer.lat || landmark.lat;
       const custLng = order.customer.lng || landmark.lng;
-      const isExactGPS = !!order.customer.lat;
 
       if (!captainMap) {
         captainMap = L.map('captainMap').setView([KODAD_DATA.center.lat, KODAD_DATA.center.lng], 14);
@@ -437,42 +607,96 @@
       });
 
       const custIcon = L.divIcon({
-        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(239,68,68,0.4); border:2px solid white; font-size:16px;">${isExactGPS ? '🏠' : '📍'}</div>`,
+        html: `<div style="background-color:#ef4444; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(239,68,68,0.4); border:2px solid white; font-size:16px;">📍</div>`,
         iconSize: [32, 32]
       });
 
-      L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(captainMap).bindPopup(`<b>${rest.name}</b><br>Kitchen Pickup`);
-      L.marker([custLat, custLng], { icon: custIcon }).addTo(captainMap).bindPopup(`<b>${order.customer.name}</b><br>${isExactGPS ? '📍 Exact House GPS' : landmark.name}`);
+      const riderIcon = L.divIcon({
+        html: `<div style="background-color:#10b981; color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(16,185,129,0.4); border:2px solid white; font-size:18px;">🛵</div>`,
+        iconSize: [32, 32]
+      });
 
-      L.polyline([[rest.lat, rest.lng], [custLat, custLng]], { color: '#2563eb', weight: 4, dashArray: '6, 6' }).addTo(captainMap);
-      captainMap.fitBounds(L.latLngBounds([[rest.lat, rest.lng], [custLat, custLng]]), { padding: [30, 30] });
+      if (!isPickedUp) {
+        // Stage 1: Rider to Kitchen
+        L.marker([KODAD_DATA.center.lat, KODAD_DATA.center.lng], { icon: riderIcon }).addTo(captainMap).bindPopup("<b>You (Captain)</b><br>On the way to Restaurant");
+        L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(captainMap).bindPopup(`<b>${rest.name}</b><br>Kitchen Pickup`);
+        L.polyline([[KODAD_DATA.center.lat, KODAD_DATA.center.lng], [rest.lat, rest.lng]], { color: '#2563eb', weight: 4, dashArray: '6, 6' }).addTo(captainMap);
+        captainMap.fitBounds([[KODAD_DATA.center.lat, KODAD_DATA.center.lng], [rest.lat, rest.lng]], { padding: [35, 35] });
+      } else {
+        // Stage 2: Kitchen to Customer House
+        L.marker([rest.lat, rest.lng], { icon: restIcon }).addTo(captainMap).bindPopup(`<b>${rest.name}</b><br>Kitchen`);
+        L.marker([custLat, custLng], { icon: custIcon }).addTo(captainMap).bindPopup(`<b>${order.customer.name}</b><br>${order.customer.landmark}`);
+        L.polyline([[rest.lat, rest.lng], [custLat, custLng]], { color: '#10b981', weight: 4, dashArray: '6, 6' }).addTo(captainMap);
+        captainMap.fitBounds([[rest.lat, rest.lng], [custLat, custLng]], { padding: [35, 35] });
+      }
     }
 
-    function captainConfirmPickup(orderId) {
-      RealtimeBus.markPickedUp(orderId);
-      checkAssignedDeliveries();
+    // Doorstep UPI QR Code Modal
+    function openCaptainUpiModal(orderId, amount) {
+      currentUpiOrderId = orderId;
+      currentCaptainUpiData = RealtimeBus.getUpiPaymentDetails(amount, orderId);
+
+      document.getElementById('captainQrOrderId').textContent = `Order #${orderId}`;
+      document.getElementById('captainQrAmount').textContent = `₹${amount}`;
+      document.getElementById('captainQrUpiId').textContent = currentCaptainUpiData.upiId;
+
+      switchCaptainQrMode('dynamic');
+      document.getElementById('captainUpiModal').classList.remove('hidden');
     }
 
-    function captainConfirmDelivered(orderId) {
-      RealtimeBus.markDelivered(orderId);
-      completedDeliveries++;
-      todayEarnings += 40;
+    function switchCaptainQrMode(mode) {
+      const img = document.getElementById('captainQrCodeImg');
+      const tabDyn = document.getElementById('capTabDynamic');
+      const tabGpay = document.getElementById('capTabGpay');
+      const tabPhonepe = document.getElementById('capTabPhonepe');
 
-      document.getElementById('statTripsCount').textContent = completedDeliveries;
-      document.getElementById('statEarnings').textContent = `₹${todayEarnings}`;
+      tabDyn.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900';
+      tabGpay.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900';
+      tabPhonepe.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900';
 
-      confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      if (mode === 'dynamic') {
+        tabDyn.className = 'px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold';
+        img.src = currentCaptainUpiData.qrUrl;
+      } else if (mode === 'gpay') {
+        tabGpay.className = 'px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold';
+        img.src = currentCaptainUpiData.gpayQrImage || 'upi-gpay-qr.jpg';
+      } else if (mode === 'phonepe') {
+        tabPhonepe.className = 'px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold';
+        img.src = currentCaptainUpiData.phonePeQrImage || 'upi-phonepe-qr.jpg';
+      }
+    }
 
+    function closeCaptainUpiModal() {
+      document.getElementById('captainUpiModal').classList.add('hidden');
+    }
+
+    function markCaptainOrderPaidOnline() {
+      if (!currentUpiOrderId) return;
+      const order = RealtimeBus.getOrderById(currentUpiOrderId);
+      if (order) {
+        order.paymentMethod = 'Paid Online (UPI at Doorstep)';
+        order.paymentStatus = 'Paid';
+        RealtimeBus.emit('ORDER_UPDATED', order);
+      }
+      closeCaptainUpiModal();
       checkAssignedDeliveries();
-      renderHistory();
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
     }
 
     function renderHistory() {
       const list = document.getElementById('historyList');
-      const orders = RealtimeBus.getAllOrders().filter(o => o.status === 'DELIVERED');
+      if (!currentCaptain) {
+        list.innerHTML = `<div class="p-2.5 bg-slate-900/60 rounded-xl text-slate-400 text-center">Login to view deliveries.</div>`;
+        return;
+      }
+
+      const orders = RealtimeBus.getAllOrders().filter(o => 
+        o.status === 'DELIVERED' && 
+        o.captain && o.captain.id === currentCaptain.id
+      );
       
       if (orders.length === 0) {
-        list.innerHTML = `<div class="p-2.5 bg-slate-900/60 rounded-xl text-slate-400 text-center">No completed trips yet today.</div>`;
+        list.innerHTML = `<div class="p-2.5 bg-slate-900/60 rounded-xl text-slate-400 text-center">No completed trips yet.</div>`;
         return;
       }
 
@@ -480,7 +704,7 @@
         <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-700/60 flex items-center justify-between">
           <div>
             <span class="font-bold text-white block">#${o.id} • ${o.restaurant.name}</span>
-            <span class="text-slate-400 text-[11px]">To: ${o.customer.landmark}</span>
+            <span class="text-slate-400 text-[11px]">To: ${o.customer.landmark || o.customer.address}</span>
           </div>
           <span class="font-black text-emerald-400 text-xs">+₹40.00</span>
         </div>
@@ -490,11 +714,14 @@
     function initCaptainRealtime() {
       renderHistory();
       RealtimeBus.on((event) => {
-        if (event.type === 'CAPTAIN_ASSIGNED') {
-          RealtimeBus.Sounds.playRiderAlert();
-          checkAssignedDeliveries();
+        if (event.type === 'ORDER_PLACED') {
+          if (isOnDuty) {
+            RealtimeBus.Sounds.playRiderAlert();
+            if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
+            checkAssignedDeliveries();
+          }
         }
-        if (event.type === 'ORDER_PICKED_UP' || event.type === 'ORDER_DELIVERED') {
+        if (event.type === 'CAPTAIN_ASSIGNED' || event.type === 'ORDER_PICKED_UP' || event.type === 'ORDER_DELIVERED') {
           checkAssignedDeliveries();
           renderHistory();
         }

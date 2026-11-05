@@ -11,6 +11,12 @@ const RealtimeBus = (function() {
   const STORAGE_KEY_ACTIVE_ORDER = 'kodadeats_current_order_id';
   const STORAGE_KEY_CURRENT_USER = 'kodadeats_current_user';
   const STORAGE_KEY_SERVER_URL = 'kodadeats_server_url';
+  const STORAGE_KEY_CAPTAINS = 'kodadeats_captains';
+  const STORAGE_KEY_CURRENT_CAPTAIN = 'kodadeats_current_captain';
+  const STORAGE_KEY_ADMIN_AUTH = 'kodadeats_admin_auth';
+
+  // Authorized Admin Mobile Numbers (Restricted to Owner only)
+  const ADMIN_AUTHORIZED_PHONES = ['9640103505', '9182348241'];
 
   // Configurable Server URL (default to origin or stored URL)
   let serverUrl = '';
@@ -189,6 +195,281 @@ const RealtimeBus = (function() {
       localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
       emit('USER_LOGGED_OUT', null);
     } catch (e) {}
+  }
+
+  // Real 6-Digit OTP Generator & SMS Simulator Engine
+  function generateOtp(phone) {
+    if (!phone) return null;
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpData = {
+      phone: cleanPhone,
+      code: code,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + (5 * 60 * 1000) // 5 minutes validity
+    };
+    try {
+      localStorage.setItem('kodadeats_otp_' + cleanPhone, JSON.stringify(otpData));
+    } catch (e) {}
+
+    showOtpBanner(cleanPhone, code);
+    return otpData;
+  }
+
+  function verifyOtp(phone, inputOtp) {
+    if (!phone || !inputOtp) return { success: false, message: 'Please enter mobile number and 6-digit OTP' };
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const storedStr = localStorage.getItem('kodadeats_otp_' + cleanPhone);
+    if (!storedStr) {
+      return { success: false, message: 'OTP expired or not requested. Please tap Resend OTP.' };
+    }
+    try {
+      const stored = JSON.parse(storedStr);
+      if (Date.now() > stored.expiresAt) {
+        localStorage.removeItem('kodadeats_otp_' + cleanPhone);
+        return { success: false, message: 'OTP expired! Please generate a new OTP.' };
+      }
+      if (stored.code !== inputOtp.toString().trim()) {
+        return { success: false, message: 'Incorrect OTP! Please check the 6-digit code.' };
+      }
+      localStorage.removeItem('kodadeats_otp_' + cleanPhone);
+      return { success: true };
+    } catch (e) {
+      return { success: false, message: 'OTP verification error. Please try again.' };
+    }
+  }
+
+  function showOtpBanner(phone, code) {
+    const existing = document.getElementById('kodadOtpToast');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'kodadOtpToast';
+    banner.className = 'fixed top-4 inset-x-4 sm:inset-x-auto sm:right-4 z-[200] max-w-sm bg-slate-950 text-white p-4 rounded-3xl shadow-2xl border-2 border-emerald-500 animate-in fade-in slide-in-from-top-4 space-y-2.5 font-sans';
+    banner.innerHTML = `
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-base">💬</div>
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">SMS Verification • KodadEats</span>
+            <h5 class="text-xs font-bold text-slate-200">OTP for +91 ${phone}</h5>
+          </div>
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" class="text-slate-400 hover:text-white text-xs w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
+      </div>
+      <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-800 text-center">
+        <span class="text-slate-400 text-[11px] block font-medium">Your One-Time Password is:</span>
+        <span class="text-3xl font-black text-amber-300 tracking-widest block select-all font-mono py-0.5">${code}</span>
+        <span class="text-[10px] text-emerald-400 block font-semibold">Valid for 5 minutes</span>
+      </div>
+      <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+        <button onclick="navigator.clipboard && navigator.clipboard.writeText('${code}'); this.textContent='✓ Copied!';" class="text-blue-400 hover:text-blue-300 font-extrabold flex items-center gap-1">
+          <span>📋</span>
+          <span>Copy OTP</span>
+        </button>
+        <a href="https://wa.me/91${phone}?text=${encodeURIComponent('Your KodadEats verification OTP code is: ' + code)}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-extrabold flex items-center gap-1">
+          <span>📲</span>
+          <span>WhatsApp OTP</span>
+        </a>
+      </div>
+    `;
+    document.body.appendChild(banner);
+    Sounds.playBell();
+
+    setTimeout(() => {
+      if (banner && banner.parentElement) {
+        banner.remove();
+      }
+    }, 15000);
+  }
+
+  // Admin Authorization Gate (Restricted to Owner only)
+  function isAdminAuthorized(phone) {
+    if (!phone) return false;
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    return ADMIN_AUTHORIZED_PHONES.includes(cleanPhone);
+  }
+
+  function getAdminSession() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY_ADMIN_AUTH);
+      if (!data) return null;
+      const parsed = JSON.parse(data);
+      if (parsed && isAdminAuthorized(parsed.phone)) {
+        return parsed;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setAdminSession(phone) {
+    if (!isAdminAuthorized(phone)) return false;
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const session = {
+      phone: cleanPhone,
+      name: cleanPhone === '9640103505' ? 'Admin (9640103505)' : 'Admin (9182348241)',
+      role: 'admin',
+      loginTime: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY_ADMIN_AUTH, JSON.stringify(session));
+      emit('ADMIN_LOGGED_IN', session);
+    } catch (e) {}
+    return session;
+  }
+
+  function logoutAdmin() {
+    try {
+      localStorage.removeItem(STORAGE_KEY_ADMIN_AUTH);
+      emit('ADMIN_LOGGED_OUT', null);
+    } catch (e) {}
+  }
+
+  // Commercial Customer Profiles (No demo names)
+  function getRegisteredCustomers() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY_CUSTOMERS);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function getCustomerByPhone(phone) {
+    if (!phone) return null;
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const customers = getRegisteredCustomers();
+    return customers.find(c => c.phone === cleanPhone) || null;
+  }
+
+  function saveCustomerProfile(profile) {
+    if (!profile || !profile.phone) return null;
+    const cleanPhone = profile.phone.replace(/\D/g, '').slice(-10);
+    const customers = getRegisteredCustomers();
+    const idx = customers.findIndex(c => c.phone === cleanPhone);
+    const fullProfile = {
+      phone: cleanPhone,
+      name: profile.name || 'Customer (' + cleanPhone.slice(-4) + ')',
+      email: profile.email || `${cleanPhone}@kodadeats.com`,
+      address: profile.address || 'Kodad',
+      landmark: profile.landmark || 'Balaji Nagar, Kodad',
+      role: 'customer',
+      isLoggedIn: true,
+      lastActive: new Date().toISOString()
+    };
+    if (idx >= 0) {
+      customers[idx] = Object.assign(customers[idx], fullProfile);
+    } else {
+      customers.push(fullProfile);
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY_CUSTOMERS, JSON.stringify(customers));
+    } catch (e) {}
+    setCurrentUser(fullProfile);
+    return fullProfile;
+  }
+
+  // Dynamic Captains Management (No hardcoded demo riders)
+  function getCaptains() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY_CAPTAINS);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCaptains(captains) {
+    try {
+      localStorage.setItem(STORAGE_KEY_CAPTAINS, JSON.stringify(captains));
+    } catch (e) {}
+  }
+
+  function getCurrentCaptain() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY_CURRENT_CAPTAIN);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setCurrentCaptain(captain) {
+    try {
+      localStorage.setItem(STORAGE_KEY_CURRENT_CAPTAIN, JSON.stringify(captain));
+      emit('CAPTAIN_LOGGED_IN', captain);
+    } catch (e) {}
+  }
+
+  function logoutCaptain() {
+    try {
+      localStorage.removeItem(STORAGE_KEY_CURRENT_CAPTAIN);
+      emit('CAPTAIN_LOGGED_OUT', null);
+    } catch (e) {}
+  }
+
+  function registerCaptain(data) {
+    const captains = getCaptains();
+    const cleanPhone = data.phone.replace(/\D/g, '').slice(-10);
+    let cap = captains.find(c => c.phone === cleanPhone);
+    if (!cap) {
+      const id = 'CAP-' + cleanPhone.slice(-4);
+      cap = {
+        id: id,
+        name: data.name || `Captain (${cleanPhone.slice(-4)})`,
+        phone: cleanPhone,
+        vehicle: data.vehicle || 'Bike (Kodad Delivery)',
+        rating: 5.0,
+        ordersCompleted: 0,
+        earningsTotal: 0,
+        isOnDuty: true,
+        registeredAt: new Date().toISOString()
+      };
+      captains.push(cap);
+    } else {
+      if (data.name) cap.name = data.name;
+      if (data.vehicle) cap.vehicle = data.vehicle;
+      cap.isOnDuty = true;
+    }
+    saveCaptains(captains);
+    setCurrentCaptain(cap);
+    return cap;
+  }
+
+  function captainAcceptOrder(orderId, captain) {
+    const order = getOrderById(orderId);
+    if (!order) return null;
+    order.status = 'CAPTAIN_ASSIGNED';
+    order.captain = {
+      id: captain.id,
+      name: captain.name,
+      phone: captain.phone,
+      vehicle: captain.vehicle
+    };
+    order.history.push({
+      status: 'CAPTAIN_ASSIGNED',
+      title: `Accepted by Captain: ${captain.name} (${captain.vehicle})`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    upsertOrder(order);
+    Sounds.playRiderAlert();
+    emit('CAPTAIN_ASSIGNED', order);
+    emit('ORDER_UPDATED', order);
+    return order;
+  }
+
+  function captainDeclineOrder(orderId, captainId) {
+    const order = getOrderById(orderId);
+    if (!order) return null;
+    if (!order.declinedCaptains) order.declinedCaptains = [];
+    if (!order.declinedCaptains.includes(captainId)) {
+      order.declinedCaptains.push(captainId);
+    }
+    upsertOrder(order);
+    emit('ORDER_DECLINED_BY_CAPTAIN', { orderId, captainId });
+    return order;
   }
 
   // Database Management Helpers
@@ -392,11 +673,27 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     order.status = 'DELIVERED';
     order.paymentStatus = 'Paid';
+    order.deliveredAt = new Date().toISOString();
     order.history.push({
       status: 'DELIVERED',
-      title: 'Order Delivered Successfully!',
+      title: 'Order Delivered Successfully to Customer!',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
+
+    // Credit ₹40 payout to assigned captain
+    if (order.captain && order.captain.id) {
+      const captains = getCaptains();
+      const cap = captains.find(c => c.id === order.captain.id);
+      if (cap) {
+        cap.ordersCompleted = (cap.ordersCompleted || 0) + 1;
+        cap.earningsTotal = (cap.earningsTotal || 0) + 40;
+        saveCaptains(captains);
+        const currentCap = getCurrentCaptain();
+        if (currentCap && currentCap.id === cap.id) {
+          setCurrentCaptain(cap);
+        }
+      }
+    }
 
     upsertOrder(order);
 
@@ -410,6 +707,7 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     Sounds.playSuccessChime();
     emit('ORDER_DELIVERED', order);
+    emit('ORDER_UPDATED', order);
     return order;
   }
 
@@ -517,6 +815,25 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getCurrentUser,
     setCurrentUser,
     logoutUser,
+    generateOtp,
+    verifyOtp,
+    showOtpBanner,
+    isAdminAuthorized,
+    getAdminSession,
+    setAdminSession,
+    logoutAdmin,
+    ADMIN_AUTHORIZED_PHONES,
+    getRegisteredCustomers,
+    getCustomerByPhone,
+    saveCustomerProfile,
+    getCaptains,
+    saveCaptains,
+    getCurrentCaptain,
+    setCurrentCaptain,
+    logoutCaptain,
+    registerCaptain,
+    captainAcceptOrder,
+    captainDeclineOrder,
     getUserOrderHistory,
     getUserDeliveredCount,
     validateCoupon,

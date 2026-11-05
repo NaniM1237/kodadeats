@@ -24,6 +24,44 @@
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen antialiased select-none pb-14">
 
+  <!-- ================= ADMIN OWNER AUTHORIZATION GATE (RESTRICTED TO 9640103505, 9182348241) ================= -->
+  <div id="adminLockModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md">
+    <div class="bg-slate-900 border border-amber-500/50 w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 text-white text-center">
+      <div class="w-16 h-16 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-amber-400/20 font-black">
+        👑
+      </div>
+      <div>
+        <h3 class="text-xl font-black text-white">Admin Operations Hub</h3>
+        <p class="text-xs text-slate-400 mt-1">Restricted strictly to KodadEats Owners</p>
+      </div>
+
+      <div class="space-y-3 pt-2 text-left">
+        <div>
+          <label class="text-[11px] font-bold text-slate-300 block mb-1">Enter Authorized Mobile Number:</label>
+          <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-amber-400 transition">
+            <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
+            <input id="adminGatePhoneInput" type="tel" maxlength="10" placeholder="9640103505" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+          </div>
+          <span class="text-[10px] text-slate-400 block mt-1">Authorized: 9640103505, 9182348241</span>
+        </div>
+
+        <div id="adminGateError" class="hidden p-2.5 bg-red-950 border border-red-500 text-red-200 rounded-xl text-xs font-bold text-center">
+          ⛔ Access Denied! Only authorized numbers (9640103505, 9182348241) can enter Admin Portal.
+        </div>
+
+        <button onclick="verifyAdminGate()" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-xs transition shadow-md">
+          Verify & Unlock Hub ➔
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800">
+        <a href="index.html" class="text-xs text-blue-400 hover:underline font-bold">
+          ← Back to Customer App
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= INCOMING ORDER LOUD ALERT BANNER ================= -->
   <div id="incomingOrderAlertBanner" class="hidden siren-active text-white p-4 shadow-xl flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
     <div class="flex items-center gap-3">
@@ -62,11 +100,14 @@
       <div class="flex items-center gap-2.5">
         <button onclick="testOrderSiren()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 flex items-center gap-1.5 transition">
           <span>🔊</span>
-          <span class="hidden sm:inline">Test Loud Siren</span>
+          <span class="hidden sm:inline">Test Siren</span>
         </button>
         <button onclick="generateSampleOrder()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow-md shadow-blue-600/25 flex items-center gap-1.5 transition">
           <span>+</span>
-          <span>Simulate Kodad Order</span>
+          <span>Simulate Order</span>
+        </button>
+        <button onclick="adminLogout()" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 transition">
+          Logout
         </button>
       </div>
     </div>
@@ -142,7 +183,7 @@
       </button>
       <button onclick="switchTab('captains')" id="tab-captains" class="pb-3 text-slate-500 hover:text-slate-900 transition flex items-center gap-1.5">
         <span>🛵 Delivery Captains</span>
-        <span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-bold">3</span>
+        <span id="tabFleetCountBadge" class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
       </button>
       <button onclick="switchTab('customers')" id="tab-customers" class="pb-3 text-slate-500 hover:text-slate-900 transition flex items-center gap-1.5">
         <span>👥 Customer CRM</span>
@@ -162,89 +203,21 @@
       <div id="ordersContainer" class="space-y-3"></div>
     </div>
 
-    <!-- ================= TAB 2: DELIVERY CAPTAINS ================= -->
+    <!-- ================= TAB 2: DELIVERY CAPTAINS FLEET ================= -->
     <div id="view-captains" class="hidden space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="font-black text-lg text-slate-900">Kodad Delivery Fleet (Captains)</h3>
-        <span class="text-xs text-slate-500">Active two-wheelers in Kodad</span>
+        <div>
+          <h3 class="font-black text-lg text-slate-900">Kodad Delivery Fleet (Captains)</h3>
+          <span class="text-xs text-slate-500">Live delivery riders registered in Kodad Town</span>
+        </div>
+        <a href="captain.html" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+          <span>+</span>
+          <span>Register / Open Captain App</span>
+        </a>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold">
-                🛵
-              </div>
-              <div>
-                <h4 class="font-black text-sm text-slate-900">Ramesh G.</h4>
-                <span class="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online (Near Bus Stand)
-                </span>
-              </div>
-            </div>
-            <span class="text-xs font-black bg-slate-100 px-2 py-1 rounded-lg">★ 4.9</span>
-          </div>
-          <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-2xl">
-            <div><b>Vehicle:</b> Hero Splendor (TS-05-AB-1234)</div>
-            <div><b>Phone:</b> +91 98480 12345</div>
-            <div><b>Deliveries completed:</b> 142</div>
-          </div>
-          <a href="tel:9848012345" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold py-2.5 rounded-xl flex items-center justify-center gap-1 transition">
-            📞 Call Captain Ramesh
-          </a>
-        </div>
-
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold">
-                🛵
-              </div>
-              <div>
-                <h4 class="font-black text-sm text-slate-900">Suresh K.</h4>
-                <span class="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online (Near Huzurnagar Rd)
-                </span>
-              </div>
-            </div>
-            <span class="text-xs font-black bg-slate-100 px-2 py-1 rounded-lg">★ 4.8</span>
-          </div>
-          <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-2xl">
-            <div><b>Vehicle:</b> Honda Activa (TS-05-CD-5678)</div>
-            <div><b>Phone:</b> +91 98480 54321</div>
-            <div><b>Deliveries completed:</b> 98</div>
-          </div>
-          <a href="tel:9848054321" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold py-2.5 rounded-xl flex items-center justify-center gap-1 transition">
-            📞 Call Captain Suresh
-          </a>
-        </div>
-
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold">
-                🛵
-              </div>
-              <div>
-                <h4 class="font-black text-sm text-slate-900">Venkatesh M.</h4>
-                <span class="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online (Near Khammam X Rd)
-                </span>
-              </div>
-            </div>
-            <span class="text-xs font-black bg-slate-100 px-2 py-1 rounded-lg">★ 4.9</span>
-          </div>
-          <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-2xl">
-            <div><b>Vehicle:</b> Bajaj Pulsar (TS-05-EF-9012)</div>
-            <div><b>Phone:</b> +91 98480 98765</div>
-            <div><b>Deliveries completed:</b> 210</div>
-          </div>
-          <a href="tel:9848098765" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold py-2.5 rounded-xl flex items-center justify-center gap-1 transition">
-            📞 Call Captain Venkatesh
-          </a>
-        </div>
-      </div>
+      <!-- Dynamic Fleet Grid -->
+      <div id="captainsFleetContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
     </div>
 
     <!-- ================= TAB 3: CUSTOMER CRM ================= -->
@@ -296,29 +269,7 @@
       
       <div class="space-y-2">
         <label class="text-xs font-bold text-slate-700 block">Select Rider for this delivery:</label>
-        <div class="space-y-2">
-          <button onclick="confirmCaptainAssignment('cap-1')" class="w-full text-left p-3 rounded-2xl border hover:border-blue-500 hover:bg-blue-50 flex items-center justify-between transition">
-            <div>
-              <span class="font-bold text-xs text-slate-900 block">Ramesh G.</span>
-              <span class="text-[11px] text-slate-500">Hero Splendor • Near Bus Stand</span>
-            </div>
-            <span class="text-xs font-black text-emerald-600">Assign ➔</span>
-          </button>
-          <button onclick="confirmCaptainAssignment('cap-2')" class="w-full text-left p-3 rounded-2xl border hover:border-blue-500 hover:bg-blue-50 flex items-center justify-between transition">
-            <div>
-              <span class="font-bold text-xs text-slate-900 block">Suresh K.</span>
-              <span class="text-[11px] text-slate-500">Honda Activa • Near Huzurnagar Road</span>
-            </div>
-            <span class="text-xs font-black text-emerald-600">Assign ➔</span>
-          </button>
-          <button onclick="confirmCaptainAssignment('cap-3')" class="w-full text-left p-3 rounded-2xl border hover:border-blue-500 hover:bg-blue-50 flex items-center justify-between transition">
-            <div>
-              <span class="font-bold text-xs text-slate-900 block">Venkatesh M.</span>
-              <span class="text-[11px] text-slate-500">Bajaj Pulsar • Near Khammam X Road</span>
-            </div>
-            <span class="text-xs font-black text-emerald-600">Assign ➔</span>
-          </button>
-        </div>
+        <div id="assignCaptainModalList" class="space-y-2 max-h-60 overflow-y-auto"></div>
       </div>
     </div>
   </div>
@@ -331,13 +282,47 @@
     let adminMap = null;
 
     document.addEventListener('DOMContentLoaded', () => {
+      checkAdminAccess();
       renderOrders();
+      renderCaptainsFleet();
       renderCustomerCRM();
       renderMenuControl();
       updateKPICounters();
       initAdminRealtime();
       initAdminLiveMap();
     });
+
+    function checkAdminAccess() {
+      const session = RealtimeBus.getAdminSession();
+      const modal = document.getElementById('adminLockModal');
+      if (session && RealtimeBus.isAdminAuthorized(session)) {
+        modal.classList.add('hidden');
+      } else {
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function verifyAdminGate() {
+      const input = document.getElementById('adminGatePhoneInput');
+      const cleanPhone = (input.value || '').replace(/\D/g, '').slice(-10);
+      const err = document.getElementById('adminGateError');
+
+      if (!RealtimeBus.isAdminAuthorized(cleanPhone)) {
+        err.classList.remove('hidden');
+        RealtimeBus.Sounds.playIncomingOrderSiren();
+        return;
+      }
+
+      err.classList.add('hidden');
+      RealtimeBus.setAdminSession(cleanPhone);
+      document.getElementById('adminLockModal').classList.add('hidden');
+      if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    }
+
+    function adminLogout() {
+      RealtimeBus.logoutAdmin();
+      document.getElementById('adminLockModal').classList.remove('hidden');
+    }
 
     function initAdminLiveMap() {
       if (!adminMap) {
@@ -362,13 +347,16 @@
         L.marker([r.lat, r.lng], { icon }).addTo(adminMap).bindPopup(`<b>${r.name}</b><br>${r.location}`);
       });
 
-      // Plot Captains
-      KODAD_DATA.captains.forEach(c => {
+      // Plot Live Captains Fleet
+      const liveCaptains = RealtimeBus.getCaptains();
+      liveCaptains.forEach(c => {
+        const lat = c.lat || KODAD_DATA.center.lat + (Math.random() - 0.5) * 0.01;
+        const lng = c.lng || KODAD_DATA.center.lng + (Math.random() - 0.5) * 0.01;
         const icon = L.divIcon({
           html: `<div style="background-color:#10b981; color:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); border:2px solid white; font-size:16px;">🛵</div>`,
           iconSize: [30, 30]
         });
-        L.marker([c.lat, c.lng], { icon }).addTo(adminMap).bindPopup(`<b>${c.name} (Online)</b><br>${c.vehicle}`);
+        L.marker([lat, lng], { icon }).addTo(adminMap).bindPopup(`<b>${c.name} (${c.status || 'ONLINE'})</b><br>${c.phone}<br>${c.vehicle || 'Bike'}`);
       });
 
       // Plot Active Customer Orders & Live Route Polylines
@@ -557,6 +545,31 @@
     function openAssignCaptainModal(orderId) {
       currentAssignOrderId = orderId;
       document.getElementById('assignModalOrderInfo').textContent = `Assign delivery partner for order #${orderId}`;
+      const listContainer = document.getElementById('assignCaptainModalList');
+      const captains = RealtimeBus.getCaptains();
+
+      if (captains.length === 0) {
+        listContainer.innerHTML = `
+          <div class="p-4 text-center text-xs text-slate-500 bg-slate-50 rounded-2xl border border-slate-200">
+            No registered captains found in Kodad. <br>
+            <a href="captain.html" target="_blank" class="text-blue-600 font-bold underline mt-1 inline-block">Register a Captain</a>
+          </div>
+        `;
+      } else {
+        listContainer.innerHTML = captains.map(c => `
+          <button onclick="confirmCaptainAssignment('${c.id}')" class="w-full flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition text-left">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🛵</span>
+              <div>
+                <p class="font-bold text-xs text-slate-900">${c.name} <span class="text-[10px] text-slate-500 font-mono">(${c.id})</span></p>
+                <p class="text-[10px] text-slate-500">${c.phone} • ${c.vehicle || 'Bike'}</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-blue-600 text-white shadow-xs">Dispatch ➔</span>
+          </button>
+        `).join('');
+      }
+
       document.getElementById('assignCaptainModal').classList.remove('hidden');
     }
 
@@ -570,6 +583,7 @@
       RealtimeBus.assignCaptain(currentAssignOrderId, captainId);
       closeAssignCaptainModal();
       renderOrders();
+      renderCaptainsFleet();
       updateKPICounters();
     }
 
@@ -582,48 +596,132 @@
     function adminMarkDelivered(orderId) {
       RealtimeBus.markDelivered(orderId);
       renderOrders();
+      renderCaptainsFleet();
       updateKPICounters();
+    }
+
+    function renderCaptainsFleet() {
+      const fleet = RealtimeBus.getCaptains();
+      const container = document.getElementById('captainsFleetContainer');
+      const badge = document.getElementById('tabFleetCountBadge');
+      if (badge) badge.textContent = fleet.length;
+
+      if (!container) return;
+
+      if (fleet.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white rounded-3xl p-8 text-center border border-slate-200 text-slate-400 space-y-2">
+            <span class="text-4xl block">🛵</span>
+            <p class="font-bold text-sm text-slate-700">No Captains Registered Yet</p>
+            <p class="text-xs">Riders can register directly with their mobile number via the Captain App.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = fleet.map(c => `
+        <div class="bg-white rounded-3xl p-4 border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black">
+                🛵
+              </div>
+              <div>
+                <h4 class="font-black text-sm text-slate-900">${c.name}</h4>
+                <span class="text-[11px] text-slate-500 font-mono">${c.id || 'CAP-RIDER'} • ${c.vehicle || 'Bike'}</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${c.status === 'BUSY' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">
+              ● ${c.status || 'ONLINE'}
+            </span>
+          </div>
+
+          <div class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-2xl space-y-1">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Phone:</span>
+              <a href="tel:${c.phone}" class="font-bold text-emerald-600">${c.phone}</a>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Total Trips:</span>
+              <span class="font-bold text-slate-900">${c.completedTrips || 0}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Earnings:</span>
+              <span class="font-black text-blue-600">₹${c.earnings || 0}</span>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <a href="tel:${c.phone}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-center font-bold text-xs py-2 rounded-xl transition">
+              📞 Call
+            </a>
+            <a href="https://wa.me/91${c.phone.replace(/\D/g, '')}" target="_blank" class="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-center font-bold text-xs py-2 rounded-xl transition">
+              💬 WhatsApp
+            </a>
+          </div>
+        </div>
+      `).join('');
     }
 
     function renderCustomerCRM() {
       const orders = RealtimeBus.getAllOrders();
+      const registered = RealtimeBus.getRegisteredCustomers();
       const uniqueCustomers = {};
 
+      registered.forEach(rc => {
+        uniqueCustomers[rc.phone] = {
+          name: rc.name,
+          phone: rc.phone,
+          address: rc.address || 'Kodad Town',
+          landmark: rc.landmark || 'Kodad',
+          orderCount: 0,
+          totalSpent: 0
+        };
+      });
+
       orders.forEach(o => {
-        if (!uniqueCustomers[o.customer.phone]) {
-          uniqueCustomers[o.customer.phone] = {
+        const phone = o.customer.phone;
+        if (!uniqueCustomers[phone]) {
+          uniqueCustomers[phone] = {
             name: o.customer.name,
-            phone: o.customer.phone,
-            address: o.customer.address,
-            landmark: o.customer.landmark,
+            phone: phone,
+            address: o.customer.address || 'Kodad Town',
+            landmark: o.customer.landmark || 'Kodad',
             orderCount: 1,
-            totalSpent: o.total
+            totalSpent: o.total || 0
           };
         } else {
-          uniqueCustomers[o.customer.phone].orderCount++;
-          uniqueCustomers[o.customer.phone].totalSpent += o.total;
+          uniqueCustomers[phone].orderCount++;
+          uniqueCustomers[phone].totalSpent += (o.total || 0);
+          if (o.customer.address) uniqueCustomers[phone].address = o.customer.address;
+          if (o.customer.landmark) uniqueCustomers[phone].landmark = o.customer.landmark;
+          if (o.customer.name && (!uniqueCustomers[phone].name || uniqueCustomers[phone].name.includes('Customer'))) {
+            uniqueCustomers[phone].name = o.customer.name;
+          }
         }
       });
 
-      if (Object.keys(uniqueCustomers).length === 0) {
-        uniqueCustomers['9848123456'] = {
-          name: 'Ravi Teja',
-          phone: '9848123456',
-          address: 'H.No 4-128, Near Balaji Temple',
-          landmark: 'Balaji Nagar, Kodad',
-          orderCount: 4,
-          totalSpent: 960
-        };
+      const tbody = document.getElementById('customersTableBody');
+      const list = Object.values(uniqueCustomers);
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-8 text-center text-slate-400">
+              No registered customers yet. First-time customer logins will appear here with real phone numbers and delivery landmarks.
+            </td>
+          </tr>
+        `;
+        return;
       }
 
-      const tbody = document.getElementById('customersTableBody');
-      tbody.innerHTML = Object.values(uniqueCustomers).map(c => `
+      tbody.innerHTML = list.map(c => `
         <tr class="hover:bg-slate-50 transition">
           <td class="p-3.5 font-bold text-slate-900">${c.name}</td>
-          <td class="p-3.5 text-emerald-600 font-bold">${c.phone}</td>
+          <td class="p-3.5 text-emerald-600 font-bold font-mono">${c.phone}</td>
           <td class="p-3.5 text-slate-600">${c.address}</td>
           <td class="p-3.5 font-semibold text-slate-800">${c.landmark}</td>
-          <td class="p-3.5 font-black text-blue-600">${c.orderCount} orders</td>
+          <td class="p-3.5 font-black text-blue-600">${c.orderCount} orders (₹${c.totalSpent})</td>
           <td class="p-3.5">
             <a href="tel:${c.phone}" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-xl font-bold transition">
               Call
@@ -730,6 +828,7 @@
           startSirenAudio(event.payload);
         }
         renderOrders();
+        renderCaptainsFleet();
         renderCustomerCRM();
         updateKPICounters();
       });

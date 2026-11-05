@@ -83,85 +83,197 @@
     }, 500);
   </script>
 
-  <!-- ================= 2. MANDATORY ONBOARDING & LOGIN GATE ================= -->
+  <!-- ================= 2. UNIFIED PORTAL SELECTOR & COMMERCIAL AUTH HUB ================= -->
   <div id="authGateModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-    <div class="relative bg-white w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-slate-900 border border-white/20">
+    <div class="relative bg-white w-full max-w-md rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-slate-900 border border-white/20 max-h-[92vh] overflow-y-auto no-scrollbar">
       
       <!-- Skip / Close Button -->
-      <button onclick="closeAuthGateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition">✕</button>
+      <button onclick="closeAuthGateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition z-10">✕</button>
       
       <!-- Logo Header -->
-      <div class="text-center space-y-1.5">
-        <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white flex items-center justify-center text-4xl mx-auto shadow-xl shadow-blue-600/30 ring-4 ring-blue-100">
+      <div class="text-center space-y-1">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white flex items-center justify-center text-3xl mx-auto shadow-lg shadow-blue-600/30 ring-4 ring-blue-100">
           🛵
         </div>
-        <h3 class="text-2xl font-black text-slate-900 mt-2">Welcome to Kodad<span class="text-blue-600">Eats</span></h3>
-        <p class="text-xs text-slate-500 font-semibold">కొదాడ నంబర్ 1 ఫుడ్ డెలివరీ యాప్ • Login to explore menus & order</p>
+        <h3 class="text-xl sm:text-2xl font-black text-slate-900 mt-1">Kodad<span class="text-blue-600">Eats</span> Hub</h3>
+        <p class="text-[11px] text-slate-500 font-semibold">కొదాడ నంబర్ 1 ఫుడ్ డెలివరీ యాప్ • Choose your portal</p>
       </div>
 
-      <!-- Auth Tabs: Mobile OTP vs Email/Quick -->
-      <div class="flex bg-slate-100 p-1 rounded-2xl text-xs font-bold">
-        <button id="authTabMobile" onclick="switchAuthTab('mobile')" class="flex-1 py-2.5 rounded-xl bg-white shadow-xs text-blue-600 font-extrabold transition">
-          📱 Mobile Number
+      <!-- Portal / Role Tabs (Customer, Captain, Restaurant, Admin) -->
+      <div class="grid grid-cols-4 bg-slate-100 p-1 rounded-2xl text-[11px] font-extrabold gap-0.5">
+        <button id="roleTabCustomer" onclick="switchPortalTab('customer')" class="py-2 rounded-xl bg-white shadow-xs text-blue-600 transition flex flex-col items-center gap-0.5">
+          <span class="text-base">🛍️</span>
+          <span>Customer</span>
         </button>
-        <button id="authTabQuick" onclick="switchAuthTab('quick')" class="flex-1 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 transition">
-          ✉️ Email / Full Details
+        <button id="roleTabCaptain" onclick="switchPortalTab('captain')" class="py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
+          <span class="text-base">🛵</span>
+          <span>Captain</span>
+        </button>
+        <button id="roleTabRest" onclick="switchPortalTab('restaurant')" class="py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
+          <span class="text-base">🍳</span>
+          <span>Kitchen</span>
+        </button>
+        <button id="roleTabAdmin" onclick="switchPortalTab('admin')" class="py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
+          <span class="text-base">👑</span>
+          <span>Admin</span>
         </button>
       </div>
 
-      <!-- Mobile Tab View -->
-      <div id="authViewMobile" class="space-y-3">
-        <div>
-          <label class="text-[11px] font-bold text-slate-700 block mb-1">Enter 10-Digit Mobile Number:</label>
-          <div class="flex items-center bg-slate-50 border border-slate-300 rounded-2xl px-3.5 py-3 focus-within:border-blue-500 focus-within:bg-white transition">
-            <span class="text-xs font-black text-slate-600 pr-2.5 border-r border-slate-300">+91</span>
-            <input id="authMobileInput" type="tel" maxlength="10" placeholder="9848012345" value="9848123456" class="w-full pl-2.5 text-xs font-bold bg-transparent focus:outline-none">
+      <!-- 1. CUSTOMER PORTAL VIEW -->
+      <div id="roleViewCustomer" class="space-y-3">
+        
+        <!-- Step 1: Mobile Input -->
+        <div id="customerPhoneStep" class="space-y-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-700 block mb-1">Enter Customer 10-Digit Mobile Number:</label>
+            <div class="flex items-center bg-slate-50 border border-slate-300 rounded-2xl px-3.5 py-3 focus-within:border-blue-500 focus-within:bg-white transition">
+              <span class="text-xs font-black text-slate-600 pr-2.5 border-r border-slate-300">+91</span>
+              <input id="authMobileInput" type="tel" maxlength="10" placeholder="9848012345" class="w-full pl-2.5 text-xs font-bold bg-transparent focus:outline-none">
+            </div>
+          </div>
+
+          <button id="authSendOtpBtn" onclick="handleSendCustomerOtp()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
+            <span>Send 6-Digit OTP ➔</span>
+          </button>
+        </div>
+
+        <!-- Step 2: 6-Digit OTP Input -->
+        <div id="customerOtpStep" class="hidden space-y-3 p-3 bg-blue-50/70 border border-blue-200 rounded-2xl">
+          <div class="text-center space-y-1">
+            <span class="text-[10px] font-extrabold uppercase text-blue-600 tracking-wider">SMS Sent Successfully</span>
+            <h4 class="text-xs font-bold text-slate-800">Enter the 6-Digit OTP received on +91 <span id="otpPhoneDisplay" class="font-mono">9848xxxxxx</span></h4>
+          </div>
+
+          <div class="flex items-center justify-center">
+            <input id="authOtpInput" type="text" maxlength="6" placeholder="• • • • • •" class="w-48 text-center text-xl tracking-[0.35em] font-black bg-white border-2 border-blue-500 rounded-2xl py-2.5 focus:outline-none focus:border-blue-700 shadow-sm font-mono">
+          </div>
+
+          <button onclick="handleVerifyCustomerOtp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+            <span>Verify OTP & Continue ✓</span>
+          </button>
+
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+            <button onclick="handleSendCustomerOtp()" class="text-blue-600 hover:underline font-bold">Resend OTP</button>
+            <button onclick="backToCustomerPhone()" class="text-slate-500 hover:underline">Change Number</button>
           </div>
         </div>
 
-        <div id="otpSection" class="hidden space-y-2">
-          <label class="text-[11px] font-bold text-slate-700 block">Enter 4-Digit Verification OTP:</label>
-          <div class="flex items-center justify-center gap-2">
-            <input id="otpInput" type="number" placeholder="1234" value="1234" class="w-36 text-center text-lg tracking-widest font-black bg-slate-50 border-2 border-blue-400 rounded-2xl py-2.5 focus:outline-none focus:border-blue-600">
+        <!-- Step 3: First-time Customer Profile Completion (Commercial - No Demo Names) -->
+        <div id="customerProfileStep" class="hidden space-y-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+          <div class="space-y-0.5">
+            <h4 class="text-xs font-black text-slate-900">Welcome to KodadEats! 🎉</h4>
+            <p class="text-[10px] text-slate-500">Please enter your real name & delivery address for order delivery.</p>
           </div>
-          <p class="text-[10px] text-center text-emerald-600 font-bold">✓ Demo OTP 1234 auto-filled for instant 1-tap login!</p>
+
+          <div>
+            <label class="text-[10px] font-bold text-slate-700 block mb-1">Your Full Name:</label>
+            <input id="newCustName" type="text" placeholder="e.g. Kiran Kumar" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div>
+            <label class="text-[10px] font-bold text-slate-700 block mb-1">Select Delivery Area in Kodad:</label>
+            <select id="newCustLandmark" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-blue-500">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[10px] font-bold text-slate-700 block mb-1">House No. / Street Address in Kodad:</label>
+            <input id="newCustAddress" type="text" placeholder="e.g. H.No 2-45, Near Hanuman Temple" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-blue-500">
+          </div>
+
+          <button onclick="handleSaveNewCustomerProfile()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition">
+            Save Profile & Start Ordering ➔
+          </button>
         </div>
 
-        <button id="authActionBtn" onclick="handleMobileAuthFlow()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
-          <span id="authActionText">Get OTP & Continue ➔</span>
-        </button>
+        <div class="text-center pt-1">
+          <button onclick="closeAuthGateModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 hover:underline transition py-1 px-3">
+            Skip & Explore Kodad Restaurants First ➔
+          </button>
+        </div>
+
       </div>
 
-      <!-- Quick / Email Tab View -->
-      <div id="authViewQuick" class="hidden space-y-3">
-        <div>
-          <label class="text-[11px] font-bold text-slate-700 block mb-1">Your Full Name:</label>
-          <input id="authQuickName" type="text" placeholder="e.g. Nani Manda" value="Nani Manda" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-3.5 py-2.5 text-xs font-bold focus:outline-none focus:border-blue-500">
+      <!-- 2. CAPTAIN (DELIVERY RIDER) PORTAL VIEW -->
+      <div id="roleViewCaptain" class="hidden space-y-3">
+        <div class="p-4 bg-gradient-to-br from-slate-900 to-blue-950 text-white rounded-2xl border border-blue-800/50 space-y-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-3xl">🛵</span>
+            <div>
+              <h4 class="font-black text-sm text-white">Delivery Captain Portal</h4>
+              <p class="text-[11px] text-blue-200">Kodad Delivery Partner Network</p>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">
+            Accept incoming food orders from Kodad restaurants, navigate using turn-by-turn route maps, collect UPI / Cash, and earn ₹40 per delivery trip.
+          </p>
+          <div class="pt-2">
+            <a href="captain.html" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow-lg transition flex items-center justify-center gap-2">
+              <span>Open Delivery Captain App ➔</span>
+            </a>
+          </div>
         </div>
-        <div>
-          <label class="text-[11px] font-bold text-slate-700 block mb-1">Mobile Number or Email:</label>
-          <input id="authQuickContact" type="text" placeholder="e.g. 9848012345 or nani@gmail.com" value="9848123456" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-3.5 py-2.5 text-xs font-bold focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="text-[11px] font-bold text-slate-700 block mb-1">Select Delivery Area in Kodad:</label>
-          <select id="authQuickLandmark" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-3.5 py-2.5 text-xs font-bold focus:outline-none focus:border-blue-500">
-            <!-- Populated via JS -->
-          </select>
-        </div>
-
-        <button onclick="handleQuickAuth()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
-          <span>Start Ordering on KodadEats ➔</span>
-        </button>
       </div>
 
-      <div class="text-center pt-1">
-        <button onclick="closeAuthGateModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 hover:underline transition py-1 px-3">
-          Skip & Explore Kodad Restaurants First ➔
-        </button>
+      <!-- 3. RESTAURANT PARTNER PORTAL VIEW -->
+      <div id="roleViewRestaurant" class="hidden space-y-3">
+        <div class="p-4 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl border border-indigo-800/50 space-y-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-3xl">👨‍🍳</span>
+            <div>
+              <h4 class="font-black text-sm text-white">Restaurant Kitchen Dashboard</h4>
+              <p class="text-[11px] text-indigo-200">Kodad Kitchen Partners</p>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">
+            Receive live orders with loud kitchen buzzer alerts, view cooking items, and notify captains when dishes are hot and ready for pickup.
+          </p>
+          <div class="pt-2">
+            <a href="restaurant.html" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow-lg transition flex items-center justify-center gap-2">
+              <span>Open Kitchen Dashboard ➔</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. ADMIN PORTAL VIEW (OWNER RESTRICTED: 9640103505, 9182348241) -->
+      <div id="roleViewAdmin" class="hidden space-y-3">
+        <div class="p-4 bg-slate-900 text-white rounded-2xl border border-amber-500/40 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">👑</span>
+              <div>
+                <h4 class="font-black text-sm text-white">Central Operations Hub</h4>
+                <span class="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.2 rounded-full uppercase">Restricted Access</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300">
+            Full dispatch control, live siren monitoring, captain fleet management & revenue analytics. Restricted strictly to authorized owner numbers.
+          </p>
+
+          <div>
+            <label class="text-[10px] font-bold text-slate-300 block mb-1">Enter Authorized Admin Mobile Number:</label>
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-amber-400 transition">
+              <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
+              <input id="adminMobileInput" type="tel" maxlength="10" placeholder="9640103505" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+            </div>
+          </div>
+
+          <!-- Unauthorized Error Alert -->
+          <div id="adminAuthError" class="hidden p-2.5 bg-red-950/80 border border-red-500 text-red-200 rounded-xl text-[11px] font-bold">
+            ⛔ Access Denied! Only authorized KodadEats Admins (9640103505, 9182348241) can access Central Operations.
+          </div>
+
+          <button onclick="handleAdminPortalLogin()" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-2.5 px-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+            <span>Verify & Access Admin Hub ➔</span>
+          </button>
+        </div>
       </div>
 
       <p class="text-[10px] text-center text-slate-400">
-        By continuing, you agree to KodadEats Terms & Delivery Policy.
+        KodadEats Official • Secure Delivery Network for Kodad Town
       </p>
 
     </div>
@@ -241,6 +353,12 @@
             <span>🛒</span>
             <span id="cartCountBadge" class="hidden bg-blue-700 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
             <span id="cartTotalHeader">₹0</span>
+          </button>
+
+          <!-- Switch Portals Button (Customer / Captain / Restaurant / Admin) -->
+          <button onclick="openPortalSelectorModal()" title="Switch Portal" class="bg-white/15 hover:bg-white/25 active:scale-95 text-white px-2.5 py-1.5 rounded-2xl border border-white/25 text-xs font-black transition flex items-center gap-1 shadow-sm">
+            <span>⇄</span>
+            <span class="hidden sm:inline">Portals</span>
           </button>
 
           <!-- Customer Profile Avatar Pill with Initial Letter (Gmail Style) -->
@@ -1108,17 +1226,26 @@
       const custName = document.getElementById('custNameInput');
       const custPhone = document.getElementById('custPhoneInput');
       const custAddr = document.getElementById('custAddressInput');
-      if (custName) custName.value = user.name || 'Nani Manda';
-      if (custPhone) custPhone.value = user.phone || '9848123456';
-      if (custAddr) custAddr.value = user.address || (user.locality || 'Balaji Nagar, Kodad');
+      if (custName) custName.value = user.name || 'Customer';
+      if (custPhone) custPhone.value = user.phone || '';
+      if (custAddr) custAddr.value = user.address || (user.landmark || selectedLandmark);
     }
 
-    // Auth Gate Flows
-    function openAuthGateModal() {
+    // Auth Gate & Portal Switcher Flows
+    let currentAuthRole = 'customer';
+    let pendingCustomerPhone = '';
+
+    function openPortalSelectorModal(role = 'customer') {
+      openAuthGateModal(role);
+    }
+
+    function openAuthGateModal(role = 'customer') {
       const modal = document.getElementById('authGateModal');
       if (modal) modal.classList.remove('hidden');
-      const select = document.getElementById('authQuickLandmark');
-      if (select) {
+      switchPortalTab(role);
+      
+      const select = document.getElementById('newCustLandmark');
+      if (select && select.children.length === 0) {
         select.innerHTML = KODAD_DATA.landmarks.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
       }
     }
@@ -1130,75 +1257,118 @@
       if (mainApp) mainApp.classList.remove('hidden');
     }
 
-    function switchAuthTab(tab) {
-      const isMobile = tab === 'mobile';
-      document.getElementById('authViewMobile').classList.toggle('hidden', !isMobile);
-      document.getElementById('authViewQuick').classList.toggle('hidden', isMobile);
+    function switchPortalTab(role) {
+      currentAuthRole = role;
+      const roles = ['customer', 'captain', 'restaurant', 'admin'];
       
-      const tabMobile = document.getElementById('authTabMobile');
-      const tabQuick = document.getElementById('authTabQuick');
-      if (isMobile) {
-        tabMobile.className = 'flex-1 py-2 rounded-xl bg-white shadow-xs text-blue-600 font-extrabold transition';
-        tabQuick.className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition';
-      } else {
-        tabQuick.className = 'flex-1 py-2 rounded-xl bg-white shadow-xs text-blue-600 font-extrabold transition';
-        tabMobile.className = 'flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition';
-      }
+      roles.forEach(r => {
+        const tab = document.getElementById('roleTab' + r.charAt(0).toUpperCase() + r.slice(1).replace('rant', ''));
+        const view = document.getElementById('roleView' + r.charAt(0).toUpperCase() + r.slice(1));
+        const isCurrent = r === role;
+        
+        if (tab) {
+          tab.className = isCurrent 
+            ? 'py-2 rounded-xl bg-white shadow-xs text-blue-600 transition flex flex-col items-center gap-0.5' 
+            : 'py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5';
+        }
+        if (view) {
+          view.classList.toggle('hidden', !isCurrent);
+        }
+      });
     }
 
-    function handleMobileAuthFlow() {
+    // Customer Real 6-Digit OTP Flow
+    function handleSendCustomerOtp() {
       const phoneInput = document.getElementById('authMobileInput').value.trim();
-      const otpSection = document.getElementById('otpSection');
-      const actionText = document.getElementById('authActionText');
+      const cleanPhone = phoneInput.replace(/\D/g, '').slice(-10);
 
-      if (phoneInput.length < 10) {
+      if (cleanPhone.length < 10) {
         alert("Please enter a valid 10-digit mobile number in Kodad!");
         return;
       }
 
-      if (otpSection.classList.contains('hidden')) {
-        otpSection.classList.remove('hidden');
-        actionText.textContent = "Verify & Start Ordering ✓";
-        RealtimeBus.Sounds.playBell();
-      } else {
-        const user = {
-          name: 'Customer (' + phoneInput.slice(-4) + ')',
-          phone: phoneInput,
-          email: `${phoneInput}@kodadeats.com`,
-          address: 'Main Road, Kodad',
-          landmark: selectedLandmark,
-          role: 'customer',
-          isLoggedIn: true
-        };
-        RealtimeBus.setCurrentUser(user);
-        updateUserUI(user);
+      pendingCustomerPhone = cleanPhone;
+      const otpData = RealtimeBus.generateOtp(cleanPhone);
+
+      document.getElementById('otpPhoneDisplay').textContent = cleanPhone;
+      document.getElementById('customerPhoneStep').classList.add('hidden');
+      document.getElementById('customerOtpStep').classList.remove('hidden');
+      document.getElementById('authOtpInput').value = otpData.code; // Pre-filled for effortless 1-tap test
+      document.getElementById('authOtpInput').focus();
+    }
+
+    function backToCustomerPhone() {
+      document.getElementById('customerOtpStep').classList.add('hidden');
+      document.getElementById('customerPhoneStep').classList.remove('hidden');
+    }
+
+    function handleVerifyCustomerOtp() {
+      const inputOtp = document.getElementById('authOtpInput').value.trim();
+      const res = RealtimeBus.verifyOtp(pendingCustomerPhone, inputOtp);
+
+      if (!res.success) {
+        alert(res.message);
+        return;
+      }
+
+      // Check if existing customer profile exists
+      const existing = RealtimeBus.getCustomerByPhone(pendingCustomerPhone);
+      if (existing && existing.name && !existing.name.startsWith('Customer (')) {
+        RealtimeBus.setCurrentUser(existing);
+        updateUserUI(existing);
         closeAuthGateModal();
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-        setTimeout(initSmartCravingToast, 2000);
+        setTimeout(initSmartCravingToast, 1800);
+      } else {
+        // First-Time Customer -> Commercial Onboarding Profile Step
+        document.getElementById('customerOtpStep').classList.add('hidden');
+        document.getElementById('customerProfileStep').classList.remove('hidden');
+        document.getElementById('newCustName').focus();
       }
     }
 
-    function handleQuickAuth() {
-      const name = document.getElementById('authQuickName').value.trim() || 'Ravi Teja';
-      const contact = document.getElementById('authQuickContact').value.trim() || '9848123456';
-      const landmark = document.getElementById('authQuickLandmark').value || selectedLandmark;
+    function handleSaveNewCustomerProfile() {
+      const name = document.getElementById('newCustName').value.trim();
+      const landmark = document.getElementById('newCustLandmark').value || selectedLandmark;
+      const address = document.getElementById('newCustAddress').value.trim() || ('Near ' + landmark);
 
-      const isEmail = contact.includes('@');
-      const user = {
-        name,
-        phone: isEmail ? '9848123456' : contact.replace(/\D/g, '').slice(-10),
-        email: isEmail ? contact : `${contact}@kodadeats.com`,
-        address: 'Near ' + landmark,
-        landmark,
-        role: 'customer',
-        isLoggedIn: true
-      };
+      if (!name) {
+        alert("Please enter your real full name!");
+        return;
+      }
 
-      RealtimeBus.setCurrentUser(user);
-      updateUserUI(user);
+      const fullProfile = RealtimeBus.saveCustomerProfile({
+        phone: pendingCustomerPhone,
+        name: name,
+        landmark: landmark,
+        address: address,
+        email: `${pendingCustomerPhone}@kodadeats.com`
+      });
+
+      selectedLandmark = landmark;
+      document.getElementById('currentLocationText').textContent = landmark;
+      updateUserUI(fullProfile);
       closeAuthGateModal();
-      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-      setTimeout(initSmartCravingToast, 2000);
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+      setTimeout(initSmartCravingToast, 1800);
+    }
+
+    // Admin Verification (Restricted to 9640103505, 9182348241 only)
+    function handleAdminPortalLogin() {
+      const phoneInput = document.getElementById('adminMobileInput').value.trim();
+      const cleanPhone = phoneInput.replace(/\D/g, '').slice(-10);
+      const errorDiv = document.getElementById('adminAuthError');
+
+      if (!RealtimeBus.isAdminAuthorized(cleanPhone)) {
+        errorDiv.classList.remove('hidden');
+        RealtimeBus.Sounds.playIncomingOrderSiren();
+        return;
+      }
+
+      errorDiv.classList.add('hidden');
+      RealtimeBus.setAdminSession(cleanPhone);
+      closeAuthGateModal();
+      window.location.href = 'admin.html';
     }
 
     function logoutCurrentUser() {
@@ -2228,10 +2398,17 @@
     function executeCheckout() {
       if (cart.length === 0) return;
 
-      const custName = document.getElementById('custNameInput').value.trim() || 'Ravi Teja';
-      const custPhone = document.getElementById('custPhoneInput').value.trim() || '9848123456';
-      const custAddress = document.getElementById('custAddressInput').value.trim() || 'H.No 4-128';
-      const custLandmark = document.getElementById('custLandmarkSelect').value;
+      const user = RealtimeBus.getCurrentUser();
+      if (!user || !user.isLoggedIn) {
+        alert("Please login with your mobile number to place your order!");
+        openAuthGateModal('customer');
+        return;
+      }
+
+      const custName = document.getElementById('custNameInput').value.trim() || user.name || 'Customer';
+      const custPhone = document.getElementById('custPhoneInput').value.trim() || user.phone;
+      const custAddress = document.getElementById('custAddressInput').value.trim() || user.address || ('Near ' + (user.landmark || selectedLandmark));
+      const custLandmark = document.getElementById('custLandmarkSelect').value || user.landmark || selectedLandmark;
       const paymentMethod = document.querySelector('input[name="paymentOption"]:checked')?.value || 'Cash on Delivery (COD)';
 
       const landmarkObj = KODAD_DATA.landmarks.find(l => l.name === custLandmark) || KODAD_DATA.landmarks[0];
