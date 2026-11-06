@@ -48,6 +48,17 @@ const KODAD_DATA = {
   // Authorized Admin Mobile Numbers (Restricted to Owner only)
   adminAuthorizedPhones: ['9640103505', '9182348241'],
 
+  // Customer Enquiry & Support Numbers (Shown to Customers in App)
+  ownerSupportPhones: ['9640103505', '9182348241'],
+  ownerPrimaryPhone: '9640103505',
+
+  // Official Pricing & Commission Policy
+  pricing: {
+    deliveryFee: 30,       // Flat ₹30 delivery fee across Kodad
+    riderCommission: 30,   // ₹30 rider earnings per delivery
+    packingCharges: 0      // Free restaurant packaging
+  },
+
   // Real Captains Pool (Populated dynamically when delivery riders register & log in)
   captains: [],
 
@@ -430,31 +441,31 @@ const KODAD_DATA = {
   banners: [
     {
       id: 'banner-vip',
-      title: '🎉 VIP Milestone Reward',
-      subtitle: 'Complete 10 orders to unlock ₹100, ₹75 & ₹50 OFF VIP Coupons!',
-      badge: 'LOYALTY REWARDS',
+      title: '🎁 KodadEats Loyalty Club',
+      subtitle: 'Complete 10 orders to unlock VIP Coupons: ₹50 (11th), ₹75 (15th), ₹100 (20th)!',
+      badge: 'MILESTONE REWARDS',
       bgGradient: 'from-amber-500 via-orange-600 to-red-600',
-      actionText: 'Check Coupons',
+      actionText: 'VIP Details',
       actionType: 'coupons'
     },
     {
-      id: 'banner-biryani',
-      title: '🍗 Kodad Biryani Dhamaka',
-      subtitle: 'Flat ₹50 OFF on orders above ₹300 with code KODAD50',
-      badge: 'POPULAR OFFER',
+      id: 'banner-support',
+      title: '📞 Need Help or Enquiry?',
+      subtitle: 'Call KodadEats Owner directly: 9640103505 / 9182348241',
+      badge: '24/7 HELPLINE',
       bgGradient: 'from-blue-600 via-indigo-600 to-blue-800',
-      actionText: 'Order Biryani',
-      actionType: 'category',
-      categoryId: 'biryani'
+      actionText: 'Call Now',
+      actionType: 'call'
     },
     {
       id: 'banner-fast',
-      title: '⚡ 20-Min Flash Delivery',
-      subtitle: 'Hot & steaming food across Balaji Nagar, Khammam X Road & Kodad',
-      badge: 'HYPERLOCAL SPEED',
+      title: '⚡ Flat ₹30 Local Delivery',
+      subtitle: 'Zero packaging fees! Steaming food across Balaji Nagar, Khammam X Road & Kodad',
+      badge: 'TRANSPARENT PRICING',
       bgGradient: 'from-emerald-600 via-teal-600 to-cyan-700',
-      actionText: 'Fast Deliveries',
-      actionType: 'fast'
+      actionText: 'Order Food',
+      actionType: 'category',
+      categoryId: 'all'
     },
     {
       id: 'banner-veg',
@@ -477,10 +488,31 @@ const KODAD_DATA = {
     { id: 'add-6', name: 'Mineral Water Bottle (1L)', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=300&q=80' }
   ],
 
-  // Discount Coupons (with 10-orders VIP unlocking)
+  // Strict Milestone Loyalty Coupons (Locked until 10 completed orders)
   coupons: [
-    { code: 'KODAD50', discount: 50, minOrder: 300, description: 'Flat ₹50 OFF on orders above ₹300', isVipOnly: false },
-    { code: 'KODAD75', discount: 75, minOrder: 400, description: 'VIP Reward: ₹75 OFF on orders above ₹400', isVipOnly: true },
-    { code: 'KODAD100', discount: 100, minOrder: 500, description: 'VIP Mega Reward: ₹100 OFF on orders above ₹500', isVipOnly: true }
+    {
+      code: 'KODAD50',
+      discount: 50,
+      minOrder: 500,
+      requiredOrders: 10,
+      milestoneTitle: '11th Order Special',
+      description: 'Flat ₹50 OFF on your 11th order (Min bill ₹500)'
+    },
+    {
+      code: 'KODAD75',
+      discount: 75,
+      minOrder: 700,
+      requiredOrders: 14,
+      milestoneTitle: '15th Order Special',
+      description: 'VIP Reward: ₹75 OFF on your 15th order (Min bill ₹700)'
+    },
+    {
+      code: 'KODAD100',
+      discount: 100,
+      minOrder: 1000,
+      requiredOrders: 19,
+      milestoneTitle: '20th Order Mega Reward',
+      description: 'VIP Mega Reward: ₹100 OFF on your 20th order (Min bill ₹1000)'
+    }
   ]
 };

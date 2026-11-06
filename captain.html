@@ -42,57 +42,122 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition flex items-center gap-1">
-          <span>🍽️ Customer</span>
-        </a>
-        <button onclick="handleCaptainLogout()" title="Switch / Logout Rider" class="bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-slate-700 transition">
-          Logout
+      <div class="flex items-center gap-1.5">
+        <button onclick="openCaptainAuthModal('select')" title="Switch / Select Rider" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 shadow-sm">
+          <span>⇄ Switch Rider</span>
         </button>
+        <button onclick="openCaptainAuthModal('register')" title="Register New Rider" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold px-2 py-1.5 rounded-xl transition flex items-center gap-1">
+          <span>+ New</span>
+        </button>
+        <button onclick="handleCaptainLogout()" title="Logout Rider" class="bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 text-[11px] font-bold px-2 py-1.5 rounded-xl border border-slate-700 transition">
+          🚪
+        </button>
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold px-2 py-1.5 rounded-xl border border-slate-700 transition" title="Go to Customer App">
+          🛍️
+        </a>
       </div>
     </div>
   </header>
 
-  <!-- ================= CAPTAIN REGISTRATION & LOGIN GATE ================= -->
+  <!-- ================= CAPTAIN REGISTRATION & MULTI-RIDER SWITCHER ================= -->
   <div id="captainAuthModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-white">
-      <div class="text-center space-y-1">
-        <div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-blue-600/40">
-          🛵
-        </div>
-        <h3 class="text-xl font-black text-white mt-2">Delivery Captain Login</h3>
-        <p class="text-xs text-slate-400">Deliver food in Kodad & earn ₹40 per order</p>
-      </div>
-
-      <div class="space-y-3 pt-2">
-        <div>
-          <label class="text-[11px] font-bold text-slate-300 block mb-1">Mobile Number (+91):</label>
-          <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-blue-500 transition">
-            <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
-            <input id="capLoginPhone" type="tel" maxlength="10" placeholder="9848012345" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-white">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-600/40">
+            🛵
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-white">Kodad Delivery Fleet</h3>
+            <p class="text-xs text-slate-400">10-100 Riders • ₹30 payout per delivery</p>
           </div>
         </div>
+        <button id="capModalCloseBtn" onclick="closeCaptainAuthModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold flex items-center justify-center">✕</button>
+      </div>
 
-        <div>
-          <label class="text-[11px] font-bold text-slate-300 block mb-1">Captain Real Full Name:</label>
-          <input id="capLoginName" type="text" placeholder="e.g. Naresh Varma" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-blue-500">
-        </div>
-
-        <div>
-          <label class="text-[11px] font-bold text-slate-300 block mb-1">Bike / Vehicle Model & Number:</label>
-          <input id="capLoginVehicle" type="text" placeholder="e.g. Hero Splendor (TS-05-AB-1234)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-blue-500">
-        </div>
-
-        <button onclick="submitCaptainLogin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-blue-600/30 transition">
-          Sign In / Register Captain Fleet ➔
+      <!-- Tab Switcher: Registered Fleet vs New Rider OTP -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-800 rounded-2xl border border-slate-700 text-xs font-bold">
+        <button id="capTabFleetBtn" onclick="switchCapModalTab('select')" class="py-2 rounded-xl text-center transition bg-blue-600 text-white font-black shadow-xs">
+          <span>🛵 Registered Fleet (<span id="capFleetBadgeCount">0</span>)</span>
+        </button>
+        <button id="capTabRegisterBtn" onclick="switchCapModalTab('register')" class="py-2 rounded-xl text-center text-slate-400 hover:text-white transition">
+          <span>📱 OTP Login / Join</span>
         </button>
       </div>
 
-      <div class="text-center pt-1 border-t border-slate-800">
-        <a href="index.html" class="text-xs text-blue-400 hover:underline font-bold">
+      <!-- VIEW 1: Registered Fleet List (Choose your account from 10 to 100 riders) -->
+      <div id="capModalViewFleet" class="space-y-3">
+        <div>
+          <input id="capFleetSearchInput" type="text" oninput="filterFleetList(this.value)" placeholder="🔍 Search by Rider Name, ID (CAP-1001), or Phone..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-white placeholder-slate-400 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div id="capFleetCardsContainer" class="max-h-72 overflow-y-auto space-y-2 pr-1">
+          <!-- Populated dynamically via renderModalFleetList() -->
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 text-center">
+          <p class="text-[11px] text-slate-400">New rider joining the fleet? <button onclick="switchCapModalTab('register')" class="text-blue-400 hover:underline font-bold">Register with Mobile & OTP ➔</button></p>
+        </div>
+      </div>
+
+      <!-- VIEW 2: OTP Login & New Rider Registration -->
+      <div id="capModalViewRegister" class="hidden space-y-3">
+        <!-- Step 1: Mobile & Send OTP -->
+        <div id="capLoginStep1" class="space-y-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Enter Mobile Number (+91):</label>
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-blue-500 transition">
+              <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
+              <input id="capLoginPhone" type="tel" maxlength="10" placeholder="9848012345" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+            </div>
+          </div>
+
+          <button onclick="sendCaptainOtp()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5">
+            <span>📲</span>
+            <span>Send Real 6-Digit OTP ➔</span>
+          </button>
+        </div>
+
+        <!-- Step 2: Enter OTP & Profile Details -->
+        <div id="capLoginStep2" class="hidden space-y-3">
+          <div class="bg-blue-950/40 border border-blue-500/40 rounded-xl p-2.5 text-center">
+            <span class="text-xs text-slate-300 block">OTP sent to: <b id="capTargetPhoneDisplay" class="text-amber-400">+91</b></span>
+            <button onclick="backToCapStep1()" class="text-[10px] text-blue-400 hover:underline font-bold mt-0.5">Change Number</button>
+          </div>
+
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Enter 6-Digit OTP:</label>
+            <input id="capOtpInput" type="tel" maxlength="6" placeholder="000000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-center text-lg font-black tracking-widest font-mono text-amber-300 focus:outline-none focus:border-amber-400">
+          </div>
+
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Rider Full Real Name:</label>
+            <input id="capLoginName" type="text" placeholder="e.g. Naresh Varma" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Bike / Vehicle Model & Number:</label>
+            <input id="capLoginVehicle" type="text" placeholder="e.g. Hero Splendor (TS-05-AB-1234)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-blue-500">
+          </div>
+
+          <button onclick="verifyCaptainOtpAndLogin()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-1.5">
+            <span>✓</span>
+            <span>Verify OTP & Launch Rider Hub ➔</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="text-center pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+        <a href="index.html" class="text-slate-400 hover:text-white font-semibold">
           ← Back to Customer App
         </a>
+        <a href="admin.html" target="_blank" class="text-blue-400 hover:underline font-bold">
+          Admin Portal ➔
+        </a>
       </div>
+
     </div>
   </div>
 
@@ -112,7 +177,9 @@
               <h2 id="captainDisplayName" class="text-base font-black text-white">Captain Rider</h2>
               <span id="captainIdBadge" class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/30">CAP-0000</span>
             </div>
-            <p id="captainDisplayVehicle" class="text-xs text-slate-400">Bike (Kodad Delivery)</p>
+            <p class="text-xs text-slate-300">
+              <span id="captainDisplayVehicle">Bike (Kodad Delivery)</span> • <span id="captainDisplayPhone" class="text-amber-300 font-mono">+91</span>
+            </p>
           </div>
         </div>
       </div>
@@ -143,7 +210,7 @@
         </div>
         <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/60">
           <span class="text-slate-400 text-[10px] block font-semibold">Trip Payout</span>
-          <span class="text-base font-black text-amber-400 mt-0.5 block">₹40/trip</span>
+          <span class="text-base font-black text-amber-400 mt-0.5 block">₹30/trip</span>
         </div>
       </div>
 
@@ -156,7 +223,7 @@
     <div class="bg-slate-800/60 border border-slate-700 rounded-3xl p-4 shadow-xl space-y-3">
       <h3 class="font-extrabold text-sm text-white flex items-center justify-between">
         <span>My Completed Deliveries</span>
-        <span class="text-[10px] font-semibold text-emerald-400">₹40 per delivery</span>
+        <span class="text-[10px] font-semibold text-emerald-400">₹30 per delivery</span>
       </h3>
       <div id="historyList" class="space-y-2 text-xs"></div>
     </div>
@@ -225,8 +292,13 @@
 
     function initCaptainApp() {
       currentCaptain = RealtimeBus.getCurrentCaptain();
+      const captains = RealtimeBus.getCaptains();
       if (!currentCaptain) {
-        document.getElementById('captainAuthModal').classList.remove('hidden');
+        if (captains.length > 0) {
+          openCaptainAuthModal('select');
+        } else {
+          openCaptainAuthModal('register');
+        }
       } else {
         document.getElementById('captainAuthModal').classList.add('hidden');
         renderCaptainProfile();
@@ -234,23 +306,172 @@
       }
     }
 
-    function submitCaptainLogin() {
-      const phone = document.getElementById('capLoginPhone').value.trim();
-      const name = document.getElementById('capLoginName').value.trim();
-      const vehicle = document.getElementById('capLoginVehicle').value.trim();
+    function openCaptainAuthModal(tabMode = 'select') {
+      const modal = document.getElementById('captainAuthModal');
+      const closeBtn = document.getElementById('capModalCloseBtn');
+      if (closeBtn) {
+        closeBtn.style.display = currentCaptain ? 'flex' : 'none';
+      }
+      modal.classList.remove('hidden');
+      switchCapModalTab(tabMode);
+    }
 
-      const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    function closeCaptainAuthModal() {
+      if (!currentCaptain) {
+        alert("Please select or login as a Captain rider to proceed!");
+        return;
+      }
+      document.getElementById('captainAuthModal').classList.add('hidden');
+    }
+
+    function switchCapModalTab(tab) {
+      const btnFleet = document.getElementById('capTabFleetBtn');
+      const btnRegister = document.getElementById('capTabRegisterBtn');
+      const viewFleet = document.getElementById('capModalViewFleet');
+      const viewRegister = document.getElementById('capModalViewRegister');
+
+      if (tab === 'select') {
+        btnFleet.className = 'py-2 rounded-xl text-center transition bg-blue-600 text-white font-black shadow-xs';
+        btnRegister.className = 'py-2 rounded-xl text-center text-slate-400 hover:text-white transition';
+        viewFleet.classList.remove('hidden');
+        viewRegister.classList.add('hidden');
+        renderModalFleetList();
+      } else {
+        btnRegister.className = 'py-2 rounded-xl text-center transition bg-blue-600 text-white font-black shadow-xs';
+        btnFleet.className = 'py-2 rounded-xl text-center text-slate-400 hover:text-white transition';
+        viewRegister.classList.remove('hidden');
+        viewFleet.classList.add('hidden');
+        backToCapStep1();
+      }
+    }
+
+    function renderModalFleetList(filterQuery = '') {
+      const captains = RealtimeBus.getCaptains();
+      const badge = document.getElementById('capFleetBadgeCount');
+      if (badge) badge.textContent = captains.length;
+      const container = document.getElementById('capFleetCardsContainer');
+      if (!container) return;
+
+      const q = (filterQuery || '').toLowerCase().trim();
+      const filtered = captains.filter(c => 
+        !q || 
+        c.name.toLowerCase().includes(q) || 
+        c.id.toLowerCase().includes(q) || 
+        c.phone.includes(q) || 
+        (c.vehicle && c.vehicle.toLowerCase().includes(q))
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-800/60 rounded-2xl p-6 text-center border border-slate-700/60 text-slate-400 space-y-2">
+            <span class="text-3xl block">🛵</span>
+            <p class="text-xs font-bold text-white">${captains.length === 0 ? 'No registered riders yet in Kodad' : 'No riders matching "' + filterQuery + '"'}</p>
+            <p class="text-[11px] text-slate-400">${captains.length === 0 ? 'Tap "📱 OTP Login / Join" to add the first rider.' : 'Check spelling or enter a different name/phone.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => {
+        const isCurrent = currentCaptain && currentCaptain.id === c.id;
+        return `
+          <div class="p-3 rounded-2xl border ${isCurrent ? 'bg-blue-950/60 border-blue-500' : 'bg-slate-800/90 border-slate-700/80 hover:border-slate-600'} transition flex items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl ${isCurrent ? 'bg-blue-600 text-white' : 'bg-slate-700 text-blue-300'} flex items-center justify-center text-lg shrink-0">
+                🛵
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h4 class="font-black text-xs text-white truncate">${c.name}</h4>
+                  <span class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">${c.id}</span>
+                  ${isCurrent ? '<span class="text-[9px] font-black uppercase bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded">Active</span>' : ''}
+                </div>
+                <p class="text-[10px] text-slate-400 truncate mt-0.5">+91 ${c.phone} • ${c.vehicle || 'Bike'}</p>
+                <div class="flex items-center gap-2 text-[10px] text-slate-300 mt-1">
+                  <span>Trips: <b class="text-white">${c.ordersCompleted || 0}</b></span>
+                  <span>•</span>
+                  <span>Earned: <b class="text-emerald-400">₹${c.earningsTotal || (c.ordersCompleted || 0) * 30}</b></span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <button onclick="selectCaptainAccount('${c.id}')" class="shrink-0 ${isCurrent ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-blue-600 hover:bg-blue-500 text-white'} text-xs font-black px-3 py-2 rounded-xl shadow-xs transition flex items-center gap-1">
+                <span>${isCurrent ? '✓ Active' : 'Switch ➔'}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterFleetList(val) {
+      renderModalFleetList(val);
+    }
+
+    function selectCaptainAccount(captainId) {
+      const cap = RealtimeBus.switchCaptain(captainId);
+      if (!cap) {
+        alert("Captain not found!");
+        return;
+      }
+      currentCaptain = cap;
+      document.getElementById('captainAuthModal').classList.add('hidden');
+      renderCaptainProfile();
+      checkAssignedDeliveries();
+      renderHistory();
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+    }
+
+    let capPendingPhone = '';
+
+    function sendCaptainOtp() {
+      const phoneInput = document.getElementById('capLoginPhone');
+      const cleanPhone = (phoneInput.value || '').replace(/\D/g, '').slice(-10);
+
       if (cleanPhone.length < 10) {
         alert("Please enter a valid 10-digit mobile number!");
         return;
       }
+
+      capPendingPhone = cleanPhone;
+      const otpCode = RealtimeBus.generateOtp(cleanPhone);
+      RealtimeBus.showOtpBanner(cleanPhone, otpCode);
+
+      // Check if captain is already registered
+      const captains = RealtimeBus.getCaptains();
+      const existing = captains.find(c => c.phone === cleanPhone);
+      if (existing) {
+        document.getElementById('capLoginName').value = existing.name || '';
+        document.getElementById('capLoginVehicle').value = existing.vehicle || '';
+      }
+
+      document.getElementById('capTargetPhoneDisplay').textContent = `+91 ${cleanPhone}`;
+      document.getElementById('capLoginStep1').classList.add('hidden');
+      document.getElementById('capLoginStep2').classList.remove('hidden');
+    }
+
+    function backToCapStep1() {
+      document.getElementById('capLoginStep2').classList.add('hidden');
+      document.getElementById('capLoginStep1').classList.remove('hidden');
+    }
+
+    function verifyCaptainOtpAndLogin() {
+      const otp = document.getElementById('capOtpInput').value.trim();
+      const name = document.getElementById('capLoginName').value.trim();
+      const vehicle = document.getElementById('capLoginVehicle').value.trim();
+
+      if (!RealtimeBus.verifyOtp(capPendingPhone, otp)) {
+        alert("Incorrect or expired OTP! Please check the 6-digit code sent.");
+        return;
+      }
+
       if (!name) {
         alert("Please enter your real full name!");
         return;
       }
 
       currentCaptain = RealtimeBus.registerCaptain({
-        phone: cleanPhone,
+        phone: capPendingPhone,
         name: name,
         vehicle: vehicle || 'Hero Splendor (Kodad)'
       });
@@ -262,10 +483,10 @@
     }
 
     function handleCaptainLogout() {
-      if (confirm("Do you want to log out of Captain Portal?")) {
+      if (confirm("Switch / Log out of Captain Portal?")) {
         RealtimeBus.logoutCaptain();
         currentCaptain = null;
-        document.getElementById('captainAuthModal').classList.remove('hidden');
+        openCaptainAuthModal('select');
       }
     }
 
@@ -273,9 +494,12 @@
       if (!currentCaptain) return;
       document.getElementById('captainDisplayName').textContent = currentCaptain.name;
       document.getElementById('captainIdBadge').textContent = currentCaptain.id;
-      document.getElementById('captainDisplayVehicle').textContent = currentCaptain.vehicle;
+      const vehEl = document.getElementById('captainDisplayVehicle');
+      if (vehEl) vehEl.textContent = currentCaptain.vehicle || 'Bike (Kodad Delivery)';
+      const phoneEl = document.getElementById('captainDisplayPhone');
+      if (phoneEl) phoneEl.textContent = `+91 ${currentCaptain.phone}`;
       document.getElementById('statTripsCount').textContent = currentCaptain.ordersCompleted || 0;
-      document.getElementById('statEarnings').textContent = `₹${currentCaptain.earningsTotal || 0}`;
+      document.getElementById('statEarnings').textContent = `₹${currentCaptain.earningsTotal || (currentCaptain.ordersCompleted || 0) * 30}`;
     }
 
     function toggleDuty() {
@@ -373,7 +597,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-[10px] text-slate-400 font-bold uppercase block">Your Payout</span>
-                <span class="text-xl font-black text-emerald-400">₹40.00</span>
+                <span class="text-xl font-black text-emerald-400">₹30.00</span>
               </div>
               <div class="text-right">
                 <span class="text-[10px] text-slate-400 font-bold uppercase block">Est. Time</span>
@@ -407,7 +631,7 @@
             </button>
             <button onclick="handleAcceptOrder('${order.id}')" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30">
               <span>✓</span>
-              <span>Accept Trip (₹40)</span>
+              <span>Accept Trip (₹30)</span>
             </button>
           </div>
 
@@ -454,7 +678,7 @@
             </div>
             <div class="text-right">
               <span class="text-[10px] text-slate-400 block font-semibold uppercase">Trip Payout</span>
-              <span class="text-emerald-400 font-black text-sm">₹40.00</span>
+              <span class="text-emerald-400 font-black text-sm">₹30.00</span>
             </div>
           </div>
 
@@ -706,7 +930,7 @@
             <span class="font-bold text-white block">#${o.id} • ${o.restaurant.name}</span>
             <span class="text-slate-400 text-[11px]">To: ${o.customer.landmark || o.customer.address}</span>
           </div>
-          <span class="font-black text-emerald-400 text-xs">+₹40.00</span>
+          <span class="font-black text-emerald-400 text-xs">+₹30.00</span>
         </div>
       `).join('');
     }
@@ -722,6 +946,13 @@
           }
         }
         if (event.type === 'CAPTAIN_ASSIGNED' || event.type === 'ORDER_PICKED_UP' || event.type === 'ORDER_DELIVERED') {
+          checkAssignedDeliveries();
+          renderHistory();
+          renderCaptainProfile();
+          renderModalFleetList();
+        }
+        if (event.type === 'CAPTAIN_LOGGED_IN') {
+          renderCaptainProfile();
           checkAssignedDeliveries();
           renderHistory();
         }

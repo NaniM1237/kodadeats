@@ -14,9 +14,52 @@ const RealtimeBus = (function() {
   const STORAGE_KEY_CAPTAINS = 'kodadeats_captains';
   const STORAGE_KEY_CURRENT_CAPTAIN = 'kodadeats_current_captain';
   const STORAGE_KEY_ADMIN_AUTH = 'kodadeats_admin_auth';
+  const STORAGE_KEY_INSTALLS = 'kodadeats_installs_count';
 
   // Authorized Admin Mobile Numbers (Restricted to Owner only)
   const ADMIN_AUTHORIZED_PHONES = ['9640103505', '9182348241'];
+
+  // Record App Install / Launch
+  function recordAppInstall() {
+    try {
+      const hasRecorded = localStorage.getItem('kodadeats_install_recorded');
+      let count = parseInt(localStorage.getItem(STORAGE_KEY_INSTALLS) || '0', 10);
+      if (!hasRecorded) {
+        count++;
+        localStorage.setItem(STORAGE_KEY_INSTALLS, count.toString());
+        localStorage.setItem('kodadeats_install_recorded', 'true');
+      }
+    } catch (e) {}
+  }
+  recordAppInstall();
+
+  function getTotalInstalls() {
+    try {
+      const stored = parseInt(localStorage.getItem(STORAGE_KEY_INSTALLS) || '0', 10);
+      const registered = getRegisteredCustomers().length;
+      return Math.max(stored, registered, 1);
+    } catch (e) {
+      return 1;
+    }
+  }
+
+  function getTodayMetrics() {
+    const orders = getAllOrders();
+    const todayDateStr = new Date().toDateString();
+    const todayOrders = orders.filter(o => {
+      const d = o.createdAt ? new Date(o.createdAt).toDateString() : todayDateStr;
+      return d === todayDateStr;
+    });
+    const todayDelivered = todayOrders.filter(o => o.status === 'DELIVERED').length;
+    const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    return {
+      todayCount: todayOrders.length,
+      todayDelivered,
+      todayRevenue,
+      totalOrders: orders.length,
+      totalInstalls: getTotalInstalls()
+    };
+  }
 
   // Configurable Server URL (default to origin or stored URL)
   let serverUrl = '';
@@ -389,6 +432,12 @@ const RealtimeBus = (function() {
 
   function getCurrentCaptain() {
     try {
+      const tabCapId = sessionStorage.getItem('kodadeats_tab_captain_id');
+      if (tabCapId) {
+        const captains = getCaptains();
+        const tabCap = captains.find(c => c.id === tabCapId);
+        if (tabCap) return tabCap;
+      }
       const data = localStorage.getItem(STORAGE_KEY_CURRENT_CAPTAIN);
       return data ? JSON.parse(data) : null;
     } catch (e) {
@@ -398,29 +447,67 @@ const RealtimeBus = (function() {
 
   function setCurrentCaptain(captain) {
     try {
-      localStorage.setItem(STORAGE_KEY_CURRENT_CAPTAIN, JSON.stringify(captain));
+      if (captain) {
+        sessionStorage.setItem('kodadeats_tab_captain_id', captain.id);
+        localStorage.setItem(STORAGE_KEY_CURRENT_CAPTAIN, JSON.stringify(captain));
+      } else {
+        sessionStorage.removeItem('kodadeats_tab_captain_id');
+        localStorage.removeItem(STORAGE_KEY_CURRENT_CAPTAIN);
+      }
       emit('CAPTAIN_LOGGED_IN', captain);
     } catch (e) {}
   }
 
   function logoutCaptain() {
     try {
+      sessionStorage.removeItem('kodadeats_tab_captain_id');
       localStorage.removeItem(STORAGE_KEY_CURRENT_CAPTAIN);
       emit('CAPTAIN_LOGGED_OUT', null);
     } catch (e) {}
   }
 
+  function getCaptainById(id) {
+    const captains = getCaptains();
+    return captains.find(c => c.id === id) || null;
+  }
+
+  function getCaptainByPhone(phone) {
+    const cleanPhone = (phone || '').replace(/\D/g, '').slice(-10);
+    const captains = getCaptains();
+    return captains.find(c => c.phone === cleanPhone) || null;
+  }
+
+  function switchCaptain(idOrPhone) {
+    const captains = getCaptains();
+    const clean = (idOrPhone || '').toString().trim();
+    const cleanPhone = clean.replace(/\D/g, '').slice(-10);
+    const cap = captains.find(c => c.id === clean || (cleanPhone && c.phone === cleanPhone));
+    if (cap) {
+      setCurrentCaptain(cap);
+      return cap;
+    }
+    return null;
+  }
+
   function registerCaptain(data) {
     const captains = getCaptains();
-    const cleanPhone = data.phone.replace(/\D/g, '').slice(-10);
+    const cleanPhone = (data.phone || '').replace(/\D/g, '').slice(-10);
     let cap = captains.find(c => c.phone === cleanPhone);
     if (!cap) {
-      const id = 'CAP-' + cleanPhone.slice(-4);
+      // Generate clean sequential Rider ID: CAP-1001, CAP-1002, etc. (up to 100+ fleet)
+      let nextNum = 1001;
+      const existingNums = captains
+        .map(c => parseInt((c.id || '').replace(/\D/g, ''), 10))
+        .filter(n => !isNaN(n) && n >= 1000);
+      if (existingNums.length > 0) {
+        nextNum = Math.max(...existingNums) + 1;
+      }
+      const id = 'CAP-' + nextNum;
       cap = {
         id: id,
-        name: data.name || `Captain (${cleanPhone.slice(-4)})`,
+        name: data.name || `Captain ${nextNum}`,
         phone: cleanPhone,
-        vehicle: data.vehicle || 'Bike (Kodad Delivery)',
+        vehicle: data.vehicle || 'Hero Splendor (Kodad)',
         rating: 5.0,
         ordersCompleted: 0,
         earningsTotal: 0,
@@ -556,8 +643,8 @@ _Please prepare and dispatch KodadEats Captain!_`;
       restaurant: orderData.restaurant,
       items: orderData.items,
       subtotal: orderData.subtotal,
-      deliveryFee: orderData.deliveryFee || 25,
-      packagingFee: 10,
+      deliveryFee: orderData.deliveryFee !== undefined ? orderData.deliveryFee : 30,
+      packagingFee: 0,
       discount: orderData.discount || 0,
       total: orderData.total,
       paymentMethod: orderData.paymentMethod || 'Cash on Delivery (COD)',
@@ -617,9 +704,17 @@ _Please prepare and dispatch KodadEats Captain!_`;
     const order = getOrderById(orderId);
     if (!order) return null;
 
-    const captain = KODAD_DATA.captains.find(c => c.id === captainId) || KODAD_DATA.captains[0];
+    const allCaptains = getCaptains();
+    const captain = allCaptains.find(c => c.id === captainId) || (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.captains && KODAD_DATA.captains.find(c => c.id === captainId));
+    if (!captain) return null;
+
     order.status = 'CAPTAIN_ASSIGNED';
-    order.captain = captain;
+    order.captain = {
+      id: captain.id,
+      name: captain.name,
+      phone: captain.phone,
+      vehicle: captain.vehicle
+    };
     order.history.push({
       status: 'CAPTAIN_ASSIGNED',
       title: `Captain Assigned: ${captain.name} (${captain.vehicle})`,
@@ -632,7 +727,7 @@ _Please prepare and dispatch KodadEats Captain!_`;
       fetch(`${serverUrl}/api/orders/${orderId}/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'CAPTAIN_ASSIGNED', captain })
+        body: JSON.stringify({ status: 'CAPTAIN_ASSIGNED', captain: order.captain })
       }).catch(e => {});
     }
 
@@ -680,13 +775,13 @@ _Please prepare and dispatch KodadEats Captain!_`;
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
 
-    // Credit ₹40 payout to assigned captain
+    // Credit ₹30 payout to assigned captain
     if (order.captain && order.captain.id) {
       const captains = getCaptains();
       const cap = captains.find(c => c.id === order.captain.id);
       if (cap) {
         cap.ordersCompleted = (cap.ordersCompleted || 0) + 1;
-        cap.earningsTotal = (cap.earningsTotal || 0) + 40;
+        cap.earningsTotal = (cap.earningsTotal || 0) + 30;
         saveCaptains(captains);
         const currentCap = getCurrentCaptain();
         if (currentCap && currentCap.id === cap.id) {
@@ -755,23 +850,45 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
   function validateCoupon(code, subtotal, phone = '') {
     const cleanCode = (code || '').toUpperCase().trim();
-    const coupon = (typeof KODAD_DATA !== 'undefined' ? KODAD_DATA.coupons : []).find(c => c.code === cleanCode);
-    if (!coupon) {
-      return { valid: false, message: 'Invalid coupon code.' };
+    const deliveredCount = getUserDeliveredCount(phone);
+
+    // Rule: Until completing 10 orders, NO coupons can be unlocked or used!
+    if (deliveredCount < 10) {
+      return { 
+        valid: false, 
+        discount: 0,
+        message: `Coupons locked! Complete 10 orders to unlock VIP rewards (${deliveredCount}/10 completed).` 
+      };
     }
-    if (subtotal < coupon.minOrder) {
-      return { valid: false, message: `Minimum order of ₹${coupon.minOrder} required for ${coupon.code}.` };
-    }
-    if (coupon.isVipOnly) {
-      const deliveredCount = getUserDeliveredCount(phone);
-      if (deliveredCount < 10) {
-        return { 
-          valid: false, 
-          message: `VIP Reward! Complete 10 orders to unlock this coupon (${deliveredCount}/10 completed).` 
-        };
+
+    if (cleanCode === 'KODAD50') {
+      if (subtotal < 500) {
+        return { valid: false, discount: 0, message: 'KODAD50 requires minimum food bill of ₹500.' };
       }
+      return { valid: true, discount: 50, message: '✓ ₹50 VIP Reward Applied!' };
     }
-    return { valid: true, discount: coupon.discount, coupon };
+
+    if (cleanCode === 'KODAD75') {
+      if (deliveredCount < 14) {
+        return { valid: false, discount: 0, message: `KODAD75 unlocks on your 15th order (${deliveredCount} completed).` };
+      }
+      if (subtotal < 700) {
+        return { valid: false, discount: 0, message: 'KODAD75 requires minimum food bill of ₹700.' };
+      }
+      return { valid: true, discount: 75, message: '✓ ₹75 VIP Reward Applied!' };
+    }
+
+    if (cleanCode === 'KODAD100') {
+      if (deliveredCount < 19) {
+        return { valid: false, discount: 0, message: `KODAD100 unlocks on your 20th order (${deliveredCount} completed).` };
+      }
+      if (subtotal < 1000) {
+        return { valid: false, discount: 0, message: 'KODAD100 requires minimum food bill of ₹1000.' };
+      }
+      return { valid: true, discount: 100, message: '✓ ₹100 VIP Mega Reward Applied!' };
+    }
+
+    return { valid: false, discount: 0, message: 'Invalid coupon code.' };
   }
 
   function getUpiPaymentDetails(amount, orderId = 'KD-0000') {
@@ -788,7 +905,8 @@ _Please prepare and dispatch KodadEats Captain!_`;
       ? KODAD_DATA.upiConfig.phonePeQrImage
       : 'upi-phonepe-qr.jpg';
     
-    const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('KodadEats Order #' + orderId)}`;
+    const note = encodeURIComponent('KodadEats Order #' + orderId);
+    const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${note}`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
 
     return {
@@ -800,9 +918,10 @@ _Please prepare and dispatch KodadEats Captain!_`;
       qrUrl,
       gpayQrImage: gpayQr,
       phonePeQrImage: phonePeQr,
-      intentPhonePe: `phonepe://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`,
-      intentGPay: `gpay://upi/pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`,
-      intentPaytm: `paytmmp://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR`
+      intentPhonePe: `phonepe://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${note}`,
+      intentGPay: `tez://upi/pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${note}`,
+      intentPaytm: `paytmmp://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${note}`,
+      intentUniversal: upiUri
     };
   }
 
@@ -815,6 +934,9 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getCurrentUser,
     setCurrentUser,
     logoutUser,
+    recordAppInstall,
+    getTotalInstalls,
+    getTodayMetrics,
     generateOtp,
     verifyOtp,
     showOtpBanner,
@@ -831,6 +953,9 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getCurrentCaptain,
     setCurrentCaptain,
     logoutCaptain,
+    getCaptainById,
+    getCaptainByPhone,
+    switchCaptain,
     registerCaptain,
     captainAcceptOrder,
     captainDeclineOrder,

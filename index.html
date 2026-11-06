@@ -99,23 +99,19 @@
         <p class="text-[11px] text-slate-500 font-semibold">కొదాడ నంబర్ 1 ఫుడ్ డెలివరీ యాప్ • Choose your portal</p>
       </div>
 
-      <!-- Portal / Role Tabs (Customer, Captain, Restaurant, Admin) -->
-      <div class="grid grid-cols-4 bg-slate-100 p-1 rounded-2xl text-[11px] font-extrabold gap-0.5">
-        <button id="roleTabCustomer" onclick="switchPortalTab('customer')" class="py-2 rounded-xl bg-white shadow-xs text-blue-600 transition flex flex-col items-center gap-0.5">
+      <!-- Portal / Role Tabs (Customer, Captain, Restaurant - ONLY 3 BOXES) -->
+      <div class="grid grid-cols-3 bg-slate-100 p-1 rounded-2xl text-[11px] font-extrabold gap-1">
+        <button id="roleTabCustomer" onclick="switchPortalTab('customer')" class="py-2.5 rounded-xl bg-white shadow-xs text-blue-600 transition flex flex-col items-center gap-0.5">
           <span class="text-base">🛍️</span>
           <span>Customer</span>
         </button>
-        <button id="roleTabCaptain" onclick="switchPortalTab('captain')" class="py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
+        <button id="roleTabCaptain" onclick="switchPortalTab('captain')" class="py-2.5 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
           <span class="text-base">🛵</span>
-          <span>Captain</span>
+          <span>Captain (₹30)</span>
         </button>
-        <button id="roleTabRest" onclick="switchPortalTab('restaurant')" class="py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
+        <button id="roleTabRest" onclick="switchPortalTab('restaurant')" class="py-2.5 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
           <span class="text-base">🍳</span>
           <span>Kitchen</span>
-        </button>
-        <button id="roleTabAdmin" onclick="switchPortalTab('admin')" class="py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5">
-          <span class="text-base">👑</span>
-          <span>Admin</span>
         </button>
       </div>
 
@@ -133,7 +129,7 @@
           </div>
 
           <button id="authSendOtpBtn" onclick="handleSendCustomerOtp()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
-            <span>Send 6-Digit OTP ➔</span>
+            <span>Send Real 6-Digit OTP ➔</span>
           </button>
         </div>
 
@@ -195,23 +191,50 @@
 
       </div>
 
-      <!-- 2. CAPTAIN (DELIVERY RIDER) PORTAL VIEW -->
+      <!-- 2. CAPTAIN (DELIVERY RIDER) PORTAL VIEW WITH OTP LOGIN -->
       <div id="roleViewCaptain" class="hidden space-y-3">
-        <div class="p-4 bg-gradient-to-br from-slate-900 to-blue-950 text-white rounded-2xl border border-blue-800/50 space-y-2">
+        <div class="p-4 bg-gradient-to-br from-slate-900 to-blue-950 text-white rounded-2xl border border-blue-800/50 space-y-3">
           <div class="flex items-center gap-2.5">
             <span class="text-3xl">🛵</span>
             <div>
-              <h4 class="font-black text-sm text-white">Delivery Captain Portal</h4>
-              <p class="text-[11px] text-blue-200">Kodad Delivery Partner Network</p>
+              <h4 class="font-black text-sm text-white">Join Kodad Delivery Fleet</h4>
+              <p class="text-[11px] text-amber-300 font-bold">Earn ₹30 cash per delivery order!</p>
             </div>
           </div>
-          <p class="text-[11px] text-slate-300 leading-snug">
-            Accept incoming food orders from Kodad restaurants, navigate using turn-by-turn route maps, collect UPI / Cash, and earn ₹40 per delivery trip.
-          </p>
-          <div class="pt-2">
-            <a href="captain.html" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow-lg transition flex items-center justify-center gap-2">
-              <span>Open Delivery Captain App ➔</span>
-            </a>
+
+          <!-- Captain Step 1: Phone -->
+          <div id="modalCapStep1" class="space-y-2.5">
+            <div>
+              <label class="text-[10px] font-bold text-slate-300 block mb-1">Enter Captain Mobile Number:</label>
+              <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-blue-400">
+                <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
+                <input id="modalCapPhoneInput" type="tel" maxlength="10" placeholder="9848012345" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+              </div>
+            </div>
+            <button onclick="handleSendModalCaptainOtp()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+              <span>📲</span>
+              <span>Send 6-Digit OTP ➔</span>
+            </button>
+          </div>
+
+          <!-- Captain Step 2: OTP & Details -->
+          <div id="modalCapStep2" class="hidden space-y-2.5 bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-1">Enter 6-Digit OTP:</span>
+              <input id="modalCapOtpInput" type="tel" maxlength="6" placeholder="000000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-center text-lg font-black tracking-widest font-mono text-amber-300 focus:outline-none">
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-1">Captain Full Name:</span>
+              <input id="modalCapNameInput" type="text" placeholder="e.g. Ramesh Goud" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-1">Bike Number:</span>
+              <input id="modalCapVehicleInput" type="text" placeholder="e.g. Hero Splendor (TS-05-1234)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
+            </div>
+            <button onclick="handleVerifyModalCaptainOtp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+              <span>✓</span>
+              <span>Verify & Open Rider App ➔</span>
+            </button>
           </div>
         </div>
       </div>
@@ -234,41 +257,6 @@
               <span>Open Kitchen Dashboard ➔</span>
             </a>
           </div>
-        </div>
-      </div>
-
-      <!-- 4. ADMIN PORTAL VIEW (OWNER RESTRICTED: 9640103505, 9182348241) -->
-      <div id="roleViewAdmin" class="hidden space-y-3">
-        <div class="p-4 bg-slate-900 text-white rounded-2xl border border-amber-500/40 space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-2xl">👑</span>
-              <div>
-                <h4 class="font-black text-sm text-white">Central Operations Hub</h4>
-                <span class="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.2 rounded-full uppercase">Restricted Access</span>
-              </div>
-            </div>
-          </div>
-          <p class="text-[11px] text-slate-300">
-            Full dispatch control, live siren monitoring, captain fleet management & revenue analytics. Restricted strictly to authorized owner numbers.
-          </p>
-
-          <div>
-            <label class="text-[10px] font-bold text-slate-300 block mb-1">Enter Authorized Admin Mobile Number:</label>
-            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-amber-400 transition">
-              <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
-              <input id="adminMobileInput" type="tel" maxlength="10" placeholder="9640103505" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
-            </div>
-          </div>
-
-          <!-- Unauthorized Error Alert -->
-          <div id="adminAuthError" class="hidden p-2.5 bg-red-950/80 border border-red-500 text-red-200 rounded-xl text-[11px] font-bold">
-            ⛔ Access Denied! Only authorized KodadEats Admins (9640103505, 9182348241) can access Central Operations.
-          </div>
-
-          <button onclick="handleAdminPortalLogin()" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-2.5 px-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-            <span>Verify & Access Admin Hub ➔</span>
-          </button>
         </div>
       </div>
 
@@ -355,11 +343,12 @@
             <span id="cartTotalHeader">₹0</span>
           </button>
 
-          <!-- Switch Portals Button (Customer / Captain / Restaurant / Admin) -->
-          <button onclick="openPortalSelectorModal()" title="Switch Portal" class="bg-white/15 hover:bg-white/25 active:scale-95 text-white px-2.5 py-1.5 rounded-2xl border border-white/25 text-xs font-black transition flex items-center gap-1 shadow-sm">
-            <span>⇄</span>
-            <span class="hidden sm:inline">Portals</span>
-          </button>
+          <!-- 24/7 Kodad Customer Enquiry Button -->
+          <a href="tel:9640103505" title="Call KodadEats Support / Enquiry" class="bg-white/20 hover:bg-white/30 active:scale-95 text-white px-2.5 py-1.5 rounded-2xl border border-white/30 text-xs font-black transition flex items-center gap-1 shadow-sm">
+            <span>📞</span>
+            <span class="hidden md:inline">Enquiry: 9640103505</span>
+            <span class="md:hidden">Help</span>
+          </a>
 
           <!-- Customer Profile Avatar Pill with Initial Letter (Gmail Style) -->
           <button id="userProfileBtn" onclick="openProfileDrawer()" class="w-10 h-10 rounded-2xl bg-white text-blue-700 font-black text-sm flex items-center justify-center shadow-md ring-2 ring-white/40 transition hover:scale-105 active:scale-95">
@@ -519,6 +508,55 @@
     </div>
   </section>
 
+  <!-- ================= 9.5 KODADEATS OFFICIAL FOOTER & 24/7 ENQUIRY HELPLINE ================= -->
+  <footer class="bg-slate-900 text-white mt-12 pt-8 pb-20 sm:pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-600/40">
+            🛵
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-white">Kodad<span class="text-amber-400">Eats</span></h3>
+            <p class="text-xs text-slate-400 font-semibold">కొదాడ నంబర్ 1 ఫాస్ట్ ఫుడ్ డెలివరీ యాప్</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="text-slate-400 font-bold mr-1">For Enquiries & Orders:</span>
+          <a href="tel:9640103505" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md">
+            <span>📞</span>
+            <span>9640103505</span>
+          </a>
+          <a href="tel:9182348241" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md">
+            <span>📞</span>
+            <span>9182348241</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-400">
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-white uppercase text-[11px] tracking-wider">⚡ Hyperlocal Speed</h4>
+          <p class="text-[11px] leading-relaxed">Flat ₹30 local delivery charge. Zero packing charges on every order across Kodad town!</p>
+        </div>
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-white uppercase text-[11px] tracking-wider">🎁 Loyalty Milestone Club</h4>
+          <p class="text-[11px] leading-relaxed">Complete 10 orders to unlock VIP Coupons: 11th order ₹50 OFF (min ₹500), 15th order ₹75 OFF (min ₹700), 20th order ₹100 OFF (min ₹1000)!</p>
+        </div>
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-white uppercase text-[11px] tracking-wider">📍 Covered Areas in Kodad</h4>
+          <p class="text-[11px] leading-relaxed">Balaji Nagar, Bus Stand Circle, Huzurnagar Road, Khammam X Road, Gandhi Chowk & Srinivasa Nagar.</p>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-2">
+        <p>© 2026 KodadEats • All Rights Reserved • UPI: manda.nani07-2@okaxis</p>
+        <p class="font-bold text-slate-400">Support Helpline: +91 9640103505 / +91 9182348241</p>
+      </div>
+    </div>
+  </footer>
+
   <!-- ================= 10. FLOATING BOTTOM CHECKOUT BAR (ZOMATO STYLE) ================= -->
   <div id="mobileBottomCartBar" class="hidden fixed bottom-3 inset-x-3 z-40 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-white/20 animate-in fade-in slide-in-from-bottom-4">
     <div class="flex items-center gap-2.5">
@@ -634,7 +672,7 @@
             </div>
           </div>
 
-          <!-- Payment Options with Dynamic QR Code Box -->
+          <!-- Payment Options with Instant Mobile App Redirects & Dynamic QR -->
           <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-3">
             <h4 class="font-bold text-xs uppercase tracking-wide text-slate-700">Payment Option</h4>
             <div class="space-y-1.5 text-xs font-semibold">
@@ -643,66 +681,90 @@
                 <span>💵 Cash on Delivery (COD)</span>
               </label>
               <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer">
-                <input type="radio" name="paymentOption" value="Pay Online via UPI / QR Code" onchange="handlePaymentOptionChange(this.value)" class="accent-blue-600 w-4 h-4">
-                <span>📱 Pay Online via UPI / QR Code (PhonePe, GPay, Paytm)</span>
+                <input type="radio" name="paymentOption" value="Pay Online via UPI" onchange="handlePaymentOptionChange(this.value)" class="accent-blue-600 w-4 h-4">
+                <span>📱 Pay Online via UPI (PhonePe, GPay, Paytm)</span>
               </label>
             </div>
 
-            <!-- Dynamic UPI QR Code Box (Displays when Online UPI is selected) -->
-            <div id="checkoutUpiBox" class="hidden p-3.5 bg-white border-2 border-dashed border-blue-400 rounded-2xl text-center space-y-2 animate-in fade-in">
-              <span class="text-xs font-bold text-slate-600 block">Scan to Pay via Any UPI App:</span>
-              
-              <!-- Tab switches: Auto Amount / GPay / PhonePe -->
-              <div class="flex items-center justify-center gap-1.5 p-1 bg-slate-100 rounded-xl text-[11px] font-bold">
-                <button type="button" id="custTabDynamic" onclick="switchCustomerQrMode('dynamic')" class="px-2.5 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold">⚡ Exact ₹Total</button>
-                <button type="button" id="custTabGpay" onclick="switchCustomerQrMode('gpay')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">🟢 GPay QR</button>
-                <button type="button" id="custTabPhonepe" onclick="switchCustomerQrMode('phonepe')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">🟣 PhonePe QR</button>
+            <!-- Instant Mobile UPI App Redirection & QR Box -->
+            <div id="checkoutUpiBox" class="hidden p-3.5 bg-white border-2 border-dashed border-blue-400 rounded-2xl space-y-3 animate-in fade-in">
+              <div class="text-center">
+                <span class="text-xs font-black text-slate-800 block">Tap Your App to Pay Directly:</span>
+                <span class="text-[10px] text-slate-500">Opens your UPI app with pre-filled amount to Nani Manda</span>
               </div>
 
-              <div class="p-2 bg-slate-50 border border-slate-200 rounded-xl inline-block mx-auto shadow-inner">
-                <img id="checkoutQrImg" src="" alt="KodadEats UPI QR" class="w-44 h-44 mx-auto object-contain rounded-lg">
+              <!-- 1-Tap Mobile UPI Direct Launch Buttons -->
+              <div class="space-y-2">
+                <a id="intentPhonePeBtn" href="#" class="w-full bg-purple-600 hover:bg-purple-700 active:scale-98 text-white font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🟣</span>
+                    <span>Pay with PhonePe</span>
+                  </div>
+                  <span id="phonePeBtnAmount" class="bg-white/20 px-2 py-0.5 rounded-md font-mono">₹0</span>
+                </a>
+
+                <a id="intentGPayBtn" href="#" class="w-full bg-sky-600 hover:bg-sky-700 active:scale-98 text-white font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🟢</span>
+                    <span>Pay with Google Pay</span>
+                  </div>
+                  <span id="gpayBtnAmount" class="bg-white/20 px-2 py-0.5 rounded-md font-mono">₹0</span>
+                </a>
+
+                <a id="intentPaytmBtn" href="#" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🔵</span>
+                    <span>Pay with Paytm</span>
+                  </div>
+                  <span id="paytmBtnAmount" class="bg-white/20 px-2 py-0.5 rounded-md font-mono">₹0</span>
+                </a>
+
+                <a id="intentUniversalBtn" href="#" class="w-full bg-slate-800 hover:bg-slate-900 active:scale-98 text-white font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">⚡</span>
+                    <span>Pay with Any UPI App</span>
+                  </div>
+                  <span id="universalBtnAmount" class="bg-white/20 px-2 py-0.5 rounded-md font-mono">₹0</span>
+                </a>
               </div>
-              <div class="text-xs font-black text-blue-900">
-                Amount to Pay: <span id="checkoutUpiAmount" class="text-base text-blue-600">₹0</span>
-              </div>
-              <div class="bg-blue-50 text-blue-900 p-2 rounded-xl text-[11px] font-mono font-bold flex items-center justify-between">
-                <div class="text-left">
-                  <span class="block text-[10px] text-slate-500 font-sans font-medium">Verified: Nani Manda</span>
-                  <span id="checkoutUpiIdText">manda.nani07-2@okaxis</span>
+
+              <!-- QR Code Fallback for Desktop / Scan -->
+              <div class="pt-2 border-t border-slate-100 text-center space-y-2">
+                <span class="text-[11px] font-bold text-slate-500 block">Or scan QR code to pay:</span>
+
+                <!-- Tab switches: Auto Amount / GPay / PhonePe -->
+                <div class="flex items-center justify-center gap-1.5 p-1 bg-slate-100 rounded-xl text-[10px] font-bold">
+                  <button type="button" id="custTabDynamic" onclick="switchCustomerQrMode('dynamic')" class="px-2 py-1 rounded-lg bg-white text-blue-600 shadow-xs font-extrabold">⚡ Exact Total</button>
+                  <button type="button" id="custTabGpay" onclick="switchCustomerQrMode('gpay')" class="px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900">🟢 GPay QR</button>
+                  <button type="button" id="custTabPhonepe" onclick="switchCustomerQrMode('phonepe')" class="px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900">🟣 PhonePe QR</button>
                 </div>
-                <button type="button" onclick="copyUpiId()" class="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg font-sans font-bold flex items-center gap-1 transition">
-                  <span id="copyUpiText">📋 Copy</span>
-                </button>
-              </div>
-              
-              <!-- 1-Tap Mobile UPI Intent Buttons -->
-              <div class="grid grid-cols-3 gap-1.5 pt-1 text-[10px] font-black">
-                <a id="intentPhonePeBtn" href="#" class="p-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl border border-purple-200 transition text-center flex items-center justify-center gap-1">
-                  <span>🟣</span> PhonePe
-                </a>
-                <a id="intentGPayBtn" href="#" class="p-2 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl border border-sky-200 transition text-center flex items-center justify-center gap-1">
-                  <span>🟢</span> GPay
-                </a>
-                <a id="intentPaytmBtn" href="#" class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl border border-blue-200 transition text-center flex items-center justify-center gap-1">
-                  <span>🔵</span> Paytm
-                </a>
+
+                <div class="p-2 bg-slate-50 border border-slate-200 rounded-xl inline-block mx-auto shadow-inner">
+                  <img id="checkoutQrImg" src="" alt="KodadEats UPI QR" class="w-40 h-40 mx-auto object-contain rounded-lg">
+                </div>
+
+                <div class="bg-blue-50 text-blue-900 p-2 rounded-xl text-[11px] font-mono font-bold flex items-center justify-between">
+                  <div class="text-left">
+                    <span class="block text-[10px] text-slate-500 font-sans font-medium">Verified: Nani Manda</span>
+                    <span id="checkoutUpiIdText">manda.nani07-2@okaxis</span>
+                  </div>
+                  <button type="button" onclick="copyUpiId()" class="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg font-sans font-bold flex items-center gap-1 transition">
+                    <span id="copyUpiText">📋 Copy</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Bill Summary -->
+          <!-- Bill Summary (Delivery Fee ₹30, Packing Charges Removed) -->
           <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 text-xs font-semibold">
             <div class="flex justify-between text-slate-600">
               <span>Item Subtotal</span>
               <span id="billSubtotal">₹0</span>
             </div>
             <div class="flex justify-between text-slate-600">
-              <span>Kodad Local Delivery Fee</span>
-              <span id="billDelivery">₹25</span>
-            </div>
-            <div class="flex justify-between text-slate-600">
-              <span>Restaurant Packaging</span>
-              <span>₹10</span>
+              <span>Delivery Charges</span>
+              <span id="billDelivery" class="font-bold text-slate-800">₹30</span>
             </div>
             <div id="discountRow" class="hidden flex justify-between text-emerald-600 font-bold">
               <span>Applied Discount (<span id="discountCodeText">PROMO</span>)</span>
@@ -963,22 +1025,27 @@
             </div>
           </div>
 
-          <!-- Partner Portal Switcher -->
+          <!-- 24/7 Kodad Customer Help & Enquiry Card -->
           <div class="pt-3 border-t border-slate-100 space-y-2">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Partner & Business Hubs</span>
-            <div class="grid grid-cols-3 gap-2 text-center text-xs">
-              <a href="restaurant.html" class="p-2.5 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-1">
-                <span class="text-xl">👨‍🍳</span>
-                <span class="text-[10px] font-bold text-slate-800">Kitchen</span>
-              </a>
-              <a href="captain.html" class="p-2.5 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-1">
-                <span class="text-xl">🛵</span>
-                <span class="text-[10px] font-bold text-slate-800">Captain</span>
-              </a>
-              <a href="admin.html" class="p-2.5 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-1">
-                <span class="text-xl">⚡</span>
-                <span class="text-[10px] font-bold text-slate-800">Admin Ops</span>
-              </a>
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">24/7 Kodad Customer Support</span>
+            <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-xs">
+                  📞
+                </div>
+                <div>
+                  <h5 class="text-xs font-black text-slate-900">Have an enquiry or need help?</h5>
+                  <p class="text-[11px] text-slate-600">Call KodadEats Support directly:</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                <a href="tel:9640103505" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 px-3 rounded-xl text-center flex items-center justify-center gap-1.5 shadow-sm transition">
+                  <span>📞 9640103505</span>
+                </a>
+                <a href="tel:9182348241" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-3 rounded-xl text-center flex items-center justify-center gap-1.5 shadow-sm transition">
+                  <span>📞 9182348241</span>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -1259,7 +1326,7 @@
 
     function switchPortalTab(role) {
       currentAuthRole = role;
-      const roles = ['customer', 'captain', 'restaurant', 'admin'];
+      const roles = ['customer', 'captain', 'restaurant'];
       
       roles.forEach(r => {
         const tab = document.getElementById('roleTab' + r.charAt(0).toUpperCase() + r.slice(1).replace('rant', ''));
@@ -1268,8 +1335,8 @@
         
         if (tab) {
           tab.className = isCurrent 
-            ? 'py-2 rounded-xl bg-white shadow-xs text-blue-600 transition flex flex-col items-center gap-0.5' 
-            : 'py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5';
+            ? 'py-2.5 rounded-xl bg-white shadow-xs text-blue-600 transition flex flex-col items-center gap-0.5' 
+            : 'py-2.5 rounded-xl text-slate-600 hover:text-slate-900 transition flex flex-col items-center gap-0.5';
         }
         if (view) {
           view.classList.toggle('hidden', !isCurrent);
@@ -1353,22 +1420,57 @@
       setTimeout(initSmartCravingToast, 1800);
     }
 
-    // Admin Verification (Restricted to 9640103505, 9182348241 only)
-    function handleAdminPortalLogin() {
-      const phoneInput = document.getElementById('adminMobileInput').value.trim();
-      const cleanPhone = phoneInput.replace(/\D/g, '').slice(-10);
-      const errorDiv = document.getElementById('adminAuthError');
+    // Captain OTP Flow from Role Selector
+    let pendingModalCaptainPhone = '';
 
-      if (!RealtimeBus.isAdminAuthorized(cleanPhone)) {
-        errorDiv.classList.remove('hidden');
-        RealtimeBus.Sounds.playIncomingOrderSiren();
+    function handleSendModalCaptainOtp() {
+      const phoneInput = document.getElementById('modalCapPhoneInput').value.trim();
+      const cleanPhone = phoneInput.replace(/\D/g, '').slice(-10);
+
+      if (cleanPhone.length < 10) {
+        alert("Please enter a valid 10-digit mobile number!");
         return;
       }
 
-      errorDiv.classList.add('hidden');
-      RealtimeBus.setAdminSession(cleanPhone);
+      pendingModalCaptainPhone = cleanPhone;
+      const otpData = RealtimeBus.generateOtp(cleanPhone);
+
+      const captains = RealtimeBus.getCaptains();
+      const existing = captains.find(c => c.phone === cleanPhone);
+      if (existing) {
+        document.getElementById('modalCapNameInput').value = existing.name || '';
+        document.getElementById('modalCapVehicleInput').value = existing.vehicle || '';
+      }
+
+      document.getElementById('modalCapStep1').classList.add('hidden');
+      document.getElementById('modalCapStep2').classList.remove('hidden');
+      document.getElementById('modalCapOtpInput').value = otpData.code;
+    }
+
+    function handleVerifyModalCaptainOtp() {
+      const inputOtp = document.getElementById('modalCapOtpInput').value.trim();
+      const name = document.getElementById('modalCapNameInput').value.trim();
+      const vehicle = document.getElementById('modalCapVehicleInput').value.trim();
+
+      const res = RealtimeBus.verifyOtp(pendingModalCaptainPhone, inputOtp);
+      if (!res.success) {
+        alert(res.message);
+        return;
+      }
+
+      if (!name) {
+        alert("Please enter captain full name!");
+        return;
+      }
+
+      RealtimeBus.registerCaptain({
+        phone: pendingModalCaptainPhone,
+        name: name,
+        vehicle: vehicle || 'Hero Splendor (Kodad)'
+      });
+
       closeAuthGateModal();
-      window.location.href = 'admin.html';
+      window.location.href = 'captain.html';
     }
 
     function logoutCurrentUser() {
@@ -1517,6 +1619,8 @@
     function handleBannerAction(type, arg) {
       if (type === 'coupons') {
         openProfileDrawer('loyalty');
+      } else if (type === 'call') {
+        window.location.href = 'tel:9640103505';
       } else if (type === 'category') {
         filterCategory(arg || 'biryani');
       } else if (type === 'veg') {
@@ -2179,13 +2283,23 @@
       const user = RealtimeBus.getCurrentUser();
       const deliveredCount = RealtimeBus.getUserDeliveredCount(user?.phone);
 
+      if (deliveredCount < 10) {
+        container.innerHTML = `
+          <div class="w-full text-center p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 text-[11px] font-bold">
+            🔒 VIP Coupons unlock after 10 completed orders (${deliveredCount}/10 completed)
+          </div>
+        `;
+        return;
+      }
+
       container.innerHTML = KODAD_DATA.coupons.map(c => {
-        const isLocked = c.isVipOnly && deliveredCount < 10;
+        const isEligible = deliveredCount >= (c.requiredOrders || 10);
         return `
-          <button onclick="${isLocked ? `alert('VIP Reward! Complete 10 orders to unlock this coupon (${deliveredCount}/10 completed).')` : `setCouponCode('${c.code}')`}" class="flex-shrink-0 px-2.5 py-1 rounded-lg border text-[10px] font-black transition ${
-            isLocked ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+          <button onclick="${isEligible ? `setCouponCode('${c.code}')` : `alert('${c.milestoneTitle || c.code} requires completing ${c.requiredOrders} orders (${deliveredCount} completed).')`}" class="flex-shrink-0 px-2.5 py-1.5 rounded-xl border text-[10px] font-black transition ${
+            isEligible ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 shadow-xs' : 'bg-slate-100 text-slate-400 border-slate-200'
           }">
-            <span>${isLocked ? '🔒' : '🎟️'} ${c.code} (₹${c.discount} OFF)</span>
+            <span>${isEligible ? '🎟️' : '🔒'} ${c.code} (₹${c.discount} OFF)</span>
+            <span class="block text-[9px] font-normal text-slate-500">${c.milestoneTitle || ''} (Min ₹${c.minOrder})</span>
           </button>
         `;
       }).join('');
@@ -2234,20 +2348,34 @@
 
     function updateCheckoutUpiQr() {
       const subtotal = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
-      const deliveryFee = cart.length > 0 ? 25 : 0;
-      const packaging = cart.length > 0 ? 10 : 0;
-      const discount = activeCoupon ? activeCoupon.discount : (subtotal >= 300 ? 50 : 0);
-      const total = Math.max(0, subtotal + deliveryFee + packaging - discount);
+      const deliveryFee = cart.length > 0 ? 30 : 0;
+      const discount = activeCoupon ? activeCoupon.discount : 0;
+      const total = Math.max(0, subtotal + deliveryFee - discount);
 
       currentCustUpiData = RealtimeBus.getUpiPaymentDetails(total, 'NEW');
       document.getElementById('checkoutUpiAmount').textContent = `₹${total}`;
       document.getElementById('checkoutUpiIdText').textContent = currentCustUpiData.upiId;
 
+      const pAmt = document.getElementById('phonePeBtnAmount');
+      const gAmt = document.getElementById('gpayBtnAmount');
+      const paytmAmt = document.getElementById('paytmBtnAmount');
+      const uniAmt = document.getElementById('universalBtnAmount');
+      if (pAmt) pAmt.textContent = `₹${total}`;
+      if (gAmt) gAmt.textContent = `₹${total}`;
+      if (paytmAmt) paytmAmt.textContent = `₹${total}`;
+      if (uniAmt) uniAmt.textContent = `₹${total}`;
+
       switchCustomerQrMode(currentCustQrMode || 'dynamic');
 
-      document.getElementById('intentPhonePeBtn').href = currentCustUpiData.intentPhonePe;
-      document.getElementById('intentGPayBtn').href = currentCustUpiData.intentGPay;
-      document.getElementById('intentPaytmBtn').href = currentCustUpiData.intentPaytm;
+      const phonePeBtn = document.getElementById('intentPhonePeBtn');
+      const gpayBtn = document.getElementById('intentGPayBtn');
+      const paytmBtn = document.getElementById('intentPaytmBtn');
+      const uniBtn = document.getElementById('intentUniversalBtn');
+
+      if (phonePeBtn) phonePeBtn.href = currentCustUpiData.intentPhonePe;
+      if (gpayBtn) gpayBtn.href = currentCustUpiData.intentGPay;
+      if (paytmBtn) paytmBtn.href = currentCustUpiData.intentPaytm;
+      if (uniBtn) uniBtn.href = currentCustUpiData.intentUniversal;
     }
 
     function switchCustomerQrMode(mode) {
@@ -2307,10 +2435,9 @@
     function renderCartUI() {
       const count = cart.reduce((acc, c) => acc + c.quantity, 0);
       const subtotal = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
-      const deliveryFee = count > 0 ? 25 : 0;
-      const packaging = count > 0 ? 10 : 0;
-      const discount = activeCoupon ? activeCoupon.discount : (subtotal >= 300 ? 50 : 0);
-      const grandTotal = Math.max(0, subtotal + deliveryFee + packaging - discount);
+      const deliveryFee = count > 0 ? 30 : 0;
+      const discount = activeCoupon ? activeCoupon.discount : 0;
+      const grandTotal = Math.max(0, subtotal + deliveryFee - discount);
 
       // Header values
       document.getElementById('cartTotalHeader').textContent = `₹${grandTotal}`;
@@ -2416,8 +2543,8 @@
       const custLng = customerLiveCoords ? customerLiveCoords.lng : landmarkObj.lng;
 
       const subtotal = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
-      const discount = activeCoupon ? activeCoupon.discount : (subtotal >= 300 ? 50 : 0);
-      const total = Math.max(0, subtotal + 25 + 10 - discount);
+      const discount = activeCoupon ? activeCoupon.discount : 0;
+      const total = Math.max(0, subtotal + 30 - discount);
 
       const orderData = {
         customer: {
@@ -2435,7 +2562,7 @@
         },
         items: [...cart],
         subtotal: subtotal,
-        deliveryFee: 25,
+        deliveryFee: 30,
         discount: discount,
         total: total,
         paymentMethod: paymentMethod

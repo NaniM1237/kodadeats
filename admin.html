@@ -81,6 +81,22 @@
     </div>
   </div>
 
+  <!-- ================= DELIVERED ORDER NOTIFICATION BANNER ================= -->
+  <div id="deliveredOrderAlertBanner" class="hidden bg-emerald-600 text-white p-4 shadow-xl flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50 animate-in slide-in-from-top">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl">🎉</span>
+      <div>
+        <h3 class="text-base font-black uppercase tracking-wide">ORDER DELIVERED SUCCESSFULLY!</h3>
+        <p id="deliveredAlertText" class="text-xs text-emerald-100">Order delivered to customer in Kodad. Rider commission credited!</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="document.getElementById('deliveredOrderAlertBanner').classList.add('hidden')" class="bg-white text-emerald-900 hover:bg-slate-100 font-black text-xs px-3.5 py-2 rounded-xl shadow-md transition">
+        Dismiss ✕
+      </button>
+    </div>
+  </div>
+
   <!-- ================= ADMIN HEADER ================= -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
     <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
@@ -120,9 +136,20 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Orders</span>
-          <h3 id="statTotalOrders" class="text-2xl font-black text-slate-900 mt-1">0</h3>
-          <span class="text-[11px] text-emerald-600 font-semibold">↑ Realtime Kodad count</span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Installs & Users</span>
+          <h3 id="statTotalInstalls" class="text-2xl font-black text-slate-900 mt-1">1</h3>
+          <span id="statInstallsSub" class="text-[11px] text-blue-600 font-semibold">↑ Customers & downloads</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold">
+          📲
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Orders Done Today</span>
+          <h3 id="statTodayOrders" class="text-2xl font-black text-blue-600 mt-1">0</h3>
+          <span id="statTotalOrdersSub" class="text-[11px] text-slate-500 font-semibold">0 all-time orders</span>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold">
           📦
@@ -131,9 +158,9 @@
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Sales (INR)</span>
-          <h3 id="statTotalRevenue" class="text-2xl font-black text-slate-900 mt-1">₹0</h3>
-          <span class="text-[11px] text-emerald-600 font-semibold">₹25 delivery fee/order</span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Today's Revenue (INR)</span>
+          <h3 id="statTodayRevenue" class="text-2xl font-black text-emerald-600 mt-1">₹0</h3>
+          <span id="statTotalRevenueSub" class="text-[11px] text-emerald-600 font-semibold">₹30 delivery fee/order</span>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold">
           ₹
@@ -142,23 +169,12 @@
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
         <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Deliveries</span>
-          <h3 id="statActiveDeliveries" class="text-2xl font-black text-blue-600 mt-1">0</h3>
-          <span class="text-[11px] text-blue-500 font-semibold">Cooking or en route</span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Kodad Captains Fleet</span>
+          <h3 id="statCaptainsCount" class="text-2xl font-black text-slate-900 mt-1">0</h3>
+          <span id="statActiveDeliveriesText" class="text-[11px] text-amber-600 font-semibold">0 active deliveries</span>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold">
           🛵
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
-        <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Kodad Captains</span>
-          <h3 class="text-2xl font-black text-slate-900 mt-1">3 Active</h3>
-          <span class="text-[11px] text-emerald-600 font-semibold">100% fleet online</span>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold">
-          👥
         </div>
       </div>
     </div>
@@ -205,15 +221,18 @@
 
     <!-- ================= TAB 2: DELIVERY CAPTAINS FLEET ================= -->
     <div id="view-captains" class="hidden space-y-4">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 class="font-black text-lg text-slate-900">Kodad Delivery Fleet (Captains)</h3>
-          <span class="text-xs text-slate-500">Live delivery riders registered in Kodad Town</span>
+          <span class="text-xs text-slate-500">Live delivery riders registered in Kodad Town (10 to 100 capacity)</span>
         </div>
-        <a href="captain.html" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
-          <span>+</span>
-          <span>Register / Open Captain App</span>
-        </a>
+        <div class="flex items-center gap-2">
+          <input id="adminFleetSearch" type="text" oninput="renderCaptainsFleet(this.value)" placeholder="🔍 Search Rider ID, Name, Phone..." class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-xs">
+          <a href="captain.html" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 shrink-0">
+            <span>+</span>
+            <span>Register / Open Captain App</span>
+          </a>
+        </div>
       </div>
 
       <!-- Dynamic Fleet Grid -->
@@ -600,7 +619,7 @@
       updateKPICounters();
     }
 
-    function renderCaptainsFleet() {
+    function renderCaptainsFleet(searchQuery = '') {
       const fleet = RealtimeBus.getCaptains();
       const container = document.getElementById('captainsFleetContainer');
       const badge = document.getElementById('tabFleetCountBadge');
@@ -608,18 +627,27 @@
 
       if (!container) return;
 
-      if (fleet.length === 0) {
+      const q = (searchQuery || '').toLowerCase().trim();
+      const filtered = fleet.filter(c => 
+        !q || 
+        c.name.toLowerCase().includes(q) || 
+        c.id.toLowerCase().includes(q) || 
+        c.phone.includes(q) || 
+        (c.vehicle && c.vehicle.toLowerCase().includes(q))
+      );
+
+      if (filtered.length === 0) {
         container.innerHTML = `
           <div class="col-span-full bg-white rounded-3xl p-8 text-center border border-slate-200 text-slate-400 space-y-2">
             <span class="text-4xl block">🛵</span>
-            <p class="font-bold text-sm text-slate-700">No Captains Registered Yet</p>
+            <p class="font-bold text-sm text-slate-700">${fleet.length === 0 ? 'No Captains Registered Yet' : 'No Captains matching "' + searchQuery + '"'}</p>
             <p class="text-xs">Riders can register directly with their mobile number via the Captain App.</p>
           </div>
         `;
         return;
       }
 
-      container.innerHTML = fleet.map(c => `
+      container.innerHTML = filtered.map(c => `
         <div class="bg-white rounded-3xl p-4 border border-slate-200 shadow-xs space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -627,27 +655,30 @@
                 🛵
               </div>
               <div>
-                <h4 class="font-black text-sm text-slate-900">${c.name}</h4>
-                <span class="text-[11px] text-slate-500 font-mono">${c.id || 'CAP-RIDER'} • ${c.vehicle || 'Bike'}</span>
+                <div class="flex items-center gap-1.5">
+                  <h4 class="font-black text-sm text-slate-900">${c.name}</h4>
+                  <span class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200">${c.id || 'CAP-RIDER'}</span>
+                </div>
+                <span class="text-[11px] text-slate-500 font-mono">${c.vehicle || 'Bike (Kodad Delivery)'}</span>
               </div>
             </div>
-            <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${c.status === 'BUSY' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">
-              ● ${c.status || 'ONLINE'}
+            <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${c.isOnDuty === false ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700'}">
+              ● ${c.isOnDuty === false ? 'OFFLINE' : 'ON DUTY'}
             </span>
           </div>
 
           <div class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-2xl space-y-1">
             <div class="flex justify-between">
               <span class="text-slate-500">Phone:</span>
-              <a href="tel:${c.phone}" class="font-bold text-emerald-600">${c.phone}</a>
+              <a href="tel:${c.phone}" class="font-bold text-emerald-600">+91 ${c.phone}</a>
             </div>
             <div class="flex justify-between">
               <span class="text-slate-500">Total Trips:</span>
-              <span class="font-bold text-slate-900">${c.completedTrips || 0}</span>
+              <span class="font-bold text-slate-900">${c.ordersCompleted !== undefined ? c.ordersCompleted : (c.completedTrips || 0)}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-500">Earnings:</span>
-              <span class="font-black text-blue-600">₹${c.earnings || 0}</span>
+              <span class="text-slate-500">Earnings (₹30/trip):</span>
+              <span class="font-black text-blue-600">₹${c.earningsTotal !== undefined ? c.earningsTotal : (c.earnings || (c.ordersCompleted || 0) * 30)}</span>
             </div>
           </div>
 
@@ -752,13 +783,36 @@
 
     function updateKPICounters() {
       const orders = RealtimeBus.getAllOrders();
-      document.getElementById('statTotalOrders').textContent = orders.length;
-
-      const revenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-      document.getElementById('statTotalRevenue').textContent = `₹${revenue.toLocaleString('en-IN')}`;
+      const metrics = RealtimeBus.getTodayMetrics();
+      const installs = RealtimeBus.getTotalInstalls();
+      const captains = RealtimeBus.getCaptains();
 
       const active = orders.filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED').length;
-      document.getElementById('statActiveDeliveries').textContent = active;
+
+      document.getElementById('statTotalInstalls').textContent = installs;
+      document.getElementById('statInstallsSub').textContent = `↑ ${RealtimeBus.getRegisteredCustomers().length} registered profiles`;
+
+      document.getElementById('statTodayOrders').textContent = `${metrics.todayCount} Today`;
+      document.getElementById('statTotalOrdersSub').textContent = `${orders.length} all-time (${metrics.todayDelivered} delivered today)`;
+
+      document.getElementById('statTodayRevenue').textContent = `₹${metrics.todayRevenue.toLocaleString('en-IN')}`;
+      const allRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
+      document.getElementById('statTotalRevenueSub').textContent = `₹${allRevenue.toLocaleString('en-IN')} all-time sales`;
+
+      document.getElementById('statCaptainsCount').textContent = captains.length;
+      document.getElementById('statActiveDeliveriesText').textContent = `${active} active deliveries in Kodad`;
+    }
+
+    function showDeliveredNotification(order) {
+      RealtimeBus.Sounds.playSuccessChime();
+      const banner = document.getElementById('deliveredOrderAlertBanner');
+      if (banner) {
+        document.getElementById('deliveredAlertText').textContent = `Order #${order.id} for ${order.customer.name} (${order.customer.landmark}) was delivered successfully! Rider earned ₹30.`;
+        banner.classList.remove('hidden');
+        setTimeout(() => {
+          banner.classList.add('hidden');
+        }, 8000);
+      }
     }
 
     function startSirenAudio(order) {
@@ -826,6 +880,9 @@
       RealtimeBus.on((event) => {
         if (event.type === 'ORDER_PLACED') {
           startSirenAudio(event.payload);
+        }
+        if (event.type === 'ORDER_DELIVERED') {
+          showDeliveredNotification(event.payload);
         }
         renderOrders();
         renderCaptainsFleet();
