@@ -240,7 +240,7 @@ const RealtimeBus = (function() {
     } catch (e) {}
   }
 
-  // Real 6-Digit OTP Generator & SMS Simulator Engine
+  // Real 6-Digit OTP Generator, SMS Dispatch & WebOTP Engine
   function generateOtp(phone) {
     if (!phone) return null;
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
@@ -255,8 +255,44 @@ const RealtimeBus = (function() {
       localStorage.setItem('kodadeats_otp_' + cleanPhone, JSON.stringify(otpData));
     } catch (e) {}
 
+    // Dispatch to real SMS Gateway backend if online
+    if (typeof fetch !== 'undefined') {
+      fetch('/api/auth/send-otp-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: cleanPhone })
+      }).then(r => r.json()).then(data => {
+        if (data && data.smsDelivered) {
+          console.log('✅ Real SMS sent via Gateway to +91', cleanPhone);
+        }
+      }).catch(e => {});
+    }
+
     showOtpBanner(cleanPhone, code);
     return otpData;
+  }
+
+  // WebOTP API: Native Android Auto-Fill from SMS (Same as Zomato & Swiggy)
+  function listenForWebOtp(inputElementId, onOtpReceived) {
+    if ('OTPCredential' in window && navigator.credentials) {
+      const ac = new AbortController();
+      navigator.credentials.get({
+        otp: { transport: ['sms'] },
+        signal: ac.signal
+      }).then(otp => {
+        if (otp && otp.code) {
+          const input = document.getElementById(inputElementId);
+          if (input) {
+            input.value = otp.code;
+          }
+          if (typeof onOtpReceived === 'function') {
+            onOtpReceived(otp.code);
+          }
+        }
+      }).catch(err => {
+        console.log('[WebOTP] Listening ended or unsupported:', err.message);
+      });
+    }
   }
 
   function verifyOtp(phone, inputOtp) {
@@ -939,6 +975,7 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getTodayMetrics,
     generateOtp,
     verifyOtp,
+    listenForWebOtp,
     showOtpBanner,
     isAdminAuthorized,
     getAdminSession,

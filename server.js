@@ -262,6 +262,97 @@ app.get('/api/customers', (req, res) => {
   res.json({ success: true, count: db.customers.length, data: db.customers });
 });
 
+// ================= REAL SMS OTP ENDPOINT (FAST2SMS / TWILIO) =================
+const https = require('https');
+const otpStore = {};
+
+function sendFast2Sms(phone, code) {
+  return new Promise((resolve) => {
+    const apiKey = process.env.FAST2SMS_API_KEY;
+    if (!apiKey) return resolve({ sent: false, reason: 'NO_API_KEY' });
+    
+    const postData = JSON.stringify({
+      route: 'otp',
+      variables_values: code,
+      numbers: phone
+    });
+
+    const options = {
+      hostname: 'www.fast2sms.com',
+      port: 443,
+      path: '/dev/bulkV2',
+      method: 'POST',
+      headers: {
+        'authorization': apiKey,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(body);
+          resolve({ sent: parsed.return === true, data: parsed });
+        } catch (e) {
+          resolve({ sent: false, raw: body });
+        }
+      });
+    });
+
+    req.on('error', err => resolve({ sent: false, error: err.message }));
+    req.write(postData);
+    req.end();
+  });
+}
+
+app.post('/api/auth/send-otp-sms', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ success: false, message: 'Phone number is required' });
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    otpStore[cleanPhone] = {
+      code,
+      expiresAt: Date.now() + 5 * 60 * 1000
+    };
+
+    let smsResult = { sent: false };
+    if (process.env.FAST2SMS_API_KEY) {
+      smsResult = await sendFast2Sms(cleanPhone, code);
+      console.log(`[Fast2SMS] Sent to +91 ${cleanPhone}:`, smsResult);
+    } else {
+      console.log(`[SMS OTP] FAST2SMS_API_KEY not configured. OTP generated: ${code} for +91 ${cleanPhone}`);
+    }
+
+    res.json({
+      success: true,
+      message: smsResult.sent ? `Real SMS OTP sent to +91 ${cleanPhone}` : `OTP generated for +91 ${cleanPhone}`,
+      cleanPhone,
+      code,
+      smsDelivered: smsResult.sent
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/auth/verify-otp', (req, res) => {
+  const { phone, code } = req.body;
+  if (!phone || !code) return res.status(400).json({ success: false, message: 'Phone and code required' });
+  const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+  const stored = otpStore[cleanPhone];
+  if (!stored) return res.status(400).json({ success: false, message: 'OTP not requested or expired' });
+  if (Date.now() > stored.expiresAt) return res.status(400).json({ success: false, message: 'OTP expired' });
+  if (stored.code !== code.toString().trim()) return res.status(400).json({ success: false, message: 'Incorrect OTP code' });
+  
+  delete otpStore[cleanPhone];
+  res.json({ success: true, message: 'OTP verified successfully' });
+});
+
 // WebSocket Connection Management
 io.on('connection', (socket) => {
   console.log('[WebSocket] Device connected:', socket.id);

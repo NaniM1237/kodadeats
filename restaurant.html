@@ -3,109 +3,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KodadEats Partner - Restaurant Kitchen Dashboard</title>
+  <title>KodadEats Kitchen - Restaurant Partner Portal</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    @keyframes alertFlash {
-      0%, 100% { background-color: #2563eb; }
-      50% { background-color: #1e3a8a; }
+    @keyframes sirenPulse {
+      0%, 100% { background-color: #dc2626; }
+      50% { background-color: #7f1d1d; }
     }
-    .kitchen-siren-active {
-      animation: alertFlash 1s infinite;
+    .kitchen-alarm-active {
+      animation: sirenPulse 0.9s infinite;
+    }
+    .pulse-ring {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      animation: pulseAnim 1.5s infinite;
+    }
+    @keyframes pulseAnim {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen antialiased select-none pb-12">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased select-none pb-16 font-sans">
 
-  <!-- ================= INCOMING KITCHEN ORDER LOUD ALERT BANNER ================= -->
-  <div id="kitchenAlertBanner" class="hidden kitchen-siren-active text-white p-4 shadow-2xl flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
+  <!-- ================= INCOMING KITCHEN ORDER LOUD ALARM BANNER ================= -->
+  <div id="kitchenAlarmBanner" class="hidden kitchen-alarm-active text-white p-4 shadow-2xl flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50 animate-in fade-in slide-in-from-top-4 border-b-2 border-red-400">
     <div class="flex items-center gap-3">
-      <span class="text-3xl animate-bounce">🔔</span>
+      <span class="text-3xl animate-bounce">🚨</span>
       <div>
-        <h3 class="text-base font-black uppercase tracking-wide">NEW ORDER TO PREPARE!</h3>
-        <p id="kitchenAlertText" class="text-xs text-blue-100">Order #KD-0000 received. Kitchen buzzer ringing!</p>
+        <div class="flex items-center gap-2">
+          <span class="bg-white text-red-700 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Loud Alarm Buzzing</span>
+          <h3 class="text-base font-black uppercase tracking-wide">NEW ORDER TO PREPARE!</h3>
+        </div>
+        <p id="kitchenAlarmText" class="text-xs text-red-100 font-bold mt-0.5">Order #KD-0000 received. Kitchen buzzer ringing!</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="stopKitchenSiren()" class="bg-white text-blue-900 hover:bg-slate-100 font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-md transition">
-        🔕 Mute Buzzer
+      <button onclick="stopKitchenSiren()" class="bg-white hover:bg-slate-100 text-red-800 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5">
+        <span>🔕</span>
+        <span>Mute Loud Buzzer</span>
       </button>
     </div>
   </div>
 
   <!-- ================= RESTAURANT HEADER ================= -->
-  <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-40 backdrop-blur-md">
+  <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       
       <!-- Restaurant Identity -->
       <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-md shadow-blue-500/30">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-2xl shadow-md shadow-orange-500/20">
           👨‍🍳
         </div>
         <div>
           <div class="flex items-center gap-2">
             <h1 id="restHeaderName" class="text-base md:text-lg font-black text-white">Kodad Biryani House</h1>
-            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
-              ● Kitchen Online
+            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Kitchen Online
             </span>
           </div>
-          <p id="restHeaderLocation" class="text-xs text-slate-400">Khammam Cross Road, Kodad</p>
+          <p id="restHeaderSubtitle" class="text-xs text-slate-400">
+            <span id="restHeaderLocation">Khammam Cross Road, Kodad</span> • Owner: <b id="restHeaderOwner" class="text-slate-200">Afzal Bhai</b> • <span id="restHeaderPhone" class="text-amber-400 font-mono">+91 9848011111</span>
+          </p>
         </div>
       </div>
 
-      <!-- Restaurant Selector Dropdown & Quick Actions -->
-      <div class="flex items-center gap-2.5">
-        <select id="restaurantSelect" onchange="switchRestaurant(this.value)" class="bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-xl border border-slate-600 focus:outline-none focus:border-blue-500">
-          <!-- Populated via JS -->
-        </select>
-        <button onclick="testKitchenBuzzer()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-xl border border-slate-600 flex items-center gap-1.5 transition">
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button onclick="testKitchenBuzzer()" title="Test Loud Siren Alarm" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3 py-2 rounded-xl border border-slate-700 flex items-center gap-1.5 transition">
           <span>🔊</span>
           <span class="hidden sm:inline">Test Buzzer</span>
         </button>
+        <button onclick="openRestAuthModal('switch')" title="Switch Kitchen Partner" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black px-3 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+          <span>⇄</span>
+          <span>Switch Kitchen</span>
+        </button>
+        <button onclick="handleRestaurantLogout()" title="Logout" class="bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 text-xs font-bold px-2.5 py-2 rounded-xl border border-slate-700 transition">
+          🚪
+        </button>
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3 py-2 rounded-xl border border-slate-700 transition" title="Go to Customer App">
+          🛍️ Customer
+        </a>
       </div>
 
     </div>
   </header>
 
-  <!-- ================= MAIN KITCHEN ORDERS VIEW ================= -->
-  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+  <!-- ================= RESTAURANT AUTH & SWITCHER MODAL ================= -->
+  <div id="restAuthModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-white animate-in zoom-in-95">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center text-2xl shadow-lg shadow-orange-600/30">
+            🍳
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-white">Restaurant Partner Login</h3>
+            <p class="text-xs text-slate-400">Kitchen order tickets, prep time & rider handover</p>
+          </div>
+        </div>
+        <button id="restModalCloseBtn" onclick="closeRestAuthModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold flex items-center justify-center">✕</button>
+      </div>
 
-    <!-- KPI Metrics -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Orders Received</span>
+      <!-- Tab Buttons -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-800 rounded-2xl border border-slate-700 text-xs font-bold">
+        <button id="restTabPhoneBtn" onclick="switchRestModalTab('phone')" class="py-2 rounded-xl text-center transition bg-orange-600 text-white font-black shadow-xs">
+          <span>📱 Owner Phone OTP</span>
+        </button>
+        <button id="restTabPartnerBtn" onclick="switchRestModalTab('partner')" class="py-2 rounded-xl text-center text-slate-400 hover:text-white transition">
+          <span>🏪 Choose Kitchen</span>
+        </button>
+      </div>
+
+      <!-- VIEW 1: Owner Phone OTP Login -->
+      <div id="restViewPhone" class="space-y-3">
+        <!-- Step 1: Enter Phone -->
+        <div id="restOtpStep1" class="space-y-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Owner Registered Mobile Number (+91):</label>
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 focus-within:border-orange-500 transition">
+              <span class="text-xs font-black text-slate-400 pr-2 border-r border-slate-700">+91</span>
+              <input id="restLoginPhone" type="tel" maxlength="10" placeholder="9848011111" class="w-full pl-2 text-xs font-bold text-white bg-transparent focus:outline-none font-mono">
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 block">Registered partner numbers: 9848011111, 9848022222, 9848033333, etc.</span>
+          </div>
+
+          <button onclick="sendRestaurantOtp()" class="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-1.5">
+            <span>📲</span>
+            <span>Send Real 6-Digit OTP ➔</span>
+          </button>
+        </div>
+
+        <!-- Step 2: Enter OTP -->
+        <div id="restOtpStep2" class="hidden space-y-3">
+          <div class="bg-orange-950/40 border border-orange-500/40 rounded-xl p-2.5 text-center">
+            <span class="text-xs text-slate-300 block">OTP sent to: <b id="restTargetPhoneDisplay" class="text-amber-400">+91</b></span>
+            <button onclick="backToRestStep1()" class="text-[10px] text-orange-400 hover:underline font-bold mt-0.5">Change Number</button>
+          </div>
+
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Enter 6-Digit OTP:</label>
+            <input id="restOtpInput" type="tel" maxlength="6" placeholder="000000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-center text-lg font-black tracking-widest font-mono text-amber-300 focus:outline-none focus:border-amber-400">
+          </div>
+
+          <div id="restDetectedInfo" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-xs text-slate-300">
+            <span>Matching Restaurant: <b id="restDetectedName" class="text-white">Kodad Biryani House</b></span>
+          </div>
+
+          <button onclick="verifyRestaurantOtpAndLogin()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-1.5">
+            <span>✓</span>
+            <span>Verify OTP & Open Kitchen Portal ➔</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 2: Partner Kitchen Selector -->
+      <div id="restViewPartner" class="hidden space-y-3">
+        <div class="max-h-72 overflow-y-auto space-y-2 pr-1" id="restPartnerCardsContainer">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="text-center pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+        <a href="index.html" class="text-slate-400 hover:text-white font-semibold">
+          ← Back to Customer App
+        </a>
+        <a href="admin.html" target="_blank" class="text-blue-400 hover:underline font-bold">
+          Admin Portal ➔
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MAIN KITCHEN ORDERS VIEW ================= -->
+  <main class="max-w-6xl mx-auto px-4 py-5 space-y-5">
+
+    <!-- PERIOD SELECTION TABS: Today, This Week, This Month, Entire Orders -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+      
+      <div class="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
+        <button onclick="setOrderPeriod('today')" id="period-today" class="period-btn px-4 py-2 rounded-xl text-xs font-black transition bg-orange-600 text-white shadow-md">
+          <span>📅 Today's Orders</span>
+        </button>
+        <button onclick="setOrderPeriod('week')" id="period-week" class="period-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800">
+          <span>🗓️ This Week</span>
+        </button>
+        <button onclick="setOrderPeriod('month')" id="period-month" class="period-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800">
+          <span>📆 This Month</span>
+        </button>
+        <button onclick="setOrderPeriod('entire')" id="period-entire" class="period-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800">
+          <span>📊 Entire Orders</span>
+        </button>
+      </div>
+
+      <!-- Quick status filter badges -->
+      <div class="flex items-center gap-1 text-xs">
+        <button onclick="setStatusFilter('ALL')" id="filter-status-ALL" class="status-btn px-2.5 py-1.5 rounded-lg font-bold bg-slate-800 text-white">All</button>
+        <button onclick="setStatusFilter('ACTIVE')" id="filter-status-ACTIVE" class="status-btn px-2.5 py-1.5 rounded-lg font-bold text-amber-400 hover:bg-slate-800">⚡ Live</button>
+        <button onclick="setStatusFilter('HANDED')" id="filter-status-HANDED" class="status-btn px-2.5 py-1.5 rounded-lg font-bold text-purple-400 hover:bg-slate-800">📦 Handed Over</button>
+        <button onclick="setStatusFilter('DELIVERED')" id="filter-status-DELIVERED" class="status-btn px-2.5 py-1.5 rounded-lg font-bold text-emerald-400 hover:bg-slate-800">✓ Delivered</button>
+      </div>
+
+    </div>
+
+    <!-- KPI Metrics (Dynamically Calculated for Selected Period) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-md">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Orders Received</span>
         <h3 id="statRestOrders" class="text-2xl font-black text-white mt-1">0</h3>
-        <span class="text-[10px] text-blue-400 font-semibold">Today's Kitchen Total</span>
+        <span id="statPeriodLabelOrders" class="text-[10px] text-blue-400 font-semibold block mt-0.5">Today's Kitchen Total</span>
       </div>
-      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Items to Cook</span>
+      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-md">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Live in Kitchen</span>
         <h3 id="statItemsToCook" class="text-2xl font-black text-amber-400 mt-1">0</h3>
-        <span class="text-[10px] text-amber-300 font-semibold">Live in Preparation</span>
+        <span class="text-[10px] text-amber-300 font-semibold block mt-0.5">Cooking / Awaiting Rider</span>
       </div>
-      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Today's Kitchen Sales</span>
+      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-md">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Food Sales Value</span>
         <h3 id="statRestSales" class="text-2xl font-black text-emerald-400 mt-1">₹0</h3>
-        <span class="text-[10px] text-emerald-300 font-semibold">Gross Food Value</span>
+        <span id="statPeriodLabelSales" class="text-[10px] text-emerald-300 font-semibold block mt-0.5">Gross Food Value</span>
       </div>
-      <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avg. Prep Time</span>
-        <h3 class="text-2xl font-black text-white mt-1">18 min</h3>
-        <span class="text-[10px] text-blue-400 font-semibold">High Hygiene Partner</span>
+      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-md">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Handed Over / Done</span>
+        <h3 id="statRestHanded" class="text-2xl font-black text-purple-400 mt-1">0</h3>
+        <span class="text-[10px] text-purple-300 font-semibold block mt-0.5">Given to Delivery Riders</span>
       </div>
     </div>
 
     <!-- Active Orders for This Restaurant -->
     <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="font-extrabold text-base md:text-lg text-white">Live Kitchen Order Tickets (KOT)</h3>
-        <span class="text-xs text-slate-400">Auto-refreshes in real time for this restaurant in Kodad</span>
+        <div>
+          <h3 class="font-black text-base md:text-lg text-white flex items-center gap-2">
+            <span>Live Kitchen Order Tickets (KOT)</span>
+            <span id="restOrderCountBadge" class="bg-orange-500/20 text-orange-400 text-xs px-2.5 py-0.5 rounded-full border border-orange-500/30 font-bold">0 orders</span>
+          </h3>
+          <span id="periodSubtitle" class="text-xs text-slate-400">Showing orders placed today • Auto-syncs in realtime</span>
+        </div>
+        <div class="text-right">
+          <button onclick="renderRestaurantOrders()" class="text-xs text-slate-400 hover:text-white font-bold flex items-center gap-1">
+            <span>🔄</span>
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
+      <!-- KOT Order Tickets Container -->
       <div id="restOrdersList" class="space-y-4">
         <!-- Rendered via JS -->
       </div>
@@ -118,166 +272,452 @@
   <script src="realtime-sync.js"></script>
   <script>
     let activeRestaurantId = 'rest-1';
+    let currentPeriod = 'today'; // 'today', 'week', 'month', 'entire'
+    let currentStatusFilter = 'ALL'; // 'ALL', 'ACTIVE', 'HANDED', 'DELIVERED'
     let sirenInterval = null;
+    let pendingRestPhone = '';
 
     document.addEventListener('DOMContentLoaded', () => {
-      populateRestaurantDropdown();
-      loadRestaurantDetails();
-      renderRestaurantOrders();
+      initRestaurantApp();
       initRestaurantRealtime();
     });
 
-    function populateRestaurantDropdown() {
-      const select = document.getElementById('restaurantSelect');
-      select.innerHTML = KODAD_DATA.restaurants.map(r => `
-        <option value="${r.id}" ${r.id === activeRestaurantId ? 'selected' : ''}>${r.name}</option>
-      `).join('');
+    function initRestaurantApp() {
+      // Check stored session
+      const storedRestId = localStorage.getItem('kodadeats_restaurant_id');
+      if (storedRestId && KODAD_DATA.restaurants.find(r => r.id === storedRestId)) {
+        activeRestaurantId = storedRestId;
+        loadRestaurantDetails();
+        renderRestaurantOrders();
+      } else {
+        openRestAuthModal('switch');
+      }
     }
 
-    function switchRestaurant(restId) {
+    function openRestAuthModal(mode = 'switch') {
+      const modal = document.getElementById('restAuthModal');
+      const closeBtn = document.getElementById('restModalCloseBtn');
+      const hasActive = !!localStorage.getItem('kodadeats_restaurant_id');
+      if (closeBtn) closeBtn.style.display = hasActive ? 'flex' : 'none';
+      
+      modal.classList.remove('hidden');
+      renderPartnerCards();
+      if (mode === 'phone') {
+        switchRestModalTab('phone');
+      } else {
+        switchRestModalTab('partner');
+      }
+    }
+
+    function closeRestAuthModal() {
+      const hasActive = !!localStorage.getItem('kodadeats_restaurant_id');
+      if (!hasActive) {
+        alert("Please select or log into your restaurant kitchen!");
+        return;
+      }
+      document.getElementById('restAuthModal').classList.add('hidden');
+    }
+
+    function switchRestModalTab(tab) {
+      const btnPhone = document.getElementById('restTabPhoneBtn');
+      const btnPartner = document.getElementById('restTabPartnerBtn');
+      const viewPhone = document.getElementById('restViewPhone');
+      const viewPartner = document.getElementById('restViewPartner');
+
+      if (tab === 'phone') {
+        btnPhone.className = 'py-2 rounded-xl text-center transition bg-orange-600 text-white font-black shadow-xs';
+        btnPartner.className = 'py-2 rounded-xl text-center text-slate-400 hover:text-white transition';
+        viewPhone.classList.remove('hidden');
+        viewPartner.classList.add('hidden');
+        backToRestStep1();
+      } else {
+        btnPartner.className = 'py-2 rounded-xl text-center transition bg-orange-600 text-white font-black shadow-xs';
+        btnPhone.className = 'py-2 rounded-xl text-center text-slate-400 hover:text-white transition';
+        viewPartner.classList.remove('hidden');
+        viewPhone.classList.add('hidden');
+        renderPartnerCards();
+      }
+    }
+
+    function renderPartnerCards() {
+      const container = document.getElementById('restPartnerCardsContainer');
+      if (!container) return;
+      container.innerHTML = KODAD_DATA.restaurants.map(r => {
+        const isCurrent = r.id === activeRestaurantId;
+        return `
+          <div class="p-3.5 rounded-2xl border ${isCurrent ? 'bg-orange-950/50 border-orange-500' : 'bg-slate-800/90 border-slate-700 hover:border-slate-600'} transition flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl ${isCurrent ? 'bg-orange-600 text-white' : 'bg-slate-700 text-orange-400'} flex items-center justify-center text-xl shrink-0">
+                🍳
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-black text-sm text-white truncate">${r.name}</h4>
+                <p class="text-[11px] text-slate-300">Owner: <b class="text-amber-400">${r.ownerName}</b> • +91 ${r.phone}</p>
+                <p class="text-[10px] text-slate-400 truncate mt-0.5">${r.location}</p>
+              </div>
+            </div>
+            <button onclick="selectRestaurant('${r.id}')" class="${isCurrent ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-600 hover:bg-orange-500'} text-white text-xs font-black px-3 py-2 rounded-xl transition shrink-0">
+              ${isCurrent ? '✓ Active' : 'Login ➔'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectRestaurant(restId) {
       activeRestaurantId = restId;
+      localStorage.setItem('kodadeats_restaurant_id', restId);
+      document.getElementById('restAuthModal').classList.add('hidden');
       loadRestaurantDetails();
       renderRestaurantOrders();
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+    }
+
+    function sendRestaurantOtp() {
+      const phoneInput = document.getElementById('restLoginPhone');
+      const cleanPhone = (phoneInput.value || '').replace(/\D/g, '').slice(-10);
+
+      if (cleanPhone.length < 10) {
+        alert("Please enter a valid 10-digit mobile number!");
+        return;
+      }
+
+      pendingRestPhone = cleanPhone;
+      const otpCode = RealtimeBus.generateOtp(cleanPhone);
+      RealtimeBus.showOtpBanner(cleanPhone, otpCode);
+
+      // Check matching restaurant
+      const match = KODAD_DATA.restaurants.find(r => r.phone === cleanPhone);
+      const nameEl = document.getElementById('restDetectedName');
+      if (match) {
+        nameEl.textContent = `${match.name} (${match.ownerName})`;
+      } else {
+        nameEl.textContent = `Partner Kitchen (Owner: ${cleanPhone})`;
+      }
+
+      document.getElementById('restTargetPhoneDisplay').textContent = `+91 ${cleanPhone}`;
+      document.getElementById('restOtpStep1').classList.add('hidden');
+      document.getElementById('restOtpStep2').classList.remove('hidden');
+    }
+
+    function backToRestStep1() {
+      document.getElementById('restOtpStep2').classList.add('hidden');
+      document.getElementById('restOtpStep1').classList.remove('hidden');
+    }
+
+    function verifyRestaurantOtpAndLogin() {
+      const otp = document.getElementById('restOtpInput').value.trim();
+      const res = RealtimeBus.verifyOtp(pendingRestPhone, otp);
+
+      if (!res.success) {
+        alert(res.message || "Incorrect or expired OTP! Please try again.");
+        return;
+      }
+
+      // Find matching restaurant by phone or default to first
+      let match = KODAD_DATA.restaurants.find(r => r.phone === pendingRestPhone);
+      if (!match) {
+        match = KODAD_DATA.restaurants[0];
+      }
+
+      selectRestaurant(match.id);
+    }
+
+    function handleRestaurantLogout() {
+      if (confirm("Do you want to switch or log out of this Kitchen dashboard?")) {
+        localStorage.removeItem('kodadeats_restaurant_id');
+        openRestAuthModal('partner');
+      }
     }
 
     function loadRestaurantDetails() {
       const rest = KODAD_DATA.restaurants.find(r => r.id === activeRestaurantId) || KODAD_DATA.restaurants[0];
       document.getElementById('restHeaderName').textContent = rest.name;
-      document.getElementById('restHeaderLocation').textContent = `${rest.location} • Owner: ${rest.ownerName}`;
+      document.getElementById('restHeaderLocation').textContent = rest.location;
+      document.getElementById('restHeaderOwner').textContent = rest.ownerName;
+      document.getElementById('restHeaderPhone').textContent = `+91 ${rest.phone}`;
+    }
+
+    function setOrderPeriod(period) {
+      currentPeriod = period;
+      document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.className = 'period-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800';
+      });
+
+      const activeBtn = document.getElementById(`period-${period}`);
+      if (activeBtn) {
+        activeBtn.className = 'period-btn px-4 py-2 rounded-xl text-xs font-black transition bg-orange-600 text-white shadow-md';
+      }
+
+      const labelMap = {
+        'today': "Showing orders placed today",
+        'week': "Showing orders placed this week (last 7 days)",
+        'month': "Showing orders placed this month (last 30 days)",
+        'entire': "Showing all-time entire kitchen order history"
+      };
+      document.getElementById('periodSubtitle').textContent = `${labelMap[period] || ''} • Auto-syncs in realtime`;
+
+      const periodOrdersLabel = {
+        'today': "Today's Kitchen Total",
+        'week': "This Week's Total",
+        'month': "This Month's Total",
+        'entire': "All-Time Total"
+      };
+      document.getElementById('statPeriodLabelOrders').textContent = periodOrdersLabel[period] || 'Total';
+      document.getElementById('statPeriodLabelSales').textContent = `${periodOrdersLabel[period] || 'Total'} Gross Food Sales`;
+
+      renderRestaurantOrders();
+    }
+
+    function setStatusFilter(status) {
+      currentStatusFilter = status;
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.className = 'status-btn px-2.5 py-1.5 rounded-lg font-bold text-slate-400 hover:bg-slate-800';
+      });
+      const activeBtn = document.getElementById(`filter-status-${status}`);
+      if (activeBtn) {
+        activeBtn.className = 'status-btn px-2.5 py-1.5 rounded-lg font-bold bg-slate-800 text-white shadow-xs';
+      }
+      renderRestaurantOrders();
+    }
+
+    function isOrderInPeriod(order, period) {
+      if (!order.createdAt) return period === 'today' || period === 'entire';
+      const orderDate = new Date(order.createdAt);
+      const now = new Date();
+
+      if (period === 'today') {
+        return orderDate.toDateString() === now.toDateString();
+      } else if (period === 'week') {
+        const diffTime = Math.abs(now - orderDate);
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays <= 7;
+      } else if (period === 'month') {
+        const diffTime = Math.abs(now - orderDate);
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays <= 30;
+      } else if (period === 'entire') {
+        return true;
+      }
+      return true;
     }
 
     function renderRestaurantOrders() {
       const allOrders = RealtimeBus.getAllOrders();
-      const restOrders = allOrders.filter(o => o.restaurant.id === activeRestaurantId);
-      const container = document.getElementById('restOrdersList');
+      // Filter for this restaurant
+      const restOrdersAll = allOrders.filter(o => o.restaurant && o.restaurant.id === activeRestaurantId);
 
-      // Update metrics
-      document.getElementById('statRestOrders').textContent = restOrders.length;
-      const sales = restOrders.reduce((acc, o) => acc + (o.subtotal || 0), 0);
+      // Filter by period (today, week, month, entire)
+      const restOrdersInPeriod = restOrdersAll.filter(o => isOrderInPeriod(o, currentPeriod));
+
+      // Update KPI metrics for this period
+      document.getElementById('statRestOrders').textContent = restOrdersInPeriod.length;
+      document.getElementById('restOrderCountBadge').textContent = `${restOrdersInPeriod.length} orders`;
+
+      const sales = restOrdersInPeriod.reduce((acc, o) => acc + (o.subtotal || 0), 0);
       document.getElementById('statRestSales').textContent = `₹${sales}`;
-      const activeCook = restOrders.filter(o => o.status === 'ACCEPTED' || o.status === 'PLACED').length;
+
+      const activeCook = restOrdersInPeriod.filter(o => o.status === 'ACCEPTED' || o.status === 'PLACED' || o.status === 'CAPTAIN_ASSIGNED').length;
       document.getElementById('statItemsToCook').textContent = activeCook;
 
-      if (restOrders.length === 0) {
+      const handedOverCount = restOrdersInPeriod.filter(o => o.status === 'PICKED_UP' || o.status === 'DELIVERED').length;
+      document.getElementById('statRestHanded').textContent = handedOverCount;
+
+      // Filter by status if selected
+      let displayOrders = restOrdersInPeriod;
+      if (currentStatusFilter === 'ACTIVE') {
+        displayOrders = restOrdersInPeriod.filter(o => o.status === 'PLACED' || o.status === 'ACCEPTED' || o.status === 'CAPTAIN_ASSIGNED');
+      } else if (currentStatusFilter === 'HANDED') {
+        displayOrders = restOrdersInPeriod.filter(o => o.status === 'PICKED_UP');
+      } else if (currentStatusFilter === 'DELIVERED') {
+        displayOrders = restOrdersInPeriod.filter(o => o.status === 'DELIVERED');
+      }
+
+      const container = document.getElementById('restOrdersList');
+
+      if (displayOrders.length === 0) {
         container.innerHTML = `
-          <div class="bg-slate-800/80 rounded-2xl p-12 text-center border border-slate-700/80 text-slate-400 space-y-3">
+          <div class="bg-slate-900 rounded-3xl p-12 text-center border border-slate-800 text-slate-400 space-y-3">
             <span class="text-5xl block">🍳</span>
-            <h4 class="font-extrabold text-base text-white">Kitchen Queue Clear</h4>
-            <p class="text-xs">No active orders right now for this restaurant. New orders will buzz loudly!</p>
+            <h4 class="font-black text-base text-white">No Orders Found</h4>
+            <p class="text-xs text-slate-400">No orders matching the selected period and filter for this restaurant.</p>
           </div>
         `;
         return;
       }
 
-      container.innerHTML = restOrders.map(order => {
+      container.innerHTML = displayOrders.map(order => {
         const isPlaced = order.status === 'PLACED';
         const isAccepted = order.status === 'ACCEPTED';
         const isAssigned = order.status === 'CAPTAIN_ASSIGNED';
         const isPickedUp = order.status === 'PICKED_UP';
         const isDelivered = order.status === 'DELIVERED';
 
-        let badgeBg = 'bg-slate-700 text-slate-200';
-        if (isPlaced) badgeBg = 'bg-red-500/20 text-red-400 font-black border border-red-500/40 animate-pulse';
-        if (isAccepted) badgeBg = 'bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30';
-        if (isAssigned || isPickedUp) badgeBg = 'bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30';
-        if (isDelivered) badgeBg = 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30';
+        let badgeBg = 'bg-slate-800 text-slate-300';
+        let badgeLabel = order.status;
+        if (isPlaced) {
+          badgeBg = 'bg-red-500/20 text-red-400 font-black border border-red-500/40 animate-pulse';
+          badgeLabel = '🚨 NEW ORDER (Action Needed)';
+        } else if (isAccepted) {
+          badgeBg = 'bg-amber-500/20 text-amber-300 font-extrabold border border-amber-500/40';
+          badgeLabel = `⏳ Cooking (~${order.prepTime || 20}m prep)`;
+        } else if (isAssigned) {
+          badgeBg = 'bg-blue-500/20 text-blue-300 font-extrabold border border-blue-500/40';
+          badgeLabel = '🛵 Rider Arriving at Kitchen';
+        } else if (isPickedUp) {
+          badgeBg = 'bg-purple-500/20 text-purple-300 font-black border border-purple-500/40';
+          badgeLabel = '📦 Given to Rider (En Route)';
+        } else if (isDelivered) {
+          badgeBg = 'bg-emerald-500/20 text-emerald-400 font-black border border-emerald-500/30';
+          badgeLabel = '✓ Delivered to Customer';
+        }
 
         return `
-          <div class="bg-slate-800 border ${isPlaced ? 'border-red-500 shadow-xl ring-2 ring-red-500/40' : 'border-slate-700'} rounded-2xl p-4 md:p-5 space-y-4">
+          <div class="bg-slate-900 border ${isPlaced ? 'border-red-500 shadow-2xl ring-2 ring-red-500/40' : (isAssigned ? 'border-blue-500/70 shadow-lg' : 'border-slate-800')} rounded-3xl p-4 sm:p-5 space-y-4 transition">
             
             <!-- Order Header -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
-              <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2.5 flex-wrap">
                 <span class="font-black text-lg text-white">#${order.id}</span>
-                <span class="text-xs text-slate-400">• ${order.timeFormatted || 'Today'}</span>
-                <span class="text-xs font-bold text-blue-400 bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-800">
-                  📍 Drop: ${order.customer.landmark}
+                <span class="text-xs text-slate-400 font-mono">• ${order.timeFormatted || 'Today'}</span>
+                <span class="text-xs font-bold text-blue-300 bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-800/80">
+                  📍 Drop: ${order.customer.landmark || 'Kodad'}
                 </span>
               </div>
               <span class="text-xs px-3 py-1 rounded-full ${badgeBg}">
-                ● ${order.status.replace('_', ' ')}
+                ${badgeLabel}
               </span>
             </div>
 
-            <!-- Items to Prepare (Big Clear Font for Kitchen Cooks) -->
-            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700/80 space-y-2">
-              <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block">Food Items to Cook:</span>
-              <div class="divide-y divide-slate-800">
+            <!-- Items to Cook (Large clear font for cooks) -->
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 space-y-2">
+              <div class="flex items-center justify-between pb-1 border-b border-slate-800/80">
+                <span class="text-[11px] font-black uppercase tracking-wider text-amber-400">Food Items to Prepare:</span>
+                <span class="text-xs text-slate-400 font-semibold">${order.items.reduce((s, i) => s + i.quantity, 0)} total items</span>
+              </div>
+
+              <div class="divide-y divide-slate-800/60">
                 ${order.items.map(item => `
-                  <div class="py-2 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                      <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-black text-sm flex items-center justify-center">${item.quantity}x</span>
-                      <span class="text-sm md:text-base font-extrabold text-white">${item.name}</span>
+                  <div class="py-2.5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="w-8 h-8 rounded-xl bg-orange-600 text-white font-black text-sm flex items-center justify-center shadow-xs">${item.quantity}x</span>
+                      <div>
+                        <span class="text-sm sm:text-base font-extrabold text-white block">${item.name}</span>
+                        ${item.isVeg !== undefined ? (item.isVeg ? '<span class="text-[10px] text-emerald-400 font-bold">🟢 Pure Veg</span>' : '<span class="text-[10px] text-red-400 font-bold">🔴 Non-Veg</span>') : ''}
+                      </div>
                     </div>
-                    <span class="text-xs font-bold text-slate-400">₹${item.price * item.quantity}</span>
+                    <span class="text-xs font-bold text-slate-300">₹${item.price * item.quantity}</span>
                   </div>
                 `).join('')}
               </div>
             </div>
 
-            <!-- Captain & Customer Details -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
-                <span class="text-slate-400 block font-semibold mb-0.5">Customer:</span>
-                <span class="font-bold text-white">${order.customer.name} (${order.customer.phone})</span>
-                <span class="text-slate-400 block text-[11px] mt-0.5">${order.customer.address}</span>
-              </div>
-
-              <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 flex items-center justify-between">
-                <div>
-                  <span class="text-slate-400 block font-semibold mb-0.5">Pickup Captain (Rider):</span>
-                  <span class="font-bold ${order.captain ? 'text-blue-400' : 'text-slate-400'}">
-                    ${order.captain ? `${order.captain.name} (${order.captain.vehicle})` : 'Waiting for dispatch...'}
-                  </span>
-                </div>
-                ${order.captain ? `
-                  <a href="tel:${order.captain.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition">
-                    📞 Call
-                  </a>
-                ` : ''}
+            <!-- Customer Cooking Requirements / Special Instructions -->
+            <div class="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-2.5 text-xs">
+              <span class="text-lg">📝</span>
+              <div class="min-w-0">
+                <span class="font-extrabold text-amber-300 block">Customer Cooking Notes / Requirements:</span>
+                <p class="text-slate-300 mt-0.5 italic">
+                  ${order.notes && order.notes.trim() ? order.notes : 'Standard preparation. Fresh & hot food with spoons and tissues.'}
+                </p>
               </div>
             </div>
 
-            <!-- Kitchen Action Buttons -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-700/60">
-              <span class="text-xs font-extrabold text-emerald-400">Food Total: ₹${order.subtotal}</span>
+            <!-- 2-Column: Customer Info & Live Delivery Boy (Captain) Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              
+              <!-- Customer Info -->
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80 space-y-1">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Customer Details:</span>
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-white text-sm">${order.customer.name}</span>
+                  <a href="tel:${order.customer.phone}" class="bg-slate-800 hover:bg-slate-700 text-blue-400 text-xs px-2.5 py-1 rounded-xl border border-slate-700 font-bold">
+                    📞 Call
+                  </a>
+                </div>
+                <p class="text-slate-300">${order.customer.address}</p>
+                <p class="text-blue-400 font-bold">Landmark: ${order.customer.landmark || 'Kodad'}</p>
+              </div>
 
-              <div class="flex items-center gap-2">
+              <!-- Delivery Boy (Captain) Details -->
+              <div class="bg-slate-950 p-3.5 rounded-2xl border ${order.captain ? 'border-blue-500/40 bg-blue-950/20' : 'border-slate-800/80'} space-y-1.5">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Delivery Partner (Rider):</span>
+                ${order.captain ? `
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <h5 class="font-black text-white text-sm flex items-center gap-1.5">
+                        <span>🛵 ${order.captain.name}</span>
+                        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">${order.captain.id || 'CAP-RIDER'}</span>
+                      </h5>
+                      <p class="text-slate-400 text-xs">${order.captain.vehicle || 'Bike (Kodad Delivery)'}</p>
+                      <p class="text-amber-400 font-mono text-xs">+91 ${order.captain.phone}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <a href="tel:${order.captain.phone}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1.5 rounded-xl shadow-xs transition">
+                        📞 Call
+                      </a>
+                      <a href="https://wa.me/91${order.captain.phone.replace(/\D/g, '')}?text=${encodeURIComponent('Hello ' + order.captain.name + ', your order #' + order.id + ' is ready at ' + order.restaurant.name + '. Please collect!')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-xl shadow-xs transition">
+                        💬 WA
+                      </a>
+                    </div>
+                  </div>
+                  <div class="text-[11px] text-blue-300 font-semibold pt-1 border-t border-slate-800 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+                    <span>${isPickedUp ? 'Rider has picked up food and is delivering to customer' : 'Rider is assigned and arriving at your counter'}</span>
+                  </div>
+                ` : `
+                  <div class="py-2 text-slate-400 text-center">
+                    <span class="block text-xl">⏳</span>
+                    <span class="text-xs font-semibold block mt-1">Awaiting Delivery Captain Dispatch</span>
+                    <span class="text-[10px] text-slate-400">Order broadcasted to all Kodad riders</span>
+                  </div>
+                `}
+              </div>
+
+            </div>
+
+            <!-- Kitchen Action Toolbar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800">
+              <div>
+                <span class="text-[10px] text-slate-400 block">Food Bill Total:</span>
+                <span class="text-base font-black text-emerald-400">₹${order.subtotal}</span>
+              </div>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- If PLACED: Accept with Prep Times or Reject -->
                 ${isPlaced ? `
-                  <button onclick="kitchenAcceptOrder('${order.id}', 15)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
+                  <button onclick="kitchenAcceptOrder('${order.id}', 15)" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center gap-1">
                     <span>✓</span>
                     <span>Accept (15 Min Prep)</span>
                   </button>
-                  <button onclick="kitchenAcceptOrder('${order.id}', 25)" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center gap-1.5">
+                  <button onclick="kitchenAcceptOrder('${order.id}', 25)" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-black text-xs px-3.5 py-2.5 rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center gap-1">
                     <span>✓</span>
                     <span>Accept (25 Min Prep)</span>
                   </button>
-                  <button onclick="kitchenRejectOrder('${order.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold text-xs px-3 py-2.5 rounded-xl border border-red-500/30 transition">
-                    Reject
+                  <button onclick="kitchenRejectOrder('${order.id}')" class="bg-slate-800 hover:bg-red-950 text-red-400 font-bold text-xs px-3 py-2.5 rounded-xl border border-red-500/30 transition">
+                    ✕ Reject
                   </button>
                 ` : ''}
 
-                ${isAccepted && !order.captain ? `
-                  <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-500/20 flex items-center gap-1">
-                    <span>👨‍🍳 Food Cooking • Awaiting Captain</span>
-                  </span>
+                <!-- If ACCEPTED or CAPTAIN_ASSIGNED: Hand Over Food to Rider Button -->
+                ${(isAccepted || isAssigned) ? `
+                  <button onclick="kitchenHandOverToRider('${order.id}')" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5 animate-pulse">
+                    <span>📦</span>
+                    <span>Food Cooked & Given to Rider ➔</span>
+                  </button>
                 ` : ''}
 
-                ${isAssigned ? `
-                  <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-2 rounded-xl border border-blue-500/20 flex items-center gap-1">
-                    <span>🛵 Rider is arriving at kitchen</span>
-                  </span>
-                ` : ''}
-
+                <!-- If PICKED_UP -->
                 ${isPickedUp ? `
-                  <span class="text-xs font-bold text-purple-400 bg-purple-500/10 px-3 py-2 rounded-xl border border-purple-500/20 flex items-center gap-1">
-                    <span>🚀 Food Handed Over to Rider</span>
+                  <span class="text-xs font-black text-purple-300 bg-purple-950/60 px-3.5 py-2 rounded-xl border border-purple-500/40 flex items-center gap-1.5">
+                    <span>🚀 Handed to Rider • Heading to Customer</span>
                   </span>
                 ` : ''}
 
+                <!-- If DELIVERED -->
                 ${isDelivered ? `
-                  <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-2 rounded-xl border border-emerald-500/20 flex items-center gap-1">
-                    <span>✓ Delivered Successfully</span>
+                  <span class="text-xs font-black text-emerald-300 bg-emerald-950/60 px-3.5 py-2 rounded-xl border border-emerald-500/40 flex items-center gap-1.5">
+                    <span>✓ Trip Completed & Delivered</span>
                   </span>
                 ` : ''}
               </div>
@@ -288,22 +728,35 @@
       }).join('');
     }
 
-    function kitchenAcceptOrder(orderId, prepTime) {
+    // Kitchen Actions
+    function kitchenAcceptOrder(orderId, prepTimeMinutes = 20) {
       stopKitchenSiren();
-      RealtimeBus.acceptOrder(orderId, prepTime);
+      RealtimeBus.acceptOrder(orderId, prepTimeMinutes);
+      confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 } });
       renderRestaurantOrders();
     }
 
     function kitchenRejectOrder(orderId) {
-      stopKitchenSiren();
-      RealtimeBus.cancelOrder(orderId, 'Kitchen at maximum capacity');
+      if (confirm("Are you sure you want to reject this order?")) {
+        stopKitchenSiren();
+        RealtimeBus.cancelOrder(orderId, 'Restaurant Kitchen at maximum capacity');
+        renderRestaurantOrders();
+      }
+    }
+
+    // Hand Over to Rider Button
+    function kitchenHandOverToRider(orderId) {
+      RealtimeBus.markPickedUp(orderId);
+      RealtimeBus.Sounds.playBell();
+      confetti({ particleCount: 75, spread: 65, origin: { y: 0.6 } });
       renderRestaurantOrders();
     }
 
+    // Siren & Alarm Management
     function startKitchenSiren(order) {
-      const banner = document.getElementById('kitchenAlertBanner');
+      const banner = document.getElementById('kitchenAlarmBanner');
       banner.classList.remove('hidden');
-      document.getElementById('kitchenAlertText').textContent = `Order #${order.id} from ${order.customer.name} (${order.customer.landmark})!`;
+      document.getElementById('kitchenAlarmText').textContent = `Order #${order.id} from ${order.customer.name} (${order.customer.landmark})! Value: ₹${order.total}`;
 
       RealtimeBus.Sounds.playIncomingOrderSiren();
 
@@ -311,6 +764,8 @@
       sirenInterval = setInterval(() => {
         RealtimeBus.Sounds.playIncomingOrderSiren();
       }, 3500);
+
+      if (navigator.vibrate) navigator.vibrate([400, 200, 400, 200, 400]);
     }
 
     function stopKitchenSiren() {
@@ -318,19 +773,24 @@
         clearInterval(sirenInterval);
         sirenInterval = null;
       }
-      document.getElementById('kitchenAlertBanner').classList.add('hidden');
+      document.getElementById('kitchenAlarmBanner').classList.add('hidden');
     }
 
     function testKitchenBuzzer() {
       RealtimeBus.Sounds.playIncomingOrderSiren();
+      const banner = document.getElementById('kitchenAlarmBanner');
+      banner.classList.remove('hidden');
+      document.getElementById('kitchenAlarmText').textContent = "Test Buzzer ringing! Loud siren alert working perfectly.";
     }
 
     function initRestaurantRealtime() {
       RealtimeBus.on((event) => {
-        if (event.type === 'ORDER_PLACED' && event.payload && event.payload.restaurant.id === activeRestaurantId) {
+        if (event.type === 'ORDER_PLACED' && event.payload && event.payload.restaurant && event.payload.restaurant.id === activeRestaurantId) {
           startKitchenSiren(event.payload);
         }
-        renderRestaurantOrders();
+        if (event.type === 'CAPTAIN_ASSIGNED' || event.type === 'ORDER_PICKED_UP' || event.type === 'ORDER_DELIVERED' || event.type === 'ORDER_UPDATED') {
+          renderRestaurantOrders();
+        }
       });
     }
   </script>

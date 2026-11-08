@@ -448,6 +448,10 @@
       document.getElementById('capTargetPhoneDisplay').textContent = `+91 ${cleanPhone}`;
       document.getElementById('capLoginStep1').classList.add('hidden');
       document.getElementById('capLoginStep2').classList.remove('hidden');
+      if (otpCode && otpCode.code) {
+        document.getElementById('capOtpInput').value = otpCode.code;
+      }
+      RealtimeBus.listenForWebOtp('capOtpInput');
     }
 
     function backToCapStep1() {

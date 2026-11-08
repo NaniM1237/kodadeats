@@ -331,8 +331,9 @@
           </button>
 
           <!-- Install App Button -->
-          <button onclick="openAppDownloadModal()" class="hidden md:flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-2xl border border-white/25 text-xs font-black transition">
+          <button onclick="openAppDownloadModal()" class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white px-2.5 sm:px-3 py-1.5 rounded-2xl border border-white/25 text-xs font-black transition" title="Install App / Share Link">
             <span>📲</span>
+            <span class="hidden sm:inline">Install</span>
             <span>App</span>
           </button>
 
@@ -1362,6 +1363,11 @@
       document.getElementById('customerOtpStep').classList.remove('hidden');
       document.getElementById('authOtpInput').value = otpData.code; // Pre-filled for effortless 1-tap test
       document.getElementById('authOtpInput').focus();
+
+      // Native WebOTP API Auto-Fill from SMS (Zomato / Swiggy Style)
+      RealtimeBus.listenForWebOtp('authOtpInput', (code) => {
+        handleVerifyCustomerOtp();
+      });
     }
 
     function backToCustomerPhone() {
@@ -1445,6 +1451,7 @@
       document.getElementById('modalCapStep1').classList.add('hidden');
       document.getElementById('modalCapStep2').classList.remove('hidden');
       document.getElementById('modalCapOtpInput').value = otpData.code;
+      RealtimeBus.listenForWebOtp('modalCapOtpInput');
     }
 
     function handleVerifyModalCaptainOtp() {
