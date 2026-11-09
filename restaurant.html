@@ -285,7 +285,8 @@
     function initRestaurantApp() {
       // Check stored session
       const storedRestId = localStorage.getItem('kodadeats_restaurant_id');
-      if (storedRestId && KODAD_DATA.restaurants.find(r => r.id === storedRestId)) {
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      if (storedRestId && allRests.find(r => r.id === storedRestId)) {
         activeRestaurantId = storedRestId;
         loadRestaurantDetails();
         renderRestaurantOrders();
@@ -342,7 +343,28 @@
     function renderPartnerCards() {
       const container = document.getElementById('restPartnerCardsContainer');
       if (!container) return;
-      container.innerHTML = KODAD_DATA.restaurants.map(r => {
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      if (!allRests || allRests.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 rounded-2xl bg-slate-800/90 border border-slate-700 text-center space-y-3">
+            <span class="text-4xl block">🏪</span>
+            <h4 class="font-black text-sm text-white">Partner Kitchens Onboarding In Progress</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              We are onboarding real Highway Dhabas, Morning Tiffin Centres & Biryani Points across Kodad.
+            </p>
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <a href="tel:9640103505" class="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white text-xs font-black px-4 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-xs">
+                <span>📞 Call Admin (9640103505)</span>
+              </a>
+              <button onclick="switchRestModalTab('phone')" class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                <span>Login with Mobile OTP ➔</span>
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      container.innerHTML = allRests.map(r => {
         const isCurrent = r.id === activeRestaurantId;
         return `
           <div class="p-3.5 rounded-2xl border ${isCurrent ? 'bg-orange-950/50 border-orange-500' : 'bg-slate-800/90 border-slate-700 hover:border-slate-600'} transition flex items-center justify-between gap-3">
@@ -352,8 +374,8 @@
               </div>
               <div class="min-w-0">
                 <h4 class="font-black text-sm text-white truncate">${r.name}</h4>
-                <p class="text-[11px] text-slate-300">Owner: <b class="text-amber-400">${r.ownerName}</b> • +91 ${r.phone}</p>
-                <p class="text-[10px] text-slate-400 truncate mt-0.5">${r.location}</p>
+                <p class="text-[11px] text-slate-300">Owner: <b class="text-amber-400">${r.ownerName || 'Partner'}</b> • +91 ${r.phone}</p>
+                <p class="text-[10px] text-slate-400 truncate mt-0.5">${r.location || 'Kodad'}</p>
               </div>
             </div>
             <button onclick="selectRestaurant('${r.id}')" class="${isCurrent ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-600 hover:bg-orange-500'} text-white text-xs font-black px-3 py-2 rounded-xl transition shrink-0">
@@ -370,7 +392,7 @@
       document.getElementById('restAuthModal').classList.add('hidden');
       loadRestaurantDetails();
       renderRestaurantOrders();
-      confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+      if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
     }
 
     function sendRestaurantOtp() {
@@ -387,10 +409,11 @@
       RealtimeBus.showOtpBanner(cleanPhone, otpCode);
 
       // Check matching restaurant
-      const match = KODAD_DATA.restaurants.find(r => r.phone === cleanPhone);
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const match = allRests.find(r => r.phone === cleanPhone);
       const nameEl = document.getElementById('restDetectedName');
       if (match) {
-        nameEl.textContent = `${match.name} (${match.ownerName})`;
+        nameEl.textContent = `${match.name} (${match.ownerName || 'Partner'})`;
       } else {
         nameEl.textContent = `Partner Kitchen (Owner: ${cleanPhone})`;
       }
@@ -414,10 +437,28 @@
         return;
       }
 
-      // Find matching restaurant by phone or default to first
-      let match = KODAD_DATA.restaurants.find(r => r.phone === pendingRestPhone);
+      // Find matching restaurant by phone or register a dynamic partner
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      let match = allRests.find(r => r.phone === pendingRestPhone);
       if (!match) {
-        match = KODAD_DATA.restaurants[0];
+        match = {
+          id: 'rest-' + pendingRestPhone,
+          name: 'Partner Kitchen (' + pendingRestPhone.slice(-4) + ')',
+          cuisine: 'Multi-Cuisine',
+          location: 'Kodad',
+          ownerName: 'Kitchen Partner',
+          phone: pendingRestPhone,
+          rating: 4.8,
+          deliveryTime: '25-30 mins',
+          distance: '1.2 km',
+          badge: 'Verified Kitchen',
+          image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&auto=format&fit=crop&q=60',
+          lat: 17.0015,
+          lng: 79.9660
+        };
+        if (window.RealtimeBus && RealtimeBus.saveRestaurant) {
+          RealtimeBus.saveRestaurant(match);
+        }
       }
 
       selectRestaurant(match.id);
@@ -431,10 +472,17 @@
     }
 
     function loadRestaurantDetails() {
-      const rest = KODAD_DATA.restaurants.find(r => r.id === activeRestaurantId) || KODAD_DATA.restaurants[0];
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const rest = allRests.find(r => r.id === activeRestaurantId) || allRests[0] || {
+        id: 'rest-default',
+        name: 'Kodad Partner Kitchen',
+        location: 'Kodad Town',
+        ownerName: 'Kitchen Partner',
+        phone: '9640103505'
+      };
       document.getElementById('restHeaderName').textContent = rest.name;
-      document.getElementById('restHeaderLocation').textContent = rest.location;
-      document.getElementById('restHeaderOwner').textContent = rest.ownerName;
+      document.getElementById('restHeaderLocation').textContent = rest.location || 'Kodad';
+      document.getElementById('restHeaderOwner').textContent = rest.ownerName || 'Partner';
       document.getElementById('restHeaderPhone').textContent = `+91 ${rest.phone}`;
     }
 

@@ -1763,7 +1763,8 @@
     }
 
     function applyFilters() {
-      let list = [...KODAD_DATA.products];
+      const allProducts = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
+      let list = [...allProducts];
 
       if (selectedRestaurantId) {
         list = list.filter(p => p.restId === selectedRestaurantId);
@@ -1777,8 +1778,10 @@
         list = list.filter(p => p.isVeg);
       }
 
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+
       if (isFastOnly) {
-        const fastRestIds = KODAD_DATA.restaurants.filter(r => parseInt(r.deliveryTime) <= 20).map(r => r.id);
+        const fastRestIds = allRests.filter(r => parseInt(r.deliveryTime) <= 20).map(r => r.id);
         list = list.filter(p => fastRestIds.includes(p.restId));
       }
 
@@ -1806,9 +1809,9 @@
         const q = searchQuery.toLowerCase().trim();
         list = list.filter(p => 
           p.name.toLowerCase().includes(q) || 
-          p.restName.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q)
+          (p.restName && p.restName.toLowerCase().includes(q)) ||
+          (p.description && p.description.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q))
         );
       }
 
@@ -1821,8 +1824,8 @@
         list.sort((a, b) => b.price - a.price);
       } else if (sortBy === 'deliveryTime') {
         list.sort((a, b) => {
-          const restA = KODAD_DATA.restaurants.find(r => r.id === a.restId);
-          const restB = KODAD_DATA.restaurants.find(r => r.id === b.restId);
+          const restA = allRests.find(r => r.id === a.restId);
+          const restB = allRests.find(r => r.id === b.restId);
           return (parseInt(restA?.deliveryTime) || 30) - (parseInt(restB?.deliveryTime) || 30);
         });
       }
@@ -1868,6 +1871,39 @@
     function renderProductsGrid(list) {
       const grid = document.getElementById('productsGrid');
       if (!grid) return;
+
+      const allProducts = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
+
+      if (allProducts.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-10 px-5 text-center bg-white rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-3xl mx-auto border border-amber-200">
+              🍲
+            </div>
+            <div>
+              <span class="inline-block px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-[11px] font-black uppercase tracking-wider mb-2">
+                Menus Launching Shortly
+              </span>
+              <h4 class="font-black text-lg text-slate-900">Kodad Dishes & Menus Being Loaded</h4>
+              <p class="text-xs text-slate-600 max-w-md mx-auto leading-relaxed mt-1">
+                We are actively collecting live menus and prices directly from Kodad's Highway Dhabas, Morning Tiffin Centres & Biryani Points. Live ordering opens very soon!
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+              <a href="tel:9640103505" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-4 py-2.5 rounded-2xl shadow-md transition flex items-center gap-1.5">
+                <span>📞 Call: 9640103505</span>
+              </a>
+              <a href="tel:9182348241" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-4 py-2.5 rounded-2xl border border-slate-300 transition flex items-center gap-1.5">
+                <span>📞 Call: 9182348241</span>
+              </a>
+              <a href="https://wa.me/919640103505?text=Hi%20KodadEats,%20I%20want%20to%20register%20my%20restaurant/order" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-2xl shadow-md transition flex items-center gap-1.5">
+                <span>💬 WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
 
       if (list.length === 0) {
         grid.innerHTML = `
@@ -1975,15 +2011,60 @@
     function renderRestaurants() {
       const grid = document.getElementById('restaurantsGrid');
       if (!grid) return;
-      grid.innerHTML = KODAD_DATA.restaurants.map(r => `
+
+      const restaurants = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+
+      if (!restaurants || restaurants.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-blue-500/10 border-2 border-dashed border-amber-300 rounded-3xl p-6 sm:p-8 text-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-3xl mx-auto shadow-lg shadow-orange-500/20">
+              🏪
+            </div>
+            <div>
+              <span class="inline-block px-3 py-1 bg-amber-400/20 text-amber-900 border border-amber-300 rounded-full text-[11px] font-black uppercase tracking-wider mb-2">
+                Partner Onboarding In Progress
+              </span>
+              <h3 class="text-lg sm:text-xl font-black text-slate-900">
+                Partnering with Kodad's Top Restaurants & Highway Dhabas
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed mt-1">
+                We are currently onboarding Kodad's local favourites — Highway Dhabas, Morning-to-Night Tiffin Centres, Biryani Points & Family Restaurants. Real menus & live delivery opening shortly!
+              </p>
+            </div>
+            <div class="p-4 bg-white/90 rounded-2xl border border-amber-200/80 max-w-md mx-auto shadow-xs text-left space-y-2">
+              <p class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <span>👨‍🍳</span>
+                <span>Are you a Restaurant / Dhaba / Tiffin Centre owner in Kodad?</span>
+              </p>
+              <p class="text-[11px] text-slate-600 leading-normal">
+                Join KodadEats with 0% onboarding fee and start receiving online delivery orders directly to your phone.
+              </p>
+              <div class="pt-2 flex flex-wrap items-center gap-2">
+                <a href="tel:9640103505" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-3.5 py-2 rounded-xl shadow-xs transition flex items-center gap-1">
+                  <span>📞 9640103505</span>
+                </a>
+                <a href="tel:9182348241" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-black text-xs px-3.5 py-2 rounded-xl border border-blue-200 transition flex items-center gap-1">
+                  <span>📞 9182348241</span>
+                </a>
+                <a href="https://wa.me/919640103505?text=Hi%20KodadEats,%20I%20want%20to%20register%20my%20restaurant" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-3.5 py-2 rounded-xl shadow-xs transition flex items-center gap-1">
+                  <span>💬 WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = restaurants.map(r => `
         <div onclick="filterByRestaurant('${r.id}', '${r.name}')" class="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-500 hover:shadow-xl transition cursor-pointer group flex flex-col justify-between">
           <div class="relative h-44 overflow-hidden">
             <img src="${r.image}" alt="${r.name}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
-              ${r.badge}
+              ${r.badge || 'Kodad Partner'}
             </span>
             <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-lg">
-              ⏱️ ${r.deliveryTime}
+              ⏱️ ${r.deliveryTime || '25-30 mins'}
             </div>
           </div>
           <div class="p-4 flex-1 flex flex-col justify-between">
@@ -1991,14 +2072,14 @@
               <div class="flex items-start justify-between gap-2">
                 <h4 class="font-black text-base text-slate-900 leading-tight group-hover:text-blue-600 transition">${r.name}</h4>
                 <span class="bg-emerald-600 text-white text-xs font-black px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
-                  ★ ${r.rating}
+                  ★ ${r.rating || '4.8'}
                 </span>
               </div>
-              <p class="text-xs text-slate-500 mt-1">${r.cuisine}</p>
+              <p class="text-xs text-slate-500 mt-1">${r.cuisine || 'Multi-Cuisine'}</p>
               <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-3 pt-3 border-t border-slate-100">
-                <span>📍 ${r.location}</span>
+                <span>📍 ${r.location || 'Kodad'}</span>
                 <span>•</span>
-                <span>${r.distance}</span>
+                <span>${r.distance || '1.0 km'}</span>
               </div>
             </div>
             <button class="w-full mt-3 bg-blue-50 group-hover:bg-blue-600 text-blue-600 group-hover:text-white font-black text-xs py-2.5 rounded-xl border border-blue-200 group-hover:border-blue-600 transition flex items-center justify-center gap-1.5 shadow-xs">
@@ -2258,8 +2339,10 @@
       const addOn = KODAD_DATA.addOns.find(a => a.id === addOnId);
       if (!addOn) return;
 
-      const restId = cart.length > 0 ? cart[0].restId : KODAD_DATA.restaurants[0].id;
-      const restName = cart.length > 0 ? cart[0].restName : KODAD_DATA.restaurants[0].name;
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const defaultRest = allRests[0] || { id: 'rest-1', name: 'Kodad Kitchen' };
+      const restId = cart.length > 0 ? cart[0].restId : defaultRest.id;
+      const restName = cart.length > 0 ? cart[0].restName : defaultRest.name;
 
       const idx = cart.findIndex(c => c.id === addOn.id);
       if (idx >= 0) {
@@ -2424,7 +2507,8 @@
 
     // 11. Cart Management & Checkout
     function updateCart(itemId, delta) {
-      const product = KODAD_DATA.products.find(p => p.id === itemId) || KODAD_DATA.addOns.find(a => a.id === itemId);
+      const allProducts = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
+      const product = allProducts.find(p => p.id === itemId) || (KODAD_DATA.addOns && KODAD_DATA.addOns.find(a => a.id === itemId));
       if (!product) return;
 
       const idx = cart.findIndex(c => c.id === itemId);
@@ -2618,7 +2702,8 @@
     }
 
     function initTrackingMap(order) {
-      const rest = KODAD_DATA.restaurants.find(r => r.id === order.restaurant.id) || KODAD_DATA.restaurants[0];
+      const allRests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const rest = allRests.find(r => r.id === (order.restaurant && order.restaurant.id)) || allRests[0] || { name: (order.restaurant && order.restaurant.name) || 'Restaurant Kitchen', lat: 17.0015, lng: 79.9660 };
       const landmark = KODAD_DATA.landmarks.find(l => l.name === order.customer.landmark) || KODAD_DATA.landmarks[0];
       const custLat = order.customer.lat || landmark.lat;
       const custLng = order.customer.lng || landmark.lng;
@@ -2852,6 +2937,10 @@
         }
         if (event.type === 'ORDER_DELIVERED') {
           renderProfileDrawerContent();
+        }
+        if (event.type === 'RESTAURANT_SAVED' || event.type === 'PRODUCT_SAVED') {
+          renderRestaurants();
+          applyFilters();
         }
       });
     }

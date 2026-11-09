@@ -15,6 +15,8 @@ const RealtimeBus = (function() {
   const STORAGE_KEY_CURRENT_CAPTAIN = 'kodadeats_current_captain';
   const STORAGE_KEY_ADMIN_AUTH = 'kodadeats_admin_auth';
   const STORAGE_KEY_INSTALLS = 'kodadeats_installs_count';
+  const STORAGE_KEY_RESTAURANTS = 'kodadeats_dynamic_restaurants';
+  const STORAGE_KEY_PRODUCTS = 'kodadeats_dynamic_products';
 
   // Authorized Admin Mobile Numbers (Restricted to Owner only)
   const ADMIN_AUTHORIZED_PHONES = ['9640103505', '9182348241'];
@@ -525,6 +527,79 @@ const RealtimeBus = (function() {
     return null;
   }
 
+  // Dynamic Restaurants, Dhabas & Tiffin Centres Management
+  function getRestaurants() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_RESTAURANTS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.restaurants) ? KODAD_DATA.restaurants : [];
+  }
+
+  function saveRestaurant(data) {
+    const list = getRestaurants();
+    const id = data.id || ('rest-' + (list.length + 1));
+    const newRest = {
+      id: id,
+      name: data.name,
+      location: data.location || 'Kodad',
+      phone: data.phone || '9848011111',
+      ownerName: data.ownerName || 'Partner Owner',
+      cuisine: data.cuisine || 'Kodad Special',
+      rating: data.rating || 4.8,
+      deliveryTime: data.deliveryTime || '20-30 min',
+      distance: data.distance || '1.0 km',
+      badge: data.badge || 'Verified Partner',
+      image: data.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80',
+      lat: data.lat || 16.9972,
+      lng: data.lng || 79.9678
+    };
+    const idx = list.findIndex(r => r.id === id);
+    if (idx >= 0) list[idx] = newRest; else list.push(newRest);
+    try { localStorage.setItem(STORAGE_KEY_RESTAURANTS, JSON.stringify(list)); } catch (e) {}
+    if (typeof KODAD_DATA !== 'undefined') KODAD_DATA.restaurants = list;
+    emit('RESTAURANT_SAVED', newRest);
+    return newRest;
+  }
+
+  function getProducts() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_PRODUCTS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.products) ? KODAD_DATA.products : [];
+  }
+
+  function saveProduct(data) {
+    const list = getProducts();
+    const id = data.id || ('item-' + (list.length + 1));
+    const newProd = {
+      id: id,
+      restId: data.restId,
+      restName: data.restName,
+      category: data.category || 'all',
+      name: data.name,
+      price: Number(data.price) || 100,
+      originalPrice: Number(data.originalPrice) || Number(data.price) + 20,
+      isVeg: data.isVeg !== undefined ? !!data.isVeg : true,
+      rating: data.rating || 4.8,
+      description: data.description || 'Freshly prepared hot & delicious.',
+      image: data.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80'
+    };
+    const idx = list.findIndex(p => p.id === id);
+    if (idx >= 0) list[idx] = newProd; else list.push(newProd);
+    try { localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(list)); } catch (e) {}
+    if (typeof KODAD_DATA !== 'undefined') KODAD_DATA.products = list;
+    emit('PRODUCT_SAVED', newProd);
+    return newProd;
+  }
+
   function registerCaptain(data) {
     const captains = getCaptains();
     const cleanPhone = (data.phone || '').replace(/\D/g, '').slice(-10);
@@ -868,6 +943,43 @@ _Please prepare and dispatch KodadEats Captain!_`;
     return order;
   }
 
+  // Cloud Sync Engine (Guarantees Realtime Sync on Vercel & Cloud Hosting without WebSocket limits)
+  function syncCloudOrders() {
+    const activeUrl = serverUrl || (typeof window !== 'undefined' && window.location.origin ? window.location.origin : '');
+    if (!activeUrl) return;
+
+    fetch(`${activeUrl}/api/orders`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && Array.isArray(data.data)) {
+          const localOrders = getAllOrders();
+          let changed = false;
+          data.data.forEach(cloudOrder => {
+            const idx = localOrders.findIndex(o => o.id === cloudOrder.id);
+            if (idx === -1) {
+              localOrders.unshift(cloudOrder);
+              changed = true;
+              emit('ORDER_PLACED', cloudOrder);
+            } else if (localOrders[idx].status !== cloudOrder.status) {
+              localOrders[idx] = cloudOrder;
+              changed = true;
+              emit('ORDER_UPDATED', cloudOrder);
+              emit(cloudOrder.status, cloudOrder);
+            }
+          });
+          if (changed) {
+            saveAllOrders(localOrders);
+          }
+        }
+      })
+      .catch(() => {});
+  }
+
+  // Auto-sync in background every 3.5 seconds
+  if (typeof window !== 'undefined') {
+    setInterval(syncCloudOrders, 3500);
+  }
+
   // Customer Order History & Loyalty Operations
   function getUserOrderHistory(phone = '') {
     const all = getAllOrders();
@@ -994,6 +1106,10 @@ _Please prepare and dispatch KodadEats Captain!_`;
     getCaptainByPhone,
     switchCaptain,
     registerCaptain,
+    getRestaurants,
+    saveRestaurant,
+    getProducts,
+    saveProduct,
     captainAcceptOrder,
     captainDeclineOrder,
     getUserOrderHistory,
