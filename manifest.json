@@ -1,12 +1,12 @@
 {
-  "name": "KodadEats - కొదాడ ఫుడ్ డెలివరీ",
-  "short_name": "KodadEats",
+  "name": "Eat.in - Instant Delivery across Kodad",
+  "short_name": "Eat.in",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#FBFBFD",
+  "theme_color": "#FF5A36",
   "orientation": "portrait",
-  "description": "Kodad's #1 Local Food Delivery App - Fast Biryani, Tiffins & Snacks delivered in 20 mins.",
+  "description": "Eat.in - Instant 15-20 min Delivery of Food, Dhabas, Tiffins, Meat, Bakery & Essentials in Kodad.",
   "icons": [
     {
       "src": "icon-192.png",

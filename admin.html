@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KodadEats Admin - Central Operations Hub</title>
+  <title>Eat.in Admin - Central Operations Hub (Kodad)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Plus Jakarta Sans -->
@@ -936,19 +936,36 @@
         `;
         return;
       }
-      list.innerHTML = rests.map(r => `
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="text-2xl shrink-0">🍳</span>
-            <div class="min-w-0">
-              <h5 class="font-black text-xs text-slate-900 truncate">${r.name}</h5>
-              <p class="text-[10px] text-slate-500 truncate">${r.cuisine || 'Multi-Cuisine'} • 📍 ${r.location || 'Kodad'}</p>
-              <p class="text-[10px] text-blue-600 font-bold mt-0.5">📞 +91 ${r.phone}</p>
+      list.innerHTML = rests.map(r => {
+        const isOpen = r.isOpen !== false;
+        return `
+          <div class="bg-white p-3.5 rounded-2xl border ${isOpen ? 'border-slate-200' : 'border-rose-200 bg-rose-50/30'} shadow-xs flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="text-2xl shrink-0">🍳</span>
+              <div class="min-w-0">
+                <h5 class="font-black text-xs text-slate-900 truncate">${r.name}</h5>
+                <p class="text-[10px] text-slate-500 truncate">${r.cuisine || 'Multi-Cuisine'} • 📍 ${r.location || 'Kodad'}</p>
+                <p class="text-[10px] text-blue-600 font-bold mt-0.5">📞 +91 ${r.phone} • ⏰ ${r.timings || '10 AM - 10 PM'}</p>
+              </div>
             </div>
+            <button onclick="toggleAdminRestStatus('${r.id}')" title="Click to toggle OPEN / CLOSED" class="text-[10px] font-black px-2.5 py-1.5 rounded-xl transition shadow-xs flex items-center gap-1 ${
+              isOpen 
+                ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300' 
+                : 'bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300'
+            }">
+              <span>${isOpen ? '🟢 OPEN' : '🔴 CLOSED'}</span>
+            </button>
           </div>
-          <span class="text-[10px] bg-emerald-100 text-emerald-800 font-black px-2 py-0.5 rounded-full shrink-0">Active</span>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+    }
+
+    function toggleAdminRestStatus(restId) {
+      const current = RealtimeBus.getRestaurantStatus ? RealtimeBus.getRestaurantStatus(restId) : true;
+      const next = !current;
+      RealtimeBus.setRestaurantStatus(restId, next);
+      renderAdminPartners();
+      initAdminLiveMap();
     }
 
     function renderAdminDishes() {

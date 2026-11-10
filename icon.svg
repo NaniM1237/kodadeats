@@ -1,56 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2563eb"/>
-      <stop offset="100%" stop-color="#1d4ed8"/>
+    <linearGradient id="eatInGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5A36"/>
+      <stop offset="100%" stop-color="#FF8C42"/>
     </linearGradient>
-    <linearGradient id="bikeBody" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f1f5f9"/>
+    <linearGradient id="innerGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.05"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1e3a8a" flood-opacity="0.35"/>
+    <filter id="eatInShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#FF5A36" flood-opacity="0.35"/>
     </filter>
   </defs>
   
-  <!-- Background Rounded App Tile with Royal Blue Gradient -->
-  <rect width="512" height="512" rx="120" fill="url(#bgGrad)"/>
+  <!-- Rounded App Icon Background -->
+  <rect width="512" height="512" rx="128" fill="url(#eatInGrad)"/>
   
-  <!-- Inner Subtle Accent Ring -->
-  <circle cx="256" cy="230" r="170" fill="#3b82f6" opacity="0.3"/>
+  <!-- Inner Glass Accent -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#innerGlow)" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="4"/>
   
-  <!-- Food Delivery Scooter Graphic -->
-  <g filter="url(#shadow)" fill="#ffffff" transform="translate(64, 75) scale(0.75)">
-    <!-- Insulated Food Delivery Box on back -->
-    <rect x="65" y="140" width="115" height="115" rx="20" fill="#ffffff"/>
-    <rect x="80" y="155" width="85" height="45" rx="10" fill="#2563eb"/>
-    <text x="122" y="184" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#ffffff" text-anchor="middle">KE</text>
-    
-    <!-- Bike Body Frame -->
-    <path d="M170 230 L260 230 L315 155 L365 155 L375 175 L335 175 L290 240 L310 280 L180 280 Z" fill="url(#bikeBody)"/>
-    
-    <!-- Handlebar & Front Shield -->
-    <line x1="335" y1="165" x2="365" y2="115" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-    <line x1="340" y1="115" x2="385" y2="115" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-    <!-- Headlight (Golden Glow) -->
-    <circle cx="380" cy="138" r="16" fill="#fde047"/>
-    
-    <!-- Rear Wheel -->
-    <circle cx="150" cy="330" r="60" fill="#0f172a"/>
-    <circle cx="150" cy="330" r="32" fill="#ffffff"/>
-    <circle cx="150" cy="330" r="14" fill="#2563eb"/>
-    
-    <!-- Front Wheel -->
-    <circle cx="360" cy="330" r="60" fill="#0f172a"/>
-    <circle cx="360" cy="330" r="32" fill="#ffffff"/>
-    <circle cx="360" cy="330" r="14" fill="#2563eb"/>
-    
-    <!-- Speed Delivery Wind Lines -->
-    <line x1="15" y1="170" x2="50" y2="170" stroke="#93c5fd" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
-    <line x1="5" y1="210" x2="45" y2="210" stroke="#93c5fd" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
-    <line x1="25" y1="250" x2="55" y2="250" stroke="#93c5fd" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+  <!-- Plate / Cloche Accent -->
+  <circle cx="256" cy="200" r="100" fill="#FFFFFF" opacity="0.2"/>
+  <circle cx="256" cy="200" r="80" fill="#FFFFFF" filter="url(#eatInShadow)"/>
+  
+  <!-- Fork & Spoon Minimalist Graphic -->
+  <g fill="#FF5A36" transform="translate(206, 150) scale(1.0)">
+    <path d="M25 15 C25 35 35 48 45 52 L45 95 C45 98 48 100 50 100 C52 100 55 98 55 95 L55 52 C65 48 75 35 75 15 C75 10 70 8 68 12 C65 20 62 30 50 30 C38 30 35 20 32 12 C30 8 25 10 25 15 Z"/>
+    <path d="M47 0 L47 25 M53 0 L53 25" stroke="#FF5A36" stroke-width="3" stroke-linecap="round"/>
   </g>
   
-  <!-- Text Label -->
-  <text x="256" y="445" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="46" fill="#ffffff" text-anchor="middle" letter-spacing="2">KODADEATS</text>
+  <!-- "Eat.in" Typography -->
+  <text x="256" y="375" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-weight="900" font-size="78" fill="#FFFFFF" text-anchor="middle" letter-spacing="-1">
+    Eat<tspan fill="#FDE047">.in</tspan>
+  </text>
+  
+  <text x="256" y="420" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-weight="800" font-size="20" fill="#FFF1EE" text-anchor="middle" letter-spacing="3">
+    INSTANT KODAD
+  </text>
 </svg>

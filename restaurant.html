@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KodadEats Kitchen - Restaurant Partner Portal</title>
+  <title>Eat.in Kitchen - Restaurant & Dhaba Portal (Kodad)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Plus Jakarta Sans -->
@@ -65,10 +65,10 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 id="restHeaderName" class="text-base md:text-lg font-black text-white">Kodad Biryani House</h1>
-            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              Kitchen Online
-            </span>
+            <button id="kitchenStatusToggleBtn" onclick="toggleCurrentKitchenStatus()" title="Tap to toggle Kitchen OPEN / CLOSED" class="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5 transition hover:scale-105 active:scale-95 shadow-sm">
+              <span id="kitchenStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="kitchenStatusText">🟢 OPEN FOR ORDERS</span>
+            </button>
           </div>
           <p id="restHeaderSubtitle" class="text-xs text-slate-400">
             <span id="restHeaderLocation">Khammam Cross Road, Kodad</span> • Owner: <b id="restHeaderOwner" class="text-slate-200">Afzal Bhai</b> • <span id="restHeaderPhone" class="text-amber-400 font-mono">+91 9848011111</span>
@@ -484,6 +484,34 @@
       document.getElementById('restHeaderLocation').textContent = rest.location || 'Kodad';
       document.getElementById('restHeaderOwner').textContent = rest.ownerName || 'Partner';
       document.getElementById('restHeaderPhone').textContent = `+91 ${rest.phone}`;
+
+      const isOpen = RealtimeBus.getRestaurantStatus ? RealtimeBus.getRestaurantStatus(rest.id, rest.isOpen !== false) : true;
+      updateKitchenStatusUI(isOpen);
+    }
+
+    function toggleCurrentKitchenStatus() {
+      if (!activeRestaurantId) return;
+      const current = RealtimeBus.getRestaurantStatus ? RealtimeBus.getRestaurantStatus(activeRestaurantId) : true;
+      const next = !current;
+      RealtimeBus.setRestaurantStatus(activeRestaurantId, next);
+      updateKitchenStatusUI(next);
+      alert(next ? "✓ Kitchen is now OPEN for customer delivery orders!" : "⚠️ Kitchen marked as CLOSED. Customers cannot order from this store right now.");
+    }
+
+    function updateKitchenStatusUI(isOpen) {
+      const btn = document.getElementById('kitchenStatusToggleBtn');
+      const dot = document.getElementById('kitchenStatusDot');
+      const text = document.getElementById('kitchenStatusText');
+      if (!btn || !text || !dot) return;
+      if (isOpen) {
+        btn.className = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-black px-2.5 py-1 rounded-full transition flex items-center gap-1.5 shadow-sm hover:bg-emerald-500/30';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        text.textContent = '🟢 OPEN FOR ORDERS';
+      } else {
+        btn.className = 'bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[10px] font-black px-2.5 py-1 rounded-full transition flex items-center gap-1.5 shadow-sm hover:bg-rose-500/30';
+        dot.className = 'w-2 h-2 rounded-full bg-rose-400';
+        text.textContent = '🔴 CURRENTLY CLOSED';
+      }
     }
 
     function setOrderPeriod(period) {

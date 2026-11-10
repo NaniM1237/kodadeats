@@ -17,6 +17,7 @@ const RealtimeBus = (function() {
   const STORAGE_KEY_INSTALLS = 'kodadeats_installs_count';
   const STORAGE_KEY_RESTAURANTS = 'kodadeats_dynamic_restaurants';
   const STORAGE_KEY_PRODUCTS = 'kodadeats_dynamic_products';
+  const STORAGE_KEY_REST_STATUS = 'eatin_restaurant_status';
 
   // Authorized Admin Mobile Numbers (Restricted to Owner only)
   const ADMIN_AUTHORIZED_PHONES = ['9640103505', '9182348241'];
@@ -527,16 +528,48 @@ const RealtimeBus = (function() {
     return null;
   }
 
+  // Restaurant Active / Inactive Open Status Management (Requirement 2)
+  function getRestaurantStatus(restId, defaultOpen = true) {
+    try {
+      const map = JSON.parse(localStorage.getItem(STORAGE_KEY_REST_STATUS) || '{}');
+      if (map[restId] !== undefined) return !!map[restId];
+    } catch (e) {}
+    return defaultOpen;
+  }
+
+  function setRestaurantStatus(restId, isOpen) {
+    try {
+      const map = JSON.parse(localStorage.getItem(STORAGE_KEY_REST_STATUS) || '{}');
+      map[restId] = !!isOpen;
+      localStorage.setItem(STORAGE_KEY_REST_STATUS, JSON.stringify(map));
+      emit('RESTAURANT_STATUS_CHANGED', { restId, isOpen: !!isOpen });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Dynamic Restaurants, Dhabas & Tiffin Centres Management
   function getRestaurants() {
+    let list = [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY_RESTAURANTS);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) list = parsed;
       }
     } catch (e) {}
-    return (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.restaurants) ? KODAD_DATA.restaurants : [];
+
+    const baseList = (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.restaurants) ? KODAD_DATA.restaurants : [];
+    const map = new Map();
+    baseList.forEach(r => map.set(r.id, { ...r }));
+    list.forEach(r => map.set(r.id, { ...(map.get(r.id) || {}), ...r }));
+    const merged = Array.from(map.values());
+
+    return merged.map(r => ({
+      ...r,
+      isOpen: getRestaurantStatus(r.id, r.isOpen !== false)
+    }));
   }
 
   function saveRestaurant(data) {
@@ -546,13 +579,15 @@ const RealtimeBus = (function() {
       id: id,
       name: data.name,
       location: data.location || 'Kodad',
-      phone: data.phone || '9848011111',
+      phone: data.phone || '9640103505',
       ownerName: data.ownerName || 'Partner Owner',
       cuisine: data.cuisine || 'Kodad Special',
+      timings: data.timings || '10:00 AM - 10:30 PM',
       rating: data.rating || 4.8,
-      deliveryTime: data.deliveryTime || '20-30 min',
+      deliveryTime: data.deliveryTime || '20-25 mins',
       distance: data.distance || '1.0 km',
       badge: data.badge || 'Verified Partner',
+      isOpen: data.isOpen !== undefined ? !!data.isOpen : true,
       image: data.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80',
       lat: data.lat || 16.9972,
       lng: data.lng || 79.9678
@@ -566,14 +601,20 @@ const RealtimeBus = (function() {
   }
 
   function getProducts() {
+    let list = [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY_PRODUCTS);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) list = parsed;
       }
     } catch (e) {}
-    return (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.products) ? KODAD_DATA.products : [];
+
+    const baseList = (typeof KODAD_DATA !== 'undefined' && KODAD_DATA.products) ? KODAD_DATA.products : [];
+    const map = new Map();
+    baseList.forEach(p => map.set(p.id, { ...p }));
+    list.forEach(p => map.set(p.id, { ...(map.get(p.id) || {}), ...p }));
+    return Array.from(map.values());
   }
 
   function saveProduct(data) {
@@ -917,6 +958,27 @@ _Please prepare and dispatch KodadEats Captain!_`;
     return order;
   }
 
+  // 5-Minute Silent Cancellation Rule (Requirement 8)
+  function canCancelOrder(orderId) {
+    const order = getOrderById(orderId);
+    if (!order) return { allowed: false, reason: 'Order not found' };
+    if (order.status === 'DELIVERED') {
+      return { allowed: false, reason: 'Order has already been delivered.' };
+    }
+    if (order.status === 'CANCELLED') {
+      return { allowed: false, reason: 'Order is already cancelled.' };
+    }
+    const createdTime = order.createdAt ? new Date(order.createdAt).getTime() : Date.now();
+    const elapsedMinutes = (Date.now() - createdTime) / (60 * 1000);
+    if (elapsedMinutes > 5) {
+      return {
+        allowed: false,
+        reason: 'Order has already been accepted and is being prepared in the kitchen! It can no longer be cancelled. For urgent modifications, please call helpline: 9640103505'
+      };
+    }
+    return { allowed: true, elapsedMinutes };
+  }
+
   function cancelOrder(orderId, reason = 'Cancelled') {
     const order = getOrderById(orderId);
     if (!order) return null;
@@ -1108,6 +1170,8 @@ _Please prepare and dispatch KodadEats Captain!_`;
     registerCaptain,
     getRestaurants,
     saveRestaurant,
+    getRestaurantStatus,
+    setRestaurantStatus,
     getProducts,
     saveProduct,
     captainAcceptOrder,
@@ -1130,6 +1194,7 @@ _Please prepare and dispatch KodadEats Captain!_`;
     markPickedUp,
     markDelivered,
     cancelOrder,
+    canCancelOrder,
     getWhatsAppUrl,
     setServerUrl: (url) => {
       serverUrl = url;

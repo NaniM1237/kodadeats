@@ -363,12 +363,16 @@ io.on('connection', (socket) => {
 });
 
 // Start Server
-server.listen(PORT, () => {
-  console.log(`
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`
 =====================================================
 🛵 KodadEats Cloud Backend Running!
 📍 Port: ${PORT}
 💾 Mode: ${isMongoConnected ? 'MongoDB Atlas' : 'Local Persistent Storage (database.json)'}
 =====================================================
-  `);
-});
+    `);
+  });
+}
+
+module.exports = app;
