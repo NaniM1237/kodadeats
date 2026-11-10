@@ -45,37 +45,37 @@
       animation: letterDrop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    /* Cute Yellow Scooty Riding Slowly ON The Line (Left to Right after letters drop) */
+    /* Pro Thick-Coloured Yellow Scooty Riding Slowly ON The Multi-Colour Line */
     @keyframes yellowScootyRideOnLine {
       0% {
-        transform: translateX(-40px);
+        transform: translateX(-44px);
         opacity: 0;
       }
-      4% {
+      3% {
         opacity: 1;
       }
-      92% {
+      94% {
         opacity: 1;
       }
       100% {
-        transform: translateX(225px);
+        transform: translateX(240px);
         opacity: 0;
       }
     }
     @media (min-width: 640px) {
       @keyframes yellowScootyRideOnLine {
         0% {
-          transform: translateX(-40px);
+          transform: translateX(-44px);
           opacity: 0;
         }
-        4% {
+        3% {
           opacity: 1;
         }
-        92% {
+        94% {
           opacity: 1;
         }
         100% {
-          transform: translateX(255px);
+          transform: translateX(272px);
           opacity: 0;
         }
       }
@@ -155,84 +155,97 @@
         </p>
       </div>
 
-      <!-- The Line on top of "Connecting Kodad Stores & Riders..." with Yellow Scooty Moving Slowly Left to Right -->
-      <div class="relative w-56 sm:w-64 mx-auto mt-4 mb-1">
+      <!-- The Line on top of "Connecting Kodad Stores & Riders..." with Pro Thick-Coloured Yellow Scooty & Multi-Colour Gradient Transition -->
+      <div class="relative w-60 sm:w-68 mx-auto mt-4 mb-1">
         
-        <!-- The Line Track & Animated Warm Yellow-Orange Fill -->
-        <div class="w-full h-1.5 bg-slate-200/90 rounded-full overflow-hidden shadow-inner">
-          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-500 rounded-full transition-all duration-3000 ease-out" style="width: 0%;"></div>
+        <!-- The Line: Starts with Hot Coral Red & Transitions smoothly to Vibrant Emerald Green -->
+        <div class="w-full h-2 bg-slate-200/90 rounded-full overflow-hidden shadow-inner border border-slate-300/40">
+          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-[#FF3366] via-[#FF8A00] via-[#FFD000] to-[#00E676] rounded-full transition-all duration-3000 ease-out shadow-sm" style="width: 0%; box-shadow: 0 0 10px rgba(255, 51, 102, 0.45);"></div>
         </div>
 
-        <!-- The Yellow Scooty Rolling Directly ON That Line -->
-        <div id="splashYellowScooty" class="yellow-scooty-animated absolute bottom-1.5 left-0 pointer-events-none">
+        <!-- Pro Thick-Coloured Yellow Scooty Rolling Directly ON That Line -->
+        <div id="splashYellowScooty" class="yellow-scooty-animated absolute bottom-2 left-0 pointer-events-none">
           <div class="scooter-bob flex items-end">
-            <svg class="w-14 h-10 sm:w-16 sm:h-11" viewBox="0 0 76 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="w-16 h-12 sm:w-18 sm:h-13 drop-shadow-md" viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <!-- Bright Sunshine Yellow Body Gradient -->
-                <linearGradient id="scooterYellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FDE047" />
-                  <stop offset="60%" stop-color="#FACC15" />
-                  <stop offset="100%" stop-color="#EAB308" />
+                <!-- Thick Golden Yellow Body Gradient -->
+                <linearGradient id="scooterThickYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFD000" />
+                  <stop offset="50%" stop-color="#FFB703" />
+                  <stop offset="100%" stop-color="#FB8500" />
                 </linearGradient>
-                <!-- Warm Cream Delivery Box Gradient -->
-                <linearGradient id="scooterBoxYellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FFFDF5" />
-                  <stop offset="100%" stop-color="#FEF3C7" />
+                
+                <!-- Pro Delivery Box Solid Contrast -->
+                <linearGradient id="boxThickGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" />
+                  <stop offset="100%" stop-color="#FFF3E0" />
                 </linearGradient>
+
                 <!-- Headlight Beam Cone -->
-                <linearGradient id="beamGoldenGrad" x1="0%" y1="50%" x2="100%" y2="50%">
-                  <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.9" />
-                  <stop offset="100%" stop-color="#FEF08A" stop-opacity="0" />
+                <linearGradient id="proBeamGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+                  <stop offset="0%" stop-color="#FFE600" stop-opacity="0.95" />
+                  <stop offset="100%" stop-color="#FFE600" stop-opacity="0" />
                 </linearGradient>
               </defs>
 
               <!-- Glowing Headlight Beam -->
-              <polygon points="54,26 76,19 76,33" fill="url(#beamGoldenGrad)" />
+              <polygon points="56,28 79,20 79,36" fill="url(#proBeamGrad)" />
 
-              <!-- Speed / Wind Trail Puffs (Warm Amber) -->
-              <path d="M 4 27 Q 1 27 0 29" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round" opacity="0.85" />
-              <path d="M 6 32 Q 0 32 -3 34" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" opacity="0.9" />
-              <path d="M 5 37 Q 2 37 1 39" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round" opacity="0.75" />
+              <!-- Thick Speed Puffs Behind (Fiery Coral & Gold) -->
+              <path d="M 5 28 Q 1 28 -1 30" stroke="#FF5722" stroke-width="2.5" stroke-linecap="round" />
+              <path d="M 7 33 Q 0 33 -4 36" stroke="#FF9800" stroke-width="2.8" stroke-linecap="round" />
+              <path d="M 6 39 Q 2 39 0 41" stroke="#FFC107" stroke-width="2.5" stroke-linecap="round" />
 
-              <!-- Delivery Thermal Box on Back Rack (Yellow Accent) -->
-              <rect x="7" y="14" width="16" height="17" rx="3.5" fill="url(#scooterBoxYellowGrad)" stroke="#F59E0B" stroke-width="1.5" />
-              <rect x="12" y="20" width="6" height="5" rx="1.2" fill="#D97706" />
-              <line x1="7" y1="22" x2="23" y2="22" stroke="#FBBF24" stroke-width="1" />
+              <!-- Thermal Delivery Box (Thick White with Bold Red/Orange Badge & Deep Navy Border) -->
+              <rect x="7" y="14" width="18" height="18" rx="4" fill="url(#boxThickGrad)" stroke="#0F172A" stroke-width="2" />
+              <rect x="12" y="20" width="8" height="6" rx="1.5" fill="#EF4444" stroke="#0F172A" stroke-width="0.8" />
+              <line x1="7" y1="23" x2="25" y2="23" stroke="#FB8500" stroke-width="1.8" />
 
-              <!-- Scooter Frame / Body in Bright Sunshine Yellow -->
-              <path d="M 23 27 Q 31 31 35 34 L 46 34 Q 49 31 51 23 L 53 17" stroke="url(#scooterYellowGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-              <!-- Footboard -->
-              <path d="M 24 33 L 36 34" stroke="#64748B" stroke-width="3" stroke-linecap="round" />
+              <!-- Rear Rack Support -->
+              <path d="M 16 32 L 24 35" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" />
 
-              <!-- Seat & Handlebars -->
-              <path d="M 22 24 C 22 22 26 22 29 24" stroke="#334155" stroke-width="2.5" stroke-linecap="round" />
-              <path d="M 51 17 L 47 15" stroke="#334155" stroke-width="2.2" stroke-linecap="round" />
-              <circle cx="47" cy="13" r="1.8" fill="#94A3B8" />
+              <!-- Scooter Main Chassis (Thick Golden Yellow with Bold Contour) -->
+              <path d="M 24 28 Q 32 32 37 35 L 48 35 Q 52 32 54 24 L 56 17" stroke="url(#scooterThickYellow)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M 24 28 Q 32 32 37 35 L 48 35 Q 52 32 54 24 L 56 17" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              
+              <!-- Footboard Solid -->
+              <path d="M 25 35 L 38 35" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" />
 
-              <!-- Front Headlight Lens -->
-              <circle cx="54" cy="25" r="3" fill="#FEF08A" stroke="#D97706" stroke-width="1" />
+              <!-- Seat (Thick Black Leather with Orange Trim) -->
+              <path d="M 22 25 C 22 22 27 22 30 25" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" />
+              
+              <!-- Handlebars & Front Shield -->
+              <path d="M 54 18 L 49 15" stroke="#0F172A" stroke-width="2.8" stroke-linecap="round" />
+              <circle cx="49" cy="13" r="2.2" fill="#FB8500" stroke="#0F172A" stroke-width="1.2" />
 
-              <!-- Cute Minimalist Rider with Yellow Helmet -->
-              <circle cx="34" cy="10" r="5.5" fill="#FACC15" />
-              <path d="M 34 9 Q 38 9 39 11" stroke="#1E293B" stroke-width="2" stroke-linecap="round" />
-              <path d="M 29 16 C 29 16 33 21 38 21 C 42 21 46 17 46 17" fill="#FFFBEB" stroke="#FDE68A" stroke-width="0.8" />
+              <!-- Headlight Lens -->
+              <circle cx="56" cy="27" r="3.5" fill="#FFE600" stroke="#0F172A" stroke-width="1.5" />
 
-              <!-- Back Wheel (Spinning) -->
-              <g class="scooter-wheel" style="transform-origin: 16px 39px;">
-                <circle cx="16" cy="39" r="8" fill="#334155" />
-                <circle cx="16" cy="39" r="4.5" fill="#F1F5F9" />
-                <circle cx="16" cy="39" r="2" fill="#F59E0B" />
-                <line x1="16" y1="32" x2="16" y2="46" stroke="#94A3B8" stroke-width="1" />
-                <line x1="9" y1="39" x2="23" y2="39" stroke="#94A3B8" stroke-width="1" />
+              <!-- Rider in Bold Thick Colors (Black Jacket with Golden Accents, Yellow Helmet) -->
+              <path d="M 30 17 C 30 17 35 22 40 22 C 45 22 48 18 48 18" fill="#0F172A" stroke="#FB8500" stroke-width="1" />
+              <path d="M 36 22 L 44 20" stroke="#FB8500" stroke-width="1.5" stroke-linecap="round" />
+              
+              <!-- Helmet (Thick Yellow) -->
+              <circle cx="36" cy="11" r="6.2" fill="#FFD000" stroke="#0F172A" stroke-width="1.8" />
+              <!-- Glossy Black Visor -->
+              <path d="M 36 10 Q 40 10 42 12" stroke="#0F172A" stroke-width="2.6" stroke-linecap="round" />
+
+              <!-- Back Wheel (Thick Black Tire, Chrome Rim, Golden Hubcap) -->
+              <g class="scooter-wheel" style="transform-origin: 17px 40px;">
+                <circle cx="17" cy="40" r="9" fill="#0F172A" />
+                <circle cx="17" cy="40" r="5" fill="#F1F5F9" stroke="#0F172A" stroke-width="1" />
+                <circle cx="17" cy="40" r="2.5" fill="#FB8500" />
+                <line x1="17" y1="32" x2="17" y2="48" stroke="#64748B" stroke-width="1.2" />
+                <line x1="9" y1="40" x2="25" y2="40" stroke="#64748B" stroke-width="1.2" />
               </g>
 
-              <!-- Front Wheel (Spinning) -->
-              <g class="scooter-wheel" style="transform-origin: 51px 39px;">
-                <circle cx="51" cy="39" r="8" fill="#334155" />
-                <circle cx="51" cy="39" r="4.5" fill="#F1F5F9" />
-                <circle cx="51" cy="39" r="2" fill="#F59E0B" />
-                <line x1="51" y1="32" x2="51" y2="46" stroke="#94A3B8" stroke-width="1" />
-                <line x1="44" y1="39" x2="58" y2="39" stroke="#94A3B8" stroke-width="1" />
+              <!-- Front Wheel (Thick Black Tire, Chrome Rim, Golden Hubcap) -->
+              <g class="scooter-wheel" style="transform-origin: 53px 40px;">
+                <circle cx="53" cy="40" r="9" fill="#0F172A" />
+                <circle cx="53" cy="40" r="5" fill="#F1F5F9" stroke="#0F172A" stroke-width="1" />
+                <circle cx="53" cy="40" r="2.5" fill="#FB8500" />
+                <line x1="53" y1="32" x2="53" y2="48" stroke="#64748B" stroke-width="1.2" />
+                <line x1="45" y1="40" x2="61" y2="40" stroke="#64748B" stroke-width="1.2" />
               </g>
             </svg>
           </div>
