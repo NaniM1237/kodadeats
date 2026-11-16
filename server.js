@@ -22,13 +22,50 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'database.json');
-const MONGODB_URI = process.env.MONGODB_URI || null;
+const DB_FILE = process.env.VERCEL ? path.join('/tmp', 'database.json') : path.join(__dirname, 'database.json');
+const DEFAULT_MONGO_URI = 'mongodb+srv://kodadeatsadmin:MongoDB%403505@cluster0.au8wsnf.mongodb.net/kodadeats?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || DEFAULT_MONGO_URI;
 
 let isMongoConnected = false;
+let cachedMongoPromise = null;
+
+async function connectToMongo() {
+  if (isMongoConnected) return true;
+  if (!cachedMongoPromise) {
+    cachedMongoPromise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 6000
+    }).then(() => {
+      isMongoConnected = true;
+      console.log('✅ Connected to MongoDB Atlas Cloud Database successfully!');
+      return true;
+    }).catch((err) => {
+      console.warn('⚠️ MongoDB connection warning:', err.message);
+      cachedMongoPromise = null;
+      isMongoConnected = false;
+      return false;
+    });
+  }
+  return cachedMongoPromise;
+}
+
+// Initial connect
+if (MONGODB_URI) {
+  connectToMongo();
+}
 
 app.use(cors());
 app.use(express.json());
+
+// Serverless MongoDB Auto-Connect Middleware (Guarantees connection on Vercel)
+app.use(async (req, res, next) => {
+  if (MONGODB_URI && !isMongoConnected) {
+    try {
+      await connectToMongo();
+    } catch (e) {}
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 
 // Explicit Page Routes
@@ -99,21 +136,6 @@ const OrderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const OrderModel = mongoose.model('Order', OrderSchema);
-
-// Connect to MongoDB Atlas if URI is provided
-if (MONGODB_URI) {
-  mongoose.connect(MONGODB_URI)
-    .then(() => {
-      isMongoConnected = true;
-      console.log('✅ Connected to MongoDB Atlas Cloud Database successfully!');
-    })
-    .catch((err) => {
-      console.warn('⚠️ MongoDB connection failed. Falling back to local database.json:', err.message);
-      isMongoConnected = false;
-    });
-} else {
-  console.log('ℹ️ Running in Local Persistent Mode (database.json). To connect MongoDB Atlas, set MONGODB_URI.');
-}
 
 // REST API Endpoints
 

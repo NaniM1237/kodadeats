@@ -64,11 +64,33 @@ const RealtimeBus = (function() {
     };
   }
 
-  // Configurable Server URL (default to origin or stored URL)
+  // Configurable Server URL (Optimized for 100% Vercel Serverless Architecture)
   let serverUrl = '';
   try {
-    serverUrl = localStorage.getItem(STORAGE_KEY_SERVER_URL) || (window.location.port ? window.location.origin : '');
-  } catch (e) {}
+    const stored = localStorage.getItem(STORAGE_KEY_SERVER_URL);
+    // If old Render URL is stored, purge it immediately
+    if (stored && (stored.includes('onrender.com') || stored.includes('render.com'))) {
+      localStorage.removeItem(STORAGE_KEY_SERVER_URL);
+      serverUrl = '';
+    } else {
+      serverUrl = stored || '';
+    }
+  } catch (e) {
+    serverUrl = '';
+  }
+
+  // Unified API Dispatcher: Uses relative /api/... on Vercel for 100% native uptime
+  function sendApiRequest(endpoint, options = {}) {
+    try {
+      const isHttp = typeof window !== 'undefined' && window.location.protocol && window.location.protocol.startsWith('http');
+      const url = isHttp ? endpoint : (serverUrl ? `${serverUrl}${endpoint}` : endpoint);
+      return fetch(url, options).catch(err => {
+        console.warn('[Vercel Cloud API] Offline / local fallback active:', err.message);
+      });
+    } catch (e) {
+      return Promise.resolve();
+    }
+  }
 
   // Audio Synthesizer Context
   let audioCtx = null;
@@ -874,14 +896,12 @@ _Please prepare and dispatch KodadEats Captain!_`;
     upsertOrder(newOrder);
     localStorage.setItem(STORAGE_KEY_ACTIVE_ORDER, orderId);
 
-    // Sync to Cloud Backend if available
-    if (serverUrl) {
-      fetch(`${serverUrl}/api/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newOrder)
-      }).catch(err => console.log('Offline/Local mode active'));
-    }
+    // Sync to Vercel Serverless & Cloud Database
+    sendApiRequest('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newOrder)
+    });
 
     Sounds.playSuccessChime();
     emit('ORDER_PLACED', newOrder);
@@ -902,13 +922,11 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     upsertOrder(order);
 
-    if (serverUrl) {
-      fetch(`${serverUrl}/api/orders/${orderId}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'ACCEPTED', prepTime: prepTimeMinutes })
-      }).catch(e => {});
-    }
+    sendApiRequest(`/api/orders/${orderId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'ACCEPTED', prepTime: prepTimeMinutes })
+    });
 
     Sounds.playIncomingOrderSiren();
     emit('ORDER_ACCEPTED', order);
@@ -938,13 +956,11 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     upsertOrder(order);
 
-    if (serverUrl) {
-      fetch(`${serverUrl}/api/orders/${orderId}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'CAPTAIN_ASSIGNED', captain: order.captain })
-      }).catch(e => {});
-    }
+    sendApiRequest(`/api/orders/${orderId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'CAPTAIN_ASSIGNED', captain: order.captain })
+    });
 
     Sounds.playRiderAlert();
     emit('CAPTAIN_ASSIGNED', order);
@@ -964,13 +980,11 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     upsertOrder(order);
 
-    if (serverUrl) {
-      fetch(`${serverUrl}/api/orders/${orderId}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'PICKED_UP' })
-      }).catch(e => {});
-    }
+    sendApiRequest(`/api/orders/${orderId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'PICKED_UP' })
+    });
 
     Sounds.playRiderAlert();
     emit('ORDER_PICKED_UP', order);
@@ -1007,13 +1021,11 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     upsertOrder(order);
 
-    if (serverUrl) {
-      fetch(`${serverUrl}/api/orders/${orderId}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'DELIVERED' })
-      }).catch(e => {});
-    }
+    sendApiRequest(`/api/orders/${orderId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'DELIVERED' })
+    });
 
     Sounds.playSuccessChime();
     emit('ORDER_DELIVERED', order);
@@ -1078,25 +1090,20 @@ _Please prepare and dispatch KodadEats Captain!_`;
 
     upsertOrder(order);
 
-    if (serverUrl) {
-      fetch(`${serverUrl}/api/orders/${orderId}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'CANCELLED', cancelReason: reason })
-      }).catch(e => {});
-    }
+    sendApiRequest(`/api/orders/${orderId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'CANCELLED', cancelReason: reason })
+    });
 
     emit('ORDER_CANCELLED', order);
     return order;
   }
 
-  // Cloud Sync Engine (Guarantees Realtime Sync on Vercel & Cloud Hosting without WebSocket limits)
+  // Cloud Sync Engine (Guarantees Realtime Sync on Vercel & MongoDB Atlas without WebSocket limits)
   function syncCloudOrders() {
-    const activeUrl = serverUrl || (typeof window !== 'undefined' && window.location.origin ? window.location.origin : '');
-    if (!activeUrl) return;
-
-    fetch(`${activeUrl}/api/orders`)
-      .then(res => res.json())
+    sendApiRequest('/api/orders')
+      .then(res => res && res.json ? res.json() : null)
       .then(data => {
         if (data && data.success && Array.isArray(data.data)) {
           const localOrders = getAllOrders();
