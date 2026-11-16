@@ -3,7 +3,7 @@
  * Enables offline caching, fast load & Android app installation
  */
 
-const CACHE_NAME = 'kodadeats-v2';
+const CACHE_NAME = 'kodadeats-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
