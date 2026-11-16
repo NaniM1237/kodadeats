@@ -45,44 +45,26 @@
       animation: letterDrop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    /* Pro Thick-Coloured Yellow Scooty Riding Slowly ON The Multi-Colour Line */
-    @keyframes yellowScootyRideOnLine {
+    /* Normal Yellow Scooty Riding ON The Line (Left to Right, in sync with Yellow Fill) */
+    @keyframes normalScootyRide {
       0% {
-        transform: translateX(-44px);
+        left: -12px;
         opacity: 0;
       }
-      3% {
+      4% {
         opacity: 1;
       }
-      94% {
+      92% {
         opacity: 1;
       }
       100% {
-        transform: translateX(240px);
+        left: calc(100% - 46px);
         opacity: 0;
       }
     }
-    @media (min-width: 640px) {
-      @keyframes yellowScootyRideOnLine {
-        0% {
-          transform: translateX(-44px);
-          opacity: 0;
-        }
-        3% {
-          opacity: 1;
-        }
-        94% {
-          opacity: 1;
-        }
-        100% {
-          transform: translateX(272px);
-          opacity: 0;
-        }
-      }
-    }
-    .yellow-scooty-animated {
+    .normal-scooty-animated {
       opacity: 0;
-      animation: yellowScootyRideOnLine 3.0s cubic-bezier(0.35, 0, 0.25, 1) 1.2s forwards;
+      animation: normalScootyRide 2.8s cubic-bezier(0.35, 0, 0.25, 1) 1.2s forwards;
     }
     .scooter-bob {
       animation: scooterBob 0.24s ease-in-out infinite alternate;
@@ -131,11 +113,62 @@
   <div id="splashScreen" class="fixed inset-0 z-[120] bg-gradient-to-b from-[#FFFDF9] via-[#FFF8F3] to-[#FFF0E6] flex flex-col items-center justify-center text-slate-900 transition-opacity duration-500 select-none overflow-hidden">
     <div class="text-center space-y-3 px-6 max-w-sm w-full">
       
-      <!-- Brand Icon Badge with Soft Glow -->
+      <!-- Attractive Pro Brand Emblem on top of Eat.in letters (Requirement: Premium Logo Graphic) -->
       <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
-        <div class="absolute -inset-2 rounded-3xl bg-orange-400/20 blur-md"></div>
-        <div class="relative w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#FF5A36] to-[#FF8C42] flex items-center justify-center text-4xl shadow-xl shadow-orange-500/25 ring-4 ring-orange-100">
-          🍽️
+        <!-- Ambient Warm Glow Behind Badge -->
+        <div class="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-orange-500/30 via-amber-400/25 to-orange-400/20 blur-lg animate-pulse"></div>
+        
+        <!-- Premium Glassmorphic / Gradient Emblem -->
+        <div class="relative w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#FF5A36] via-[#FF7347] to-[#FFA048] flex items-center justify-center shadow-xl shadow-orange-500/30 ring-4 ring-orange-100/90 overflow-hidden">
+          
+          <!-- Inner Top Gloss Highlight -->
+          <div class="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+
+          <!-- Professional Food Delivery Vector Graphic -->
+          <svg class="w-12 h-12 drop-shadow-md" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Cloche Dome Gold Gradient -->
+              <linearGradient id="clocheGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFF3B0" />
+                <stop offset="40%" stop-color="#FFD166" />
+                <stop offset="100%" stop-color="#F77F00" />
+              </linearGradient>
+              <!-- Silver Platter Gradient -->
+              <linearGradient id="platterSilver" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#E2E8F0" />
+                <stop offset="50%" stop-color="#FFFFFF" />
+                <stop offset="100%" stop-color="#CBD5E1" />
+              </linearGradient>
+              <!-- Steam Glow -->
+              <linearGradient id="steamGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+
+            <!-- Rising Steam Swirls -->
+            <path d="M 28 17 C 26 13 30 11 29 7" stroke="url(#steamGrad)" stroke-width="2" stroke-linecap="round" />
+            <path d="M 35 15 C 33 12 37 10 36 6" stroke="url(#steamGrad)" stroke-width="2" stroke-linecap="round" />
+
+            <!-- Golden Serving Cloche Dome -->
+            <path d="M 16 38 C 16 26 23 20 32 20 C 41 20 48 26 48 38 Z" fill="url(#clocheGold)" />
+            <!-- Cloche Highlight Reflection Arc -->
+            <path d="M 20 36 C 21 28 26 23 33 22" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.65" />
+
+            <!-- Cloche Sphere Handle -->
+            <circle cx="32" cy="18" r="3.2" fill="#FFE082" stroke="#F57C00" stroke-width="1" />
+            <circle cx="31.2" cy="17.2" r="1" fill="#FFFFFF" />
+
+            <!-- Base Serving Platter (Silver Tray) -->
+            <rect x="11" y="38" width="42" height="4.5" rx="2.25" fill="url(#platterSilver)" stroke="#0F172A" stroke-width="1.2" />
+            <!-- Platter Rim Base -->
+            <path d="M 20 42.5 L 44 42.5 L 41 45.5 L 23 45.5 Z" fill="#E2E8F0" stroke="#0F172A" stroke-width="0.8" />
+
+            <!-- Sparkle Stars -->
+            <path d="M 45 14 L 46 17 L 49 18 L 46 19 L 45 22 L 44 19 L 41 18 L 44 17 Z" fill="#FFF9C4" opacity="0.9" />
+            <circle cx="18" cy="22" r="1.5" fill="#FFF9C4" opacity="0.8" />
+          </svg>
+
         </div>
       </div>
 
@@ -155,97 +188,97 @@
         </p>
       </div>
 
-      <!-- The Line on top of "Connecting Kodad Stores & Riders..." with Pro Thick-Coloured Yellow Scooty & Multi-Colour Gradient Transition -->
+      <!-- The Line on top of "Connecting Kodad Stores & Riders..." with Normal Yellow Scooty & Yellow Fill -->
       <div class="relative w-60 sm:w-68 mx-auto mt-4 mb-1">
         
-        <!-- The Line: Starts with Hot Coral Red & Transitions smoothly to Vibrant Emerald Green -->
+        <!-- The Line Track: Automatically fills with bright Yellow as Scooty rolls from left to right -->
         <div class="w-full h-2 bg-slate-200/90 rounded-full overflow-hidden shadow-inner border border-slate-300/40">
-          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-[#FF3366] via-[#FF8A00] via-[#FFD000] to-[#00E676] rounded-full transition-all duration-3000 ease-out shadow-sm" style="width: 0%; box-shadow: 0 0 10px rgba(255, 51, 102, 0.45);"></div>
+          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-500 rounded-full transition-all duration-2800 ease-out shadow-sm" style="width: 0%; box-shadow: 0 0 12px rgba(250, 204, 21, 0.75);"></div>
         </div>
 
-        <!-- Pro Thick-Coloured Yellow Scooty Rolling Directly ON That Line -->
-        <div id="splashYellowScooty" class="yellow-scooty-animated absolute bottom-2 left-0 pointer-events-none">
+        <!-- Normal Yellow Scooty Rolling Directly ON That Line -->
+        <div id="splashYellowScooty" class="normal-scooty-animated absolute bottom-2 left-0 pointer-events-none">
           <div class="scooter-bob flex items-end">
-            <svg class="w-16 h-12 sm:w-18 sm:h-13 drop-shadow-md" viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="w-15 h-11 sm:w-16 sm:h-12 drop-shadow-sm" viewBox="0 0 72 50" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <!-- Thick Golden Yellow Body Gradient -->
-                <linearGradient id="scooterThickYellow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FFD000" />
-                  <stop offset="50%" stop-color="#FFB703" />
-                  <stop offset="100%" stop-color="#FB8500" />
-                </linearGradient>
-                
-                <!-- Pro Delivery Box Solid Contrast -->
-                <linearGradient id="boxThickGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FFFFFF" />
-                  <stop offset="100%" stop-color="#FFF3E0" />
+                <!-- Normal Scooty Bright Yellow Paint -->
+                <linearGradient id="activaYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FDE047" />
+                  <stop offset="50%" stop-color="#FACC15" />
+                  <stop offset="100%" stop-color="#EAB308" />
                 </linearGradient>
 
-                <!-- Headlight Beam Cone -->
-                <linearGradient id="proBeamGrad" x1="0%" y1="50%" x2="100%" y2="50%">
-                  <stop offset="0%" stop-color="#FFE600" stop-opacity="0.95" />
-                  <stop offset="100%" stop-color="#FFE600" stop-opacity="0" />
+                <!-- Headlight Yellow Glow Cone -->
+                <linearGradient id="headlightBeam" x1="0%" y1="50%" x2="100%" y2="50%">
+                  <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.9" />
+                  <stop offset="100%" stop-color="#FEF08A" stop-opacity="0" />
                 </linearGradient>
               </defs>
 
-              <!-- Glowing Headlight Beam -->
-              <polygon points="56,28 79,20 79,36" fill="url(#proBeamGrad)" />
+              <!-- Glowing Headlight Beam shining forward onto the line -->
+              <polygon points="50,26 72,18 72,34" fill="url(#headlightBeam)" />
 
-              <!-- Thick Speed Puffs Behind (Fiery Coral & Gold) -->
-              <path d="M 5 28 Q 1 28 -1 30" stroke="#FF5722" stroke-width="2.5" stroke-linecap="round" />
-              <path d="M 7 33 Q 0 33 -4 36" stroke="#FF9800" stroke-width="2.8" stroke-linecap="round" />
-              <path d="M 6 39 Q 2 39 0 41" stroke="#FFC107" stroke-width="2.5" stroke-linecap="round" />
+              <!-- Rear Delivery Bag/Box (Red/White Delivery Box) -->
+              <rect x="5" y="14" width="16" height="16" rx="3" fill="#EF4444" stroke="#1E293B" stroke-width="1.5" />
+              <rect x="8" y="17" width="10" height="10" rx="1.5" fill="#FFFFFF" />
+              <path d="M 11 22 L 15 22 M 13 20 L 13 24" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" />
+              <!-- Rack Support Bar -->
+              <path d="M 14 30 L 22 34" stroke="#1E293B" stroke-width="2" stroke-linecap="round" />
 
-              <!-- Thermal Delivery Box (Thick White with Bold Red/Orange Badge & Deep Navy Border) -->
-              <rect x="7" y="14" width="18" height="18" rx="4" fill="url(#boxThickGrad)" stroke="#0F172A" stroke-width="2" />
-              <rect x="12" y="20" width="8" height="6" rx="1.5" fill="#EF4444" stroke="#0F172A" stroke-width="0.8" />
-              <line x1="7" y1="23" x2="25" y2="23" stroke="#FB8500" stroke-width="1.8" />
+              <!-- Scooty Exhaust Silencer (Silver/Black) -->
+              <path d="M 14 36 L 24 35" stroke="#475569" stroke-width="2.5" stroke-linecap="round" />
 
-              <!-- Rear Rack Support -->
-              <path d="M 16 32 L 24 35" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" />
+              <!-- Rear Scooty Body Panel (Curved Activa Yellow) -->
+              <path d="M 20 27 C 22 23 27 23 31 28 L 33 34 L 20 34 Z" fill="url(#activaYellow)" stroke="#1E293B" stroke-width="1.5" stroke-linejoin="round" />
 
-              <!-- Scooter Main Chassis (Thick Golden Yellow with Bold Contour) -->
-              <path d="M 24 28 Q 32 32 37 35 L 48 35 Q 52 32 54 24 L 56 17" stroke="url(#scooterThickYellow)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M 24 28 Q 32 32 37 35 L 48 35 Q 52 32 54 24 L 56 17" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-              
-              <!-- Footboard Solid -->
-              <path d="M 25 35 L 38 35" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" />
+              <!-- Scooty Flat Footboard (Classic Normal Scooty Platform!) -->
+              <path d="M 23 34 L 39 34" stroke="#1E293B" stroke-width="3" stroke-linecap="round" />
 
-              <!-- Seat (Thick Black Leather with Orange Trim) -->
-              <path d="M 22 25 C 22 22 27 22 30 25" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" />
-              
-              <!-- Handlebars & Front Shield -->
-              <path d="M 54 18 L 49 15" stroke="#0F172A" stroke-width="2.8" stroke-linecap="round" />
-              <circle cx="49" cy="13" r="2.2" fill="#FB8500" stroke="#0F172A" stroke-width="1.2" />
+              <!-- Scooty Seat (Black Contoured Dual-Tone Leather Seat) -->
+              <path d="M 19 24 C 21 21 31 21 35 24 C 36 25 34 26 20 26 Z" fill="#0F172A" stroke="#1E293B" stroke-width="1" />
 
-              <!-- Headlight Lens -->
-              <circle cx="56" cy="27" r="3.5" fill="#FFE600" stroke="#0F172A" stroke-width="1.5" />
+              <!-- Front Scooty Apron / Shield (Sloping Yellow Panel) -->
+              <path d="M 39 34 L 46 22 L 44 16 L 40 18" stroke="url(#activaYellow)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M 39 34 L 46 22 L 44 16" stroke="#1E293B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
 
-              <!-- Rider in Bold Thick Colors (Black Jacket with Golden Accents, Yellow Helmet) -->
-              <path d="M 30 17 C 30 17 35 22 40 22 C 45 22 48 18 48 18" fill="#0F172A" stroke="#FB8500" stroke-width="1" />
-              <path d="M 36 22 L 44 20" stroke="#FB8500" stroke-width="1.5" stroke-linecap="round" />
-              
-              <!-- Helmet (Thick Yellow) -->
-              <circle cx="36" cy="11" r="6.2" fill="#FFD000" stroke="#0F172A" stroke-width="1.8" />
-              <!-- Glossy Black Visor -->
-              <path d="M 36 10 Q 40 10 42 12" stroke="#0F172A" stroke-width="2.6" stroke-linecap="round" />
+              <!-- Front Mudguard (Yellow) -->
+              <path d="M 44 32 C 45 29 49 29 51 32" stroke="url(#activaYellow)" stroke-width="3.5" stroke-linecap="round" />
+              <path d="M 44 32 C 45 29 49 29 51 32" stroke="#1E293B" stroke-width="1" stroke-linecap="round" fill="none" />
 
-              <!-- Back Wheel (Thick Black Tire, Chrome Rim, Golden Hubcap) -->
-              <g class="scooter-wheel" style="transform-origin: 17px 40px;">
-                <circle cx="17" cy="40" r="9" fill="#0F172A" />
-                <circle cx="17" cy="40" r="5" fill="#F1F5F9" stroke="#0F172A" stroke-width="1" />
-                <circle cx="17" cy="40" r="2.5" fill="#FB8500" />
-                <line x1="17" y1="32" x2="17" y2="48" stroke="#64748B" stroke-width="1.2" />
-                <line x1="9" y1="40" x2="25" y2="40" stroke="#64748B" stroke-width="1.2" />
+              <!-- Handlebar, Cowl & Rearview Mirrors -->
+              <path d="M 46 16 L 43 14" stroke="#1E293B" stroke-width="2.2" stroke-linecap="round" />
+              <!-- Side Mirror -->
+              <circle cx="43" cy="11.5" r="1.8" fill="#64748B" stroke="#1E293B" stroke-width="1" />
+              <!-- Front Headlight on Handlebar Cowl -->
+              <rect x="46" y="14" width="4.5" height="4" rx="1.5" fill="#FEF08A" stroke="#1E293B" stroke-width="1" />
+
+              <!-- Normal Delivery Rider (Sitting Upright on Scooty) -->
+              <!-- Helmet (Yellow with Dark Visor) -->
+              <circle cx="31" cy="9.5" r="5.5" fill="#FACC15" stroke="#1E293B" stroke-width="1.5" />
+              <path d="M 31 8.5 Q 35 8.5 36 10.5" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" />
+              <!-- Torso & Arms (Navy / Slate Delivery Jacket) -->
+              <path d="M 26 15 C 26 15 30 19 34 19 C 39 19 43 16 43 16" fill="#1E293B" stroke="#FACC15" stroke-width="0.8" />
+              <!-- Arm Reaching Forward to Handlebar -->
+              <path d="M 32 19 L 42 16" stroke="#1E293B" stroke-width="2.2" stroke-linecap="round" />
+              <!-- Leg Resting on Flat Footboard -->
+              <path d="M 28 24 L 32 30 L 37 33" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+              <!-- Rear Wheel (Activa 10-inch Scooter Wheel) -->
+              <g class="scooter-wheel" style="transform-origin: 15px 38px;">
+                <circle cx="15" cy="38" r="8" fill="#1E293B" />
+                <circle cx="15" cy="38" r="4.5" fill="#E2E8F0" stroke="#1E293B" stroke-width="1" />
+                <circle cx="15" cy="38" r="2" fill="#FACC15" />
+                <line x1="15" y1="31" x2="15" y2="45" stroke="#94A3B8" stroke-width="1" />
+                <line x1="8" y1="38" x2="22" y2="38" stroke="#94A3B8" stroke-width="1" />
               </g>
 
-              <!-- Front Wheel (Thick Black Tire, Chrome Rim, Golden Hubcap) -->
-              <g class="scooter-wheel" style="transform-origin: 53px 40px;">
-                <circle cx="53" cy="40" r="9" fill="#0F172A" />
-                <circle cx="53" cy="40" r="5" fill="#F1F5F9" stroke="#0F172A" stroke-width="1" />
-                <circle cx="53" cy="40" r="2.5" fill="#FB8500" />
-                <line x1="53" y1="32" x2="53" y2="48" stroke="#64748B" stroke-width="1.2" />
-                <line x1="45" y1="40" x2="61" y2="40" stroke="#64748B" stroke-width="1.2" />
+              <!-- Front Wheel (Activa 10-inch Scooter Wheel) -->
+              <g class="scooter-wheel" style="transform-origin: 48px 38px;">
+                <circle cx="48" cy="38" r="8" fill="#1E293B" />
+                <circle cx="48" cy="38" r="4.5" fill="#E2E8F0" stroke="#1E293B" stroke-width="1" />
+                <circle cx="48" cy="38" r="2" fill="#FACC15" />
+                <line x1="48" y1="31" x2="48" y2="45" stroke="#94A3B8" stroke-width="1" />
+                <line x1="41" y1="38" x2="55" y2="38" stroke="#94A3B8" stroke-width="1" />
               </g>
             </svg>
           </div>
@@ -548,6 +581,62 @@
     </button>
   </div>
 
+  <!-- ================= ZOMATO-STYLE LIVE FLOATING ORDER DOCK (Proactive Status Island) ================= -->
+  <div id="liveOrderFloatingDock" class="hidden fixed bottom-16 inset-x-3 sm:inset-x-auto sm:right-4 z-40 max-w-sm bg-slate-950 text-white p-3.5 rounded-3xl shadow-2xl border border-orange-500/40 backdrop-blur-md animate-in slide-in-from-bottom-4 transition">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 overflow-hidden">
+        <div class="w-10 h-10 rounded-2xl bg-orange-600 text-white flex items-center justify-center text-lg font-black shrink-0 relative">
+          <span id="dockStatusIcon">👨‍🍳</span>
+          <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950 animate-ping"></span>
+          <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950"></span>
+        </div>
+        <div class="truncate">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-black uppercase tracking-wider text-orange-400" id="dockRestName">Restaurant</span>
+            <span class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono font-bold" id="dockOrderId">#KD-0000</span>
+          </div>
+          <h5 class="text-xs font-black text-slate-100 truncate" id="dockStatusTitle">Food is being prepared...</h5>
+        </div>
+      </div>
+      <button onclick="openTrackingModal()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-black px-3 py-2 rounded-xl shrink-0 shadow-md flex items-center gap-1 transition">
+        <span>Track</span>
+        <span>➔</span>
+      </button>
+    </div>
+    <!-- Mini Progress Bar -->
+    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
+      <div id="dockProgressBar" class="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full transition-all duration-700" style="width: 25%;"></div>
+    </div>
+  </div>
+
+  <!-- ================= 1-TAP PWA INSTALL BANNER (Direct Download & Install) ================= -->
+  <div id="pwaInstallBanner" class="hidden fixed top-3 inset-x-3 sm:inset-x-auto sm:right-3 z-[60] max-w-sm bg-gradient-to-r from-slate-950 via-slate-900 to-orange-950 text-white p-3.5 rounded-2xl shadow-2xl border border-orange-500/50 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-xl font-black shadow-md shrink-0">🛵</div>
+      <div>
+        <h5 class="text-xs font-black tracking-tight text-white flex items-center gap-1">
+          <span>Install Eat.in App</span>
+          <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.5 rounded font-bold">1-Tap</span>
+        </h5>
+        <p class="text-[10px] text-slate-300">Fast ordering directly from home screen</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5 shrink-0">
+      <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-xl shadow-md transition">Install</button>
+      <button onclick="dismissPwaBanner()" class="text-slate-400 hover:text-white text-xs p-1">✕</button>
+    </div>
+  </div>
+
+  <!-- ================= PROACTIVE FLOATING ALERT TOAST (Zomato-Style Top Alert) ================= -->
+  <div id="proactiveAlertToast" class="hidden fixed top-4 inset-x-4 sm:inset-x-auto sm:right-4 z-[70] max-w-sm bg-slate-950/95 text-white p-3.5 rounded-2xl shadow-2xl border border-emerald-500/60 backdrop-blur-md flex items-center gap-3 transition-all duration-300">
+    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg shrink-0" id="toastIcon">🔔</div>
+    <div class="flex-1 truncate">
+      <h6 class="text-xs font-black text-white" id="toastTitle">Order Update</h6>
+      <p class="text-[11px] text-slate-300 truncate" id="toastMessage">Your order status changed.</p>
+    </div>
+    <button onclick="this.parentElement.classList.add('hidden')" class="text-slate-400 hover:text-white text-xs p-1">✕</button>
+  </div>
+
   <!-- ================= 11. STICKY BOTTOM APP NAVIGATION BAR (Requirement 6) ================= -->
   <nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-1.5 px-4 shadow-lg select-none">
     <div class="max-w-md mx-auto grid grid-cols-4 gap-1 text-center">
@@ -846,6 +935,20 @@
         <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
           <div id="trackProgressBar" class="h-full bg-orange-500 rounded-full transition-all duration-500" style="width: 25%;"></div>
         </div>
+      </div>
+
+      <!-- Doorstep Delivery Confirmation OTP Card (The Zomato Way) -->
+      <div id="trackDeliveryOtpContainer" class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-dashed border-amber-400 rounded-2xl p-3 text-center shadow-xs">
+        <div class="flex items-center justify-center gap-1.5 text-amber-900 text-[11px] font-black uppercase tracking-wider">
+          <span>🔑</span>
+          <span>Doorstep Delivery Confirmation OTP</span>
+        </div>
+        <div id="trackDeliveryOtpDisplay" class="text-3xl font-black text-slate-900 tracking-widest my-1 font-mono">
+          ----
+        </div>
+        <p class="text-[10px] text-slate-600 font-medium">
+          Share this 4-digit code with your Eat.in Captain when they arrive with your food.
+        </p>
       </div>
 
       <!-- Assigned Captain Card -->
@@ -1337,19 +1440,19 @@
       const splash = document.getElementById('splashScreen');
       if (!splash) return;
 
-      // Start filling the line with warm amber-yellow as the yellow scooty slowly rides on it (at 1.2s after letters drop)
+      // Start filling the line with bright yellow as the normal yellow scooty rolls on it (at 1.2s after letters drop)
       setTimeout(() => {
         const bar = document.getElementById('splashProgressBar');
         if (bar) {
-          bar.style.transition = 'width 3.0s cubic-bezier(0.35, 0, 0.25, 1)';
+          bar.style.transition = 'width 2.8s cubic-bezier(0.35, 0, 0.25, 1)';
           bar.style.width = '100%';
         }
       }, 1200);
 
       // Sequence:
       // 0.0s - 1.2s: Letters drop down one by one (E, a, t, ., i, n)
-      // 1.2s - 4.2s: Yellow scooty rides slowly left-to-right ON the line top of "Connecting Kodad..."
-      // 4.3s: As yellow scooty reaches the end of the line, splash smoothly fades out and opens the app!
+      // 1.2s - 4.0s: Normal yellow scooty rolls slowly left-to-right ON the line top of "Connecting Kodad..." as line fills with yellow
+      // 4.1s: As scooty reaches the end of the line, splash smoothly fades out and opens the app!
       setTimeout(() => {
         splash.classList.add('opacity-0', 'pointer-events-none');
         setTimeout(() => {
@@ -1364,7 +1467,7 @@
             openAuthGateModal('selector');
           }
         }, 400);
-      }, 4300);
+      }, 4100);
     }
 
     // 2. Food Showcase Slideshow (Requirement 1: Marquee Left-to-Right & Right-to-Left)
@@ -2216,6 +2319,12 @@
       document.getElementById('trackStatusBadge').textContent = order.status;
       document.getElementById('trackOrderTotal').textContent = `₹${order.total}`;
 
+      // Update Doorstep Delivery Confirmation OTP (The Zomato Way)
+      const otpDisplay = document.getElementById('trackDeliveryOtpDisplay');
+      if (otpDisplay) {
+        otpDisplay.textContent = order.deliveryOtp || '----';
+      }
+
       // Update Captain
       const capName = document.getElementById('trackCaptainName');
       const capVehicle = document.getElementById('trackCaptainVehicle');
@@ -2251,6 +2360,8 @@
       }
 
       document.getElementById('trackingModal').classList.remove('hidden');
+      const dock = document.getElementById('liveOrderFloatingDock');
+      if (dock) dock.classList.add('hidden');
 
       setTimeout(() => {
         initTrackingMap(order);
@@ -2259,6 +2370,7 @@
 
     function closeTrackingModal() {
       document.getElementById('trackingModal').classList.add('hidden');
+      checkActiveOrder();
     }
 
     // Silent 5-Minute Cancellation Action (Requirement 8)
@@ -2336,17 +2448,61 @@
       const activeId = RealtimeBus.getActiveOrderId();
       const trackBtn = document.getElementById('trackActiveOrderBtn');
       const navBadge = document.getElementById('navOrdersBadge');
+      const dock = document.getElementById('liveOrderFloatingDock');
 
       if (activeId) {
         const order = RealtimeBus.getOrderById(activeId);
         if (order && order.status !== 'DELIVERED' && order.status !== 'CANCELLED') {
           if (trackBtn) trackBtn.classList.remove('hidden');
           if (navBadge) navBadge.classList.remove('hidden');
+
+          // Update Zomato-Style Live Floating Order Dock
+          if (dock) {
+            const trackingModal = document.getElementById('trackingModal');
+            const isModalOpen = trackingModal && !trackingModal.classList.contains('hidden');
+            if (!isModalOpen) {
+              dock.classList.remove('hidden');
+            } else {
+              dock.classList.add('hidden');
+            }
+
+            const dockRestName = document.getElementById('dockRestName');
+            const dockOrderId = document.getElementById('dockOrderId');
+            const dockStatusTitle = document.getElementById('dockStatusTitle');
+            const dockStatusIcon = document.getElementById('dockStatusIcon');
+            const dockProgressBar = document.getElementById('dockProgressBar');
+
+            if (dockRestName) dockRestName.textContent = order.restaurant?.name || 'Kodad Store';
+            if (dockOrderId) dockOrderId.textContent = `#${order.id}`;
+
+            if (order.status === 'PLACED') {
+              if (dockStatusIcon) dockStatusIcon.textContent = '⏳';
+              if (dockStatusTitle) dockStatusTitle.textContent = 'Order Placed • Waiting for kitchen';
+              if (dockProgressBar) dockProgressBar.style.width = '20%';
+            } else if (order.status === 'ACCEPTED' || order.status === 'COOKING') {
+              if (dockStatusIcon) dockStatusIcon.textContent = '👨‍🍳';
+              if (dockStatusTitle) dockStatusTitle.textContent = 'Kitchen is cooking your food...';
+              if (dockProgressBar) dockProgressBar.style.width = '45%';
+            } else if (order.status === 'ASSIGNED') {
+              if (dockStatusIcon) dockStatusIcon.textContent = '🛵';
+              if (dockStatusTitle) dockStatusTitle.textContent = `Captain ${order.captain?.name || 'Rider'} assigned`;
+              if (dockProgressBar) dockProgressBar.style.width = '65%';
+            } else if (order.status === 'PICKED_UP') {
+              if (dockStatusIcon) dockStatusIcon.textContent = '🚀';
+              if (dockStatusTitle) dockStatusTitle.textContent = `On the way with Captain ${order.captain?.name || 'Rider'}`;
+              if (dockProgressBar) dockProgressBar.style.width = '85%';
+            } else if (order.status === 'ARRIVED') {
+              if (dockStatusIcon) dockStatusIcon.textContent = '🔔';
+              if (dockStatusTitle) dockStatusTitle.textContent = `At Doorstep! OTP: ${order.deliveryOtp || '----'}`;
+              if (dockProgressBar) dockProgressBar.style.width = '95%';
+            }
+          }
           return;
         }
       }
       if (trackBtn) trackBtn.classList.add('hidden');
       if (navBadge) navBadge.classList.add('hidden');
+      if (dock) dock.classList.add('hidden');
     }
 
     // 13. Multi-Portal Auth (Customer, Captain Rider & Restaurant Partner)
@@ -2923,14 +3079,97 @@
       renderCartUI();
     }
 
-    // 18. Realtime Listener & Event Dispatcher
+    // Proactive Toast Notification System (Zomato-grade alerts)
+    function showProactiveToast(title, message, icon = '🔔') {
+      const toast = document.getElementById('proactiveAlertToast');
+      if (!toast) return;
+      const iconEl = document.getElementById('toastIcon');
+      const titleEl = document.getElementById('toastTitle');
+      const msgEl = document.getElementById('toastMessage');
+      if (iconEl) iconEl.textContent = icon;
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl) msgEl.textContent = message;
+
+      toast.classList.remove('hidden');
+      if (RealtimeBus && RealtimeBus.Sounds && RealtimeBus.Sounds.playBell) {
+        RealtimeBus.Sounds.playBell();
+      }
+      if (RealtimeBus && RealtimeBus.notifyUser) {
+        RealtimeBus.notifyUser(title, message);
+      }
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 7000);
+    }
+
+    // 1-Tap PWA Android & iOS Mobile Install System
+    let deferredPwaPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner && !sessionStorage.getItem('kodadeats_pwa_dismissed')) {
+        banner.classList.remove('hidden');
+      }
+    });
+
+    function triggerPwaInstall() {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then((choice) => {
+          console.log('[PWA] User response:', choice.outcome);
+          deferredPwaPrompt = null;
+          dismissPwaBanner();
+        });
+      } else {
+        alert("📲 To Install Eat.in App:\n\n• Android Chrome: Tap top 3 dots (⋮) -> 'Install App' or 'Add to Home Screen'\n• iPhone Safari: Tap Share (⎋) -> 'Add to Home Screen'");
+      }
+    }
+
+    function dismissPwaBanner() {
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.add('hidden');
+      sessionStorage.setItem('kodadeats_pwa_dismissed', 'true');
+    }
+
+    // 18. Realtime Listener & Proactive Event Dispatcher
     function initRealtimeListener() {
+      // Auto-request browser push notifications
+      if (RealtimeBus && RealtimeBus.requestNotificationPermission) {
+        RealtimeBus.requestNotificationPermission();
+      }
+
       RealtimeBus.on((event) => {
         if (!activeOrderId) activeOrderId = RealtimeBus.getActiveOrderId();
+        
+        // When active order changes, trigger proactive alerts
         if (event.payload && event.payload.id === activeOrderId) {
           checkActiveOrder();
           if (leafletMap) initTrackingMap(event.payload);
+
+          // Proactive Toast and Audio Alerts for Customer
+          const restName = event.payload.restaurant?.name || 'Restaurant';
+          const riderName = event.payload.captain?.name || 'Rider';
+
+          if (event.type === 'ACCEPTED' || (event.type === 'ORDER_UPDATED' && event.payload.status === 'ACCEPTED')) {
+            showProactiveToast("🍳 Kitchen Confirmed!", `${restName} is preparing your food freshly.`, "👨‍🍳");
+          } else if (event.type === 'ASSIGNED' || (event.type === 'ORDER_UPDATED' && event.payload.status === 'ASSIGNED')) {
+            showProactiveToast("🛵 Captain Assigned!", `Captain ${riderName} is heading to pick up your order.`, "🛵");
+          } else if (event.type === 'PICKED_UP' || (event.type === 'ORDER_UPDATED' && event.payload.status === 'PICKED_UP')) {
+            showProactiveToast("🚀 Order on the way!", `Captain ${riderName} picked up your meal and is speeding to you!`, "🛵");
+          } else if (event.type === 'ARRIVED' || (event.type === 'ORDER_UPDATED' && event.payload.status === 'ARRIVED')) {
+            showProactiveToast("🔔 Captain Arrived!", `Rider is at your doorstep. Share OTP: ${event.payload.deliveryOtp || ''}`, "🚪");
+          } else if (event.type === 'ORDER_DELIVERED' || event.type === 'DELIVERED' || (event.type === 'ORDER_UPDATED' && event.payload.status === 'DELIVERED')) {
+            showProactiveToast("✨ Order Delivered!", `Enjoy your hot meal from ${restName}! Tap to rate.`, "🎉");
+            if (RealtimeBus.Sounds && RealtimeBus.Sounds.playSuccessChime) {
+              RealtimeBus.Sounds.playSuccessChime();
+            }
+          } else if (event.type === 'ORDER_CANCELLED' || event.type === 'CANCELLED') {
+            showProactiveToast("⚠️ Order Cancelled", event.payload.cancelReason || "Your order was cancelled.", "❌");
+          }
         }
+
         if (event.type === 'RESTAURANT_SAVED' || event.type === 'PRODUCT_SAVED' || event.type === 'RESTAURANT_STATUS_CHANGED') {
           renderRestaurants();
           applyFilters();

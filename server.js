@@ -72,6 +72,7 @@ function writeLocalDB(data) {
 // MongoDB Mongoose Schemas (When connected to MongoDB Atlas)
 const OrderSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
+  deliveryOtp: { type: String }, // Doorstep Delivery Confirmation OTP (The Zomato Way)
   createdAt: { type: String, default: () => new Date().toISOString() },
   timeFormatted: { type: String },
   status: { type: String, default: 'PLACED' },
@@ -142,24 +143,26 @@ app.get('/api/orders', async (req, res) => {
 // 3. Place a new order
 app.post('/api/orders', async (req, res) => {
   try {
-    const { customer, restaurant, items, subtotal, deliveryFee, discount, total, paymentMethod } = req.body;
+    const { id, deliveryOtp, customer, restaurant, items, subtotal, deliveryFee, discount, total, paymentMethod } = req.body;
 
     if (!customer || !items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Invalid order data' });
     }
 
-    const orderId = 'KD-' + Math.floor(1000 + Math.random() * 9000);
+    const orderId = id || ('KD-' + Math.floor(1000 + Math.random() * 9000));
+    const otp = deliveryOtp || Math.floor(1000 + Math.random() * 9000).toString();
     const newOrder = {
       id: orderId,
-      createdAt: new Date().toISOString(),
-      timeFormatted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      deliveryOtp: otp,
+      createdAt: req.body.createdAt || new Date().toISOString(),
+      timeFormatted: req.body.timeFormatted || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: 'PLACED',
       customer,
       restaurant,
       items,
       subtotal: subtotal || 0,
-      deliveryFee: deliveryFee || 25,
-      packagingFee: 10,
+      deliveryFee: deliveryFee !== undefined ? deliveryFee : 30,
+      packagingFee: 0,
       discount: discount || 0,
       total: total || 0,
       paymentMethod: paymentMethod || 'Cash on Delivery (COD)',

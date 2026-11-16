@@ -275,6 +275,49 @@
     </div>
   </div>
 
+  <!-- ================= CAPTAIN DOORSTEP DELIVERY CONFIRMATION OTP MODAL (THE ZOMATO WAY) ================= -->
+  <div id="captainDeliveryOtpModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-white">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center text-xl font-black shadow-md">
+            🔑
+          </div>
+          <div>
+            <h4 class="font-black text-sm text-white">Doorstep Delivery OTP</h4>
+            <p class="text-[10px] text-slate-400 font-semibold" id="capOtpOrderIdLabel">Order #KD-0000</p>
+          </div>
+        </div>
+        <button onclick="closeCaptainDeliveryOtpModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="text-center space-y-3 pt-1">
+        <p class="text-xs text-slate-300">
+          Ask the customer for the <b class="text-amber-400">4-Digit Delivery Code</b> shown on their tracking screen:
+        </p>
+
+        <!-- 4-Digit Big OTP Input -->
+        <div class="flex justify-center">
+          <input id="capDeliveryOtpInput" type="tel" maxlength="4" placeholder="----" class="w-48 text-center text-3xl font-black tracking-[0.4em] bg-slate-950 border-2 border-amber-400 text-amber-300 rounded-2xl py-3 focus:outline-none focus:ring-4 focus:ring-amber-400/30 font-mono shadow-inner">
+        </div>
+
+        <div id="capDeliveryOtpError" class="hidden p-2.5 bg-red-950/80 border border-red-500 text-red-200 rounded-xl text-xs font-bold">
+          <!-- Error message -->
+        </div>
+
+        <button onclick="submitCaptainDeliveryOtp()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+          <span>✓ Verify OTP & Complete Delivery</span>
+        </button>
+
+        <button onclick="closeCaptainDeliveryOtpModal()" class="w-full text-slate-400 hover:text-slate-200 text-xs font-bold py-1">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="data.js"></script>
   <script src="realtime-sync.js"></script>
@@ -798,11 +841,56 @@
       checkAssignedDeliveries();
     }
 
+    // Doorstep Delivery Confirmation OTP (The Zomato Way)
+    let pendingDeliveryOrderId = null;
+
     function handleConfirmDelivered(orderId) {
-      RealtimeBus.markDelivered(orderId);
+      pendingDeliveryOrderId = orderId;
+      const modal = document.getElementById('captainDeliveryOtpModal');
+      const label = document.getElementById('capOtpOrderIdLabel');
+      const input = document.getElementById('capDeliveryOtpInput');
+      const err = document.getElementById('capDeliveryOtpError');
+      if (label) label.textContent = `Order #${orderId}`;
+      if (input) { input.value = ''; input.focus(); }
+      if (err) err.classList.add('hidden');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCaptainDeliveryOtpModal() {
+      const modal = document.getElementById('captainDeliveryOtpModal');
+      if (modal) modal.classList.add('hidden');
+      pendingDeliveryOrderId = null;
+    }
+
+    function submitCaptainDeliveryOtp() {
+      if (!pendingDeliveryOrderId) return;
+      const input = document.getElementById('capDeliveryOtpInput');
+      const err = document.getElementById('capDeliveryOtpError');
+      const enteredOtp = input ? input.value.trim() : '';
+
+      if (!enteredOtp || enteredOtp.length !== 4) {
+        if (err) {
+          err.textContent = 'Please enter the complete 4-digit OTP provided by customer!';
+          err.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const res = RealtimeBus.verifyAndDeliverOrder(pendingDeliveryOrderId, enteredOtp);
+      if (!res.success) {
+        if (err) {
+          err.textContent = res.message || 'Invalid Delivery OTP! Ask customer to check their screen.';
+          err.classList.remove('hidden');
+        }
+        return;
+      }
+
+      closeCaptainDeliveryOtpModal();
       currentCaptain = RealtimeBus.getCurrentCaptain();
       renderCaptainProfile();
-      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+      }
       checkAssignedDeliveries();
       renderHistory();
     }

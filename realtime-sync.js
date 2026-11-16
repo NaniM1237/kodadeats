@@ -219,6 +219,66 @@ const RealtimeBus = (function() {
     }
   });
 
+  // Web Notification & Haptic Vibration (Zomato-grade proactive alerts)
+  function requestNotificationPermission() {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(perm => {
+          console.log('[Notification] Permission status:', perm);
+        }).catch(() => {});
+      }
+    }
+  }
+
+  function notifyUser(title, body, icon = 'icon-192.png') {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, {
+          body,
+          icon,
+          badge: icon,
+          vibrate: [200, 100, 200],
+          tag: 'kodadeats_live_alert'
+        });
+      }
+    } catch (e) {
+      console.warn('Notification error:', e);
+    }
+  }
+
+  // Native WebSocket Realtime Listener via Socket.io (instant sub-10ms delivery)
+  if (typeof io !== 'undefined') {
+    try {
+      const socket = io();
+      socket.on('ORDER_PLACED', (order) => {
+        const local = getAllOrders();
+        if (!local.find(o => o.id === order.id)) {
+          local.unshift(order);
+          saveAllOrders(local);
+          emit('ORDER_PLACED', order);
+        }
+      });
+      socket.on('ORDER_UPDATED', (order) => {
+        const local = getAllOrders();
+        const idx = local.findIndex(o => o.id === order.id);
+        if (idx !== -1) {
+          local[idx] = order;
+          saveAllOrders(local);
+          emit('ORDER_UPDATED', order);
+          emit(order.status, order);
+        }
+      });
+      socket.on('DELIVERED', (order) => {
+        emit('ORDER_DELIVERED', order);
+      });
+    } catch (e) {
+      console.warn('[Socket.io] Fallback to cloud polling:', e);
+    }
+  }
+
   // User Profile & Authentication Management
   function getCurrentUser() {
     try {
@@ -786,8 +846,11 @@ _Please prepare and dispatch KodadEats Captain!_`;
   // Order Lifecycle Operations
   function placeOrder(orderData) {
     const orderId = 'KD-' + Math.floor(1000 + Math.random() * 9000);
+    // Doorstep Delivery Confirmation OTP (The Zomato Way: 4-digit code given to captain at doorstep)
+    const deliveryOtp = orderData.deliveryOtp || Math.floor(1000 + Math.random() * 9000).toString();
     const newOrder = {
       id: orderId,
+      deliveryOtp: deliveryOtp,
       createdAt: new Date().toISOString(),
       timeFormatted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: 'PLACED',
@@ -816,7 +879,7 @@ _Please prepare and dispatch KodadEats Captain!_`;
       fetch(`${serverUrl}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify(newOrder)
       }).catch(err => console.log('Offline/Local mode active'));
     }
 
@@ -956,6 +1019,28 @@ _Please prepare and dispatch KodadEats Captain!_`;
     emit('ORDER_DELIVERED', order);
     emit('ORDER_UPDATED', order);
     return order;
+  }
+
+  // Doorstep Delivery Confirmation OTP (The Zomato Way)
+  function verifyAndDeliverOrder(orderId, enteredOtp) {
+    const order = getOrderById(orderId);
+    if (!order) return { success: false, message: 'Order not found' };
+    if (order.status === 'DELIVERED') return { success: true, message: 'Order already delivered', order };
+
+    // Enforce 4-digit Delivery OTP if order has one
+    if (order.deliveryOtp) {
+      const cleanEntered = (enteredOtp || '').toString().trim();
+      const cleanExpected = order.deliveryOtp.toString().trim();
+      if (cleanEntered !== cleanExpected) {
+        return { 
+          success: false, 
+          message: 'Incorrect Delivery OTP! Ask the customer for the 4-digit code shown on their tracking screen.' 
+        };
+      }
+    }
+
+    const deliveredOrder = markDelivered(orderId);
+    return { success: true, order: deliveredOrder };
   }
 
   // 5-Minute Silent Cancellation Rule (Requirement 8)
@@ -1193,9 +1278,12 @@ _Please prepare and dispatch KodadEats Captain!_`;
     assignCaptain,
     markPickedUp,
     markDelivered,
+    verifyAndDeliverOrder,
     cancelOrder,
     canCancelOrder,
     getWhatsAppUrl,
+    requestNotificationPermission,
+    notifyUser,
     setServerUrl: (url) => {
       serverUrl = url;
       localStorage.setItem(STORAGE_KEY_SERVER_URL, url);

@@ -296,10 +296,16 @@
             </h3>
             <p class="text-xs text-slate-500">Live prices, categories & stock availability across Kodad</p>
           </div>
-          <button onclick="openAddDishModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-4 py-2.5 rounded-2xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
-            <span>+</span>
-            <span>Add New Dish</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openTizolaImportModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black px-4 py-2.5 rounded-2xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
+              <span>⚡</span>
+              <span>Bulk Import Tizola Menus</span>
+            </button>
+            <button onclick="openAddDishModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-4 py-2.5 rounded-2xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
+              <span>+</span>
+              <span>Add New Dish</span>
+            </button>
+          </div>
         </div>
 
         <div id="adminMenuList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
@@ -427,6 +433,53 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ================= BULK TIZOLA MENU IMPORTER MODAL ================= -->
+  <div id="tizolaImportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h4 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <span>⚡</span>
+          <span>Bulk Tizola Menu Importer</span>
+        </h4>
+        <button onclick="closeTizolaImportModal()" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Select Target Restaurant *</label>
+          <select id="tizolaImportRestSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-orange-500"></select>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">
+            Paste Items from Tizola App (One per line)
+          </label>
+          <p class="text-[11px] text-slate-500 mb-1.5">
+            Format: <code>Dish Name - Price</code> or <code>Dish Name: ₹Price (Veg/Non-Veg)</code>
+          </p>
+          <textarea id="tizolaImportText" rows="7" placeholder="Special Chicken Dum Biryani - 220
+Mutton Biryani - 340
+Paneer Butter Masala - 180 (Veg)
+Ghee Karam Dosa - 60 (Veg)
+Chicken 65 - 160
+Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs font-mono text-slate-800 focus:outline-none focus:border-orange-500"></textarea>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-[11px] text-amber-800 space-y-1">
+          <p class="font-bold">💡 How it works:</p>
+          <p>• Automatically detects price numbers (e.g. ₹220, 220, - 220).</p>
+          <p>• Auto-tags Veg/Non-Veg based on keywords (Chicken, Mutton, Egg, Paneer, Dosa, Veg, etc.).</p>
+          <p>• Instantly saves to MongoDB/LocalStorage and broadcasts live to Customer apps!</p>
+        </div>
+
+        <button onclick="executeTizolaBulkImport()" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-3 rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-2">
+          <span>🚀</span>
+          <span>Import All Dishes Now</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1098,6 +1151,85 @@
       closeAddDishModal();
       renderMenuControl();
       alert(`✓ Dish "${name}" added to menu successfully!`);
+    }
+
+    // ================= BULK TIZOLA MENU IMPORTER =================
+    function openTizolaImportModal() {
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const select = document.getElementById('tizolaImportRestSelect');
+      if (rests.length === 0) {
+        alert("Please add at least one Restaurant first!");
+        openAddPartnerModal();
+        return;
+      }
+      select.innerHTML = rests.map(r => `<option value="${r.id}">${r.name} (${r.category})</option>`).join('');
+      document.getElementById('tizolaImportModal').classList.remove('hidden');
+    }
+
+    function closeTizolaImportModal() {
+      document.getElementById('tizolaImportModal').classList.add('hidden');
+    }
+
+    function executeTizolaBulkImport() {
+      const restId = document.getElementById('tizolaImportRestSelect').value;
+      const text = document.getElementById('tizolaImportText').value.trim();
+      if (!text) {
+        alert("Please paste items text from Tizola first!");
+        return;
+      }
+
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const rest = rests.find(r => r.id === restId) || { name: 'Restaurant', category: 'restaurants' };
+
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      let count = 0;
+
+      lines.forEach((line, idx) => {
+        const priceMatch = line.match(/(?:₹|Rs\.?|-|:)?\s*(\d{2,4})\b/);
+        const price = priceMatch ? parseInt(priceMatch[1], 10) : 150;
+
+        let name = line.replace(/(?:₹|Rs\.?|-|:)?\s*\d{2,4}\b/, '').replace(/\(.*?\)/g, '').trim();
+        if (!name) name = `Special Item ${idx + 1}`;
+
+        const lower = line.toLowerCase();
+        let isVeg = true;
+        if (lower.includes('chicken') || lower.includes('mutton') || lower.includes('fish') || 
+            lower.includes('prawn') || lower.includes('egg') || lower.includes('non-veg') || lower.includes('meat') || lower.includes('kodi') || lower.includes('keema')) {
+          isVeg = false;
+        } else if (lower.includes('paneer') || lower.includes('veg') || lower.includes('dosa') || 
+                   lower.includes('idli') || lower.includes('roti') || lower.includes('dal') || lower.includes('ghee')) {
+          isVeg = true;
+        } else {
+          isVeg = rest.category !== 'chickenshop' && rest.category !== 'meat';
+        }
+
+        const newDish = {
+          id: 'item-tz-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1000),
+          restId: rest.id,
+          restName: rest.name,
+          category: rest.category || 'restaurants',
+          name: name,
+          price: price,
+          originalPrice: price + 30,
+          isVeg: isVeg,
+          rating: 4.8,
+          description: `Freshly prepared from ${rest.name}. Highly rated in Kodad on Tizola.`,
+          badge: isVeg ? 'Pure Veg' : 'Bestseller',
+          image: isVeg 
+            ? 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=60'
+            : 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop&q=60'
+        };
+
+        if (window.RealtimeBus && RealtimeBus.saveProduct) {
+          RealtimeBus.saveProduct(newDish);
+          count++;
+        }
+      });
+
+      closeTizolaImportModal();
+      document.getElementById('tizolaImportText').value = '';
+      renderMenuControl();
+      alert(`🎉 Successfully imported ${count} menu items from Tizola for "${rest.name}"!`);
     }
 
     function updateKPICounters() {
