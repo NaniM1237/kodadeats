@@ -81,7 +81,7 @@ const KODAD_DATA = {
   foodShowcase: [
     { name: 'Special Thalakayya Biryani', price: 300, isVeg: false, tag: 'Raja Hamsa Special', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop&q=80' },
     { name: 'Special Prawns Biryani', price: 260, isVeg: false, tag: 'Raja Hamsa Hit', image: 'https://images.unsplash.com/photo-1551326844-4df70f78d0e9?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Special Talakaya Curry', price: 270, isVeg: false, tag: 'Kodad Legendary Gravy', image: 'https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Special Talakaya Curry', price: 270, isVeg: false, tag: 'Kodad Legendary Gravy', image: 'talakaya-curry.jpg' },
     { name: 'Special Boti Curry', price: 290, isVeg: false, tag: 'Fiery Country Gravy', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=80' },
     { name: 'Crispy Fish Fry', price: 230, isVeg: false, tag: 'Tawa Shallow Fry', image: 'https://images.unsplash.com/photo-1518732751612-2c0787ff5684?w=500&auto=format&fit=crop&q=80' },
     { name: 'Hot Steaming Idli Sambar', price: 35, isVeg: true, tag: 'Manikanta Special', image: 'https://images.unsplash.com/photo-1741376509253-221ac18fac0f?w=500&auto=format&fit=crop&q=80' },
@@ -96,6 +96,7 @@ const KODAD_DATA = {
   // Interactive "What's on your mind?" Visual Left-to-Right Showcase (Zomato/Swiggy Style)
   cravingsShowcase: [
     { id: 'craving-biryani', name: 'Dum Biryani', query: 'biryani', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Top Favorite' },
+    { id: 'craving-talakaya', name: 'Talakaya Kura', query: 'talakaya', image: 'talakaya-curry.jpg', time: '15-20 min', tag: 'Kodad Legendary' },
     { id: 'craving-mandi', name: 'Arabian Mandi', query: 'mandi', image: 'https://plus.unsplash.com/premium_photo-1703417465970-e1b71f697cc4?w=300&auto=format&fit=crop&q=80', time: '20-25 min', tag: 'Royal Feast' },
     { id: 'craving-idli', name: 'Hot Idli Sambar', query: 'idli', image: 'https://images.unsplash.com/photo-1741376509253-221ac18fac0f?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Steaming Hot' },
     { id: 'craving-dosa', name: 'Ghee Dosa & Tiffins', query: 'dosa', image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Crisp & Fresh' },
@@ -719,7 +720,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Traditional Kodad-special tender goat head meat simmered in thick, fiery garlic, onion and roasted coriander masala gravy.',
       badge: '👑 Kodad Legendary Gravy',
-      image: 'https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?w=500&auto=format&fit=crop&q=80'
+      image: 'talakaya-curry.jpg'
     },
     {
       id: 'rh-4',
