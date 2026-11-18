@@ -84,10 +84,12 @@ const KODAD_DATA = {
     { name: 'Special Talakaya Curry', price: 270, isVeg: false, tag: 'Kodad Legendary Gravy', image: 'https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?w=500&auto=format&fit=crop&q=80' },
     { name: 'Special Boti Curry', price: 290, isVeg: false, tag: 'Fiery Country Gravy', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=80' },
     { name: 'Crispy Fish Fry', price: 230, isVeg: false, tag: 'Tawa Shallow Fry', image: 'https://images.unsplash.com/photo-1518732751612-2c0787ff5684?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Hot Steaming Idli Sambar', price: 35, isVeg: true, tag: 'Manikanta Special', image: 'https://images.unsplash.com/photo-1741376509253-221ac18fac0f?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Iconic Mysore Bonda', price: 40, isVeg: true, tag: '25-Year Suresh Tiffins', image: 'https://images.unsplash.com/photo-1625242661157-e9e5708ffe5e?w=500&auto=format&fit=crop&q=80' },
     { name: 'Ghee Karam Podi Dosa', price: 50, isVeg: true, tag: 'Lahari Hotel Hit', image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80' },
     { name: 'Mini Bucket Biryani', price: 299, isVeg: false, tag: 'Green Bucket Biryani', image: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&auto=format&fit=crop&q=80' },
     { name: 'Chicken Faham Mandi', price: 280, isVeg: false, tag: 'Mehfil Arabian Mandi', image: 'https://plus.unsplash.com/premium_photo-1703417465970-e1b71f697cc4?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Suri Babu Chicken Pulav', price: 190, isVeg: false, tag: 'Military Pulav Hit', image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Suri Babu Chicken Pulav', price: 190, isVeg: false, tag: 'Military Pulav Hit', image: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=500&auto=format&fit=crop&q=80' },
     { name: 'Cold Thick Chocolate Shake', price: 80, isVeg: true, tag: 'Foodies Bakery', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&auto=format&fit=crop&q=80' }
   ],
 
@@ -95,11 +97,14 @@ const KODAD_DATA = {
   cravingsShowcase: [
     { id: 'craving-biryani', name: 'Dum Biryani', query: 'biryani', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Top Favorite' },
     { id: 'craving-mandi', name: 'Arabian Mandi', query: 'mandi', image: 'https://plus.unsplash.com/premium_photo-1703417465970-e1b71f697cc4?w=300&auto=format&fit=crop&q=80', time: '20-25 min', tag: 'Royal Feast' },
-    { id: 'craving-tiffins', name: 'Ghee Dosa & Tiffins', query: 'dosa', image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Crisp & Fresh' },
+    { id: 'craving-idli', name: 'Hot Idli Sambar', query: 'idli', image: 'https://images.unsplash.com/photo-1741376509253-221ac18fac0f?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Steaming Hot' },
+    { id: 'craving-dosa', name: 'Ghee Dosa & Tiffins', query: 'dosa', image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Crisp & Fresh' },
+    { id: 'craving-bonda', name: 'Mysore Bonda / Bajji', query: 'bonda', image: 'https://images.unsplash.com/photo-1625242661157-e9e5708ffe5e?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Hot & Spongy' },
     { id: 'craving-dhaba', name: 'Dhaba Rotis & Curries', query: 'roti', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80', time: '20-25 min', tag: 'Highway Dhaba' },
-    { id: 'craving-pulav', name: 'Military Pulav', query: 'pulav', image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Spicy & Hot' },
-    { id: 'craving-starters', name: 'Chicken 65 & Starters', query: 'chicken', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Crunchy Bites' },
+    { id: 'craving-pulav', name: 'Military Pulav', query: 'pulav', image: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Spicy & Hot' },
+    { id: 'craving-starters', name: 'Chicken 65 & Starters', query: 'chicken', image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Crunchy Bites' },
     { id: 'craving-fastfood', name: 'Burgers & Shawarma', query: 'burger', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&auto=format&fit=crop&q=80', time: '15 min', tag: 'Fast Prep' },
+    { id: 'craving-icecream', name: 'Cold Stone Ice Cream', query: 'ice cream', image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=300&auto=format&fit=crop&q=80', time: '10 min', tag: 'Cold Scoops' },
     { id: 'craving-cakes', name: 'Cakes & Bakery', query: 'cake', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&auto=format&fit=crop&q=80', time: '15 min', tag: 'Sweet Celebrations' },
     { id: 'craving-shakes', name: 'Thick Shakes', query: 'shake', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Ice Cold' },
     { id: 'craving-meat', name: 'Live Meat & Chicken', query: 'chicken', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Fresh Dressed' }
@@ -1656,7 +1661,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Spit-roasted shredded chicken stuffed in rumali roti with pickled veggies, French fries and loaded garlic tahini mayo.',
       badge: '🌯 Shawarma Hit',
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500&auto=format&fit=crop&q=80'
     },
 
 
@@ -1860,7 +1865,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Wok-tossed chicken fried rice served with fiery Indo-Chinese chilli chicken gravy.',
       badge: '🍜 Indo-Chinese Combo',
-      image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'fp-2',
@@ -2005,7 +2010,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: false,
       description: 'Steamed basmati rice tempered with cumin seeds and desi ghee, served with yellow dal fry.',
       badge: '🍚 Comfort Dhaba Rice',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80'
     },
 
     // ================= 11. MURALI KRISHNA FAMILY DHABA =================
@@ -2199,7 +2204,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: "Kodad's 25-year iconic breakfast! Golden crisp on the outside, fluffy soft inside, served hot with fiery Allam (ginger) chutney & fresh peanut chutney.",
       badge: '🥞 25-Year Kodad Legend',
-      image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1625242661157-e9e5708ffe5e?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'mkt-2',
@@ -2229,7 +2234,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Melt-in-the-mouth soft steamed rice cakes served submerged in piping hot authentic Kodad tamarind & drumstick sambar with two fresh chutneys.',
       badge: '🥣 Hot Sambar Dip',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1741376509253-221ac18fac0f?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'mkt-4',
@@ -2244,7 +2249,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Freshly fried golden crispy urad dal vadas flavoured with crushed black pepper, ginger, and curry leaves.',
       badge: '🥞 Crunchy & Fresh',
-      image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1730191843435-073792ba22bc?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'mkt-5',
@@ -2259,7 +2264,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Fluffy, puffed golden pooris accompanied by rich, spiced Kodad hotel-style potato kurma and coconut chutney.',
       badge: '⭐ Breakfast Hit',
-      image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1643892467625-65df6a500524?w=500&auto=format&fit=crop&q=80'
     },
 
     // ================= 15. LAHARI HOTEL =================
@@ -2291,7 +2296,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Soft steaming idlis and crunchy medu vada served with steaming hot drumstick sambar and coconut chutney.',
       badge: '🌱 Fresh Morning Hit',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1741376509047-66dae5df90f9?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'lh-3',
@@ -2306,7 +2311,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Crunchy semolina crepe sprinkled with chopped onions, green chillies, ginger and cumin seeds.',
       badge: '🥞 Onion Rava',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'lh-4',
@@ -2321,7 +2326,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Puffed golden pooris served with mild potato curry and coconut chutney.',
       badge: '🥟 Hot Pooris',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1643892467625-65df6a500524?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'lh-5',
@@ -2336,7 +2341,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Unlimited hot white rice with Andhra mudda pappu, desi ghee, sambar, rasam, kootu, spicy podi, curd & papad.',
       badge: '🍱 Full Andhra Meals',
-      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?w=500&auto=format&fit=crop&q=80'
     },
 
     // ================= 16. SRI VENKATESHWARA TIFFIN CENTRE =================
@@ -2368,7 +2373,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Crisp outside, soft spongy inside maida fritters served with spicy tomato ginger chutney.',
       badge: '🌱 Mysore Bonda Hit',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1625242661157-e9e5708ffe5e?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'sv-3',
@@ -2383,7 +2388,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Crispy lentil vadas submerged in hot piping vegetable sambar topped with pure ghee and coriander.',
       badge: '🥣 Sambar Vada',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1730191843435-073792ba22bc?w=500&auto=format&fit=crop&q=80'
     },
 
     // =========================================================================
@@ -2466,7 +2471,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Hot fudge brownie mixed on frozen stone slab with Belgian chocolate ice cream, nuts and choco chips.',
       badge: '🍨 Cold Stone Special',
-      image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'ml-2',
@@ -2517,7 +2522,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Golden paratha wrapped around crispy fried chicken strips, onions, mint mayo and spices.',
       badge: '🌯 Quick Bite Roll',
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500&auto=format&fit=crop&q=80'
     },
     {
       id: 'cc-3',
@@ -2532,7 +2537,7 @@ const KODAD_DATA = {
       isFrequentlyOrdered: true,
       description: 'Fast-wok fried rice tossed with scrambled egg, shredded chicken, veggies and soya pepper sauce.',
       badge: '🍚 Wok Fried Rice',
-      image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&auto=format&fit=crop&q=80'
+      image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&auto=format&fit=crop&q=80'
     },
 
     // ================= 8. ESSENTIAL STORE PRODUCTS =================
@@ -2585,11 +2590,11 @@ const KODAD_DATA = {
 
   // Related Add-on Items ("Customers Also Added")
   addOns: [
-    { id: 'add-1', name: 'Spicy Mirchi Ka Salan (Extra Cup)', price: 30, isVeg: true, image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=300&q=80' },
-    { id: 'add-2', name: 'Chilled Thick Curd Raita', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-1', name: 'Spicy Mirchi Ka Salan (Extra Cup)', price: 30, isVeg: true, image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-2', name: 'Chilled Thick Curd Raita', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=300&q=80' },
     { id: 'add-3', name: 'Thick Badam Milk (Chilled 300ml)', price: 45, isVeg: true, image: 'https://images.unsplash.com/photo-1558857563-b371f32a7620?auto=format&fit=crop&w=300&q=80' },
-    { id: 'add-4', name: 'Hot Desi Ghee Gulab Jamun (2 Pcs)', price: 40, isVeg: true, image: 'https://images.unsplash.com/photo-1593701461250-d7b22dfd3a77?auto=format&fit=crop&w=300&q=80' },
-    { id: 'add-5', name: 'Crispy Medu Vada (1 Pc)', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-4', name: 'Hot Desi Ghee Gulab Jamun (2 Pcs)', price: 40, isVeg: true, image: 'https://images.unsplash.com/photo-1593701461250-d7b22dfd3648?auto=format&fit=crop&w=300&q=80' },
+    { id: 'add-5', name: 'Crispy Medu Vada (1 Pc)', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1730191843435-073792ba22bc?auto=format&fit=crop&w=300&q=80' },
     { id: 'add-6', name: 'Mineral Water Bottle (1L Chilled)', price: 20, isVeg: true, image: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=300&q=80' }
   ],
 
