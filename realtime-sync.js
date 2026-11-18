@@ -64,17 +64,10 @@ const RealtimeBus = (function() {
     };
   }
 
-  // Configurable Server URL (Optimized for 100% Vercel Serverless Architecture)
+  // Configurable Server URL (Supports Render, VPS, or Vercel)
   let serverUrl = '';
   try {
-    const stored = localStorage.getItem(STORAGE_KEY_SERVER_URL);
-    // If old Render URL is stored, purge it immediately
-    if (stored && (stored.includes('onrender.com') || stored.includes('render.com'))) {
-      localStorage.removeItem(STORAGE_KEY_SERVER_URL);
-      serverUrl = '';
-    } else {
-      serverUrl = stored || '';
-    }
+    serverUrl = localStorage.getItem(STORAGE_KEY_SERVER_URL) || '';
   } catch (e) {
     serverUrl = '';
   }
@@ -275,6 +268,17 @@ const RealtimeBus = (function() {
   if (typeof io !== 'undefined') {
     try {
       const socket = io();
+      socket.on('connect', () => {
+        console.log('[Socket.io] Connected to 24/7 Kodad Engine');
+        emit('CONNECTION_STATUS', { online: true });
+      });
+      socket.on('disconnect', () => {
+        console.warn('[Socket.io] Disconnected from server. Reconnecting...');
+        emit('CONNECTION_STATUS', { online: false });
+      });
+      socket.on('connect_error', () => {
+        emit('CONNECTION_STATUS', { online: false });
+      });
       socket.on('ORDER_PLACED', (order) => {
         const local = getAllOrders();
         if (!local.find(o => o.id === order.id)) {
