@@ -286,15 +286,16 @@
         <div id="adminPartnersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
       </div>
 
-      <!-- Section 2: Dish Menus -->
+      <!-- Section 2: Dish Menus with Live Search & Image Management -->
       <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
               <span>🍲</span>
               <span>Dishes & Live Menu Items</span>
+              <span id="adminDishCountBadge" class="bg-blue-50 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-full border border-blue-200">0 items</span>
             </h3>
-            <p class="text-xs text-slate-500">Live prices, categories & stock availability across Kodad</p>
+            <p class="text-xs text-slate-500">Live prices, photos, categories & instant photo updating across Kodad</p>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="openTizolaImportModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black px-4 py-2.5 rounded-2xl shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto">
@@ -305,6 +306,28 @@
               <span>+</span>
               <span>Add New Dish</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Dish Filters & Instant Search -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+          <div>
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-1">🔍 Search Dish Name / Tag</label>
+            <input id="adminDishSearchInput" type="text" oninput="renderAdminDishes()" placeholder="Type dish name (e.g. Biryani, Talakaya...)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-xs">
+          </div>
+          <div>
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-1">🏪 Filter by Restaurant</label>
+            <select id="adminDishRestFilter" onchange="renderAdminDishes()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-xs">
+              <option value="ALL">All Restaurants & Dhabas</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-1">🥗 Veg / Non-Veg</label>
+            <select id="adminDishVegFilter" onchange="renderAdminDishes()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-xs">
+              <option value="ALL">All Food Items</option>
+              <option value="VEG">🟢 Pure Veg Only</option>
+              <option value="NONVEG">🔴 Non-Veg Only</option>
+            </select>
           </div>
         </div>
 
@@ -364,10 +387,95 @@
           </div>
         </div>
 
+        <!-- Storefront Image Upload / URL -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block">Storefront Image (Upload or URL)</label>
+          <div class="flex items-center gap-3">
+            <img id="addPartnerPreview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500" alt="Preview" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0">
+            <div class="flex-1 space-y-1.5">
+              <input type="file" accept="image/*" onchange="handleImageFileSelect(event, 'addPartnerPreview', 'partnerFormImageUrl')" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer w-full">
+              <input id="partnerFormImageUrl" type="text" oninput="updateImagePreview(this.value, 'addPartnerPreview')" placeholder="Or enter Image URL / local filename" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+
         <div class="pt-2 flex items-center justify-end gap-2">
           <button type="button" onclick="closeAddPartnerModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800">Cancel</button>
           <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md transition">
             Save Partner
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= EDIT PARTNER MODAL ================= -->
+  <div id="editPartnerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h4 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <span>✏️</span>
+          <span>Edit Restaurant / Dhaba</span>
+        </h4>
+        <button onclick="closeEditPartnerModal()" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
+      </div>
+
+      <form onsubmit="submitEditPartner(event)" class="space-y-3">
+        <input type="hidden" id="editPartnerId">
+        <div>
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Partner Name *</label>
+          <input id="editPartnerName" required type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Cuisine / Type *</label>
+            <input id="editPartnerCuisine" required type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Owner Mobile *</label>
+            <input id="editPartnerPhone" required type="tel" maxlength="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Location / Landmark *</label>
+            <input id="editPartnerLocation" required type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Delivery Time</label>
+            <input id="editPartnerTime" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Opening Timings</label>
+            <input id="editPartnerTimings" type="text" placeholder="e.g. 10 AM - 11 PM" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Badge</label>
+            <input id="editPartnerBadge" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <!-- Storefront Image Upload / URL -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block">Change Storefront Image</label>
+          <div class="flex items-center gap-3">
+            <img id="editPartnerPreview" src="" alt="Preview" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
+            <div class="flex-1 space-y-1.5">
+              <input type="file" accept="image/*" onchange="handleImageFileSelect(event, 'editPartnerPreview', 'editPartnerImageUrl')" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer w-full">
+              <input id="editPartnerImageUrl" type="text" oninput="updateImagePreview(this.value, 'editPartnerPreview')" placeholder="Or enter Image URL / filename" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditPartnerModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800">Cancel</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md transition">
+            Update Partner
           </button>
         </div>
       </form>
@@ -406,11 +514,25 @@
             <select id="dishFormCategory" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
               <option value="biryani">Biryani & Rice</option>
               <option value="tiffins">Morning & Night Tiffins</option>
+              <option value="curries">Curries & Gravies</option>
+              <option value="starters">Starters & Kebabs</option>
+              <option value="seafood">Fish & Prawns</option>
               <option value="meals">Meals & Thali</option>
-              <option value="fastfood">Fast Food & Starters</option>
+              <option value="fastfood">Fast Food & Rolls</option>
               <option value="sweets">Sweets & Desserts</option>
-              <option value="tea">Tea & Coffee</option>
+              <option value="tea">Tea & Beverages</option>
             </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Original Price (₹)</label>
+            <input id="dishFormOriginalPrice" type="number" min="1" placeholder="e.g. 260" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Badge</label>
+            <input id="dishFormBadge" type="text" placeholder="e.g. Bestseller / Must Try" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
           </div>
         </div>
 
@@ -419,6 +541,18 @@
             <input id="dishFormIsVeg" type="checkbox" class="accent-emerald-600 w-4 h-4">
             <span>Pure Veg Dish</span>
           </label>
+        </div>
+
+        <!-- Dish Photo Upload or URL with Live Preview -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block">Dish Photo (Upload from Gallery or URL)</label>
+          <div class="flex items-center gap-3">
+            <img id="addDishPreview" src="chicken-dum-biryani.jpg" alt="Preview" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
+            <div class="flex-1 space-y-1.5">
+              <input type="file" accept="image/*" onchange="handleImageFileSelect(event, 'addDishPreview', 'dishFormImageUrl')" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer w-full">
+              <input id="dishFormImageUrl" type="text" oninput="updateImagePreview(this.value, 'addDishPreview')" placeholder="Or enter filename (e.g. talakaya-curry.jpg) or URL" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
         </div>
 
         <div>
@@ -430,6 +564,96 @@
           <button type="button" onclick="closeAddDishModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800">Cancel</button>
           <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md transition">
             Add to Menu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= EDIT DISH & PHOTO MODAL ================= -->
+  <div id="editDishModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h4 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <span>✏️</span>
+          <span>Edit Dish & Change Image</span>
+        </h4>
+        <button onclick="closeEditDishModal()" class="text-slate-400 font-bold hover:text-slate-600">✕</button>
+      </div>
+
+      <form onsubmit="submitEditDish(event)" class="space-y-3">
+        <input type="hidden" id="editDishId">
+
+        <div>
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Select Restaurant / Dhaba *</label>
+          <select id="editDishFormRestId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500"></select>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Dish Name *</label>
+          <input id="editDishFormName" required type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Price (₹) *</label>
+            <input id="editDishFormPrice" required type="number" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Original Price (₹)</label>
+            <input id="editDishFormOriginalPrice" type="number" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Category *</label>
+            <select id="editDishFormCategory" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+              <option value="biryani">Biryani & Rice</option>
+              <option value="tiffins">Morning & Night Tiffins</option>
+              <option value="curries">Curries & Gravies</option>
+              <option value="starters">Starters & Kebabs</option>
+              <option value="seafood">Fish & Prawns</option>
+              <option value="meals">Meals & Thali</option>
+              <option value="fastfood">Fast Food & Rolls</option>
+              <option value="sweets">Sweets & Desserts</option>
+              <option value="tea">Tea & Beverages</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Custom Badge</label>
+            <input id="editDishFormBadge" type="text" placeholder="e.g. Bestseller" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 py-1">
+          <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+            <input id="editDishFormIsVeg" type="checkbox" class="accent-emerald-600 w-4 h-4">
+            <span>Pure Veg Dish</span>
+          </label>
+        </div>
+
+        <!-- Dish Image Change (File Upload / Camera / URL) -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block">Change Dish Photo (Upload or Enter URL)</label>
+          <div class="flex items-center gap-3">
+            <img id="editDishPreview" src="" alt="Preview" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 shadow-xs">
+            <div class="flex-1 space-y-1.5">
+              <input type="file" accept="image/*" onchange="handleImageFileSelect(event, 'editDishPreview', 'editDishFormImageUrl')" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer w-full">
+              <input id="editDishFormImageUrl" type="text" oninput="updateImagePreview(this.value, 'editDishPreview')" placeholder="Or enter filename or URL" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider block mb-1">Description</label>
+          <input id="editDishFormDesc" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditDishModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800">Cancel</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md transition">
+            Save Changes
           </button>
         </div>
       </form>
@@ -970,9 +1194,57 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
       `).join('');
     }
 
+    // ================= IMAGE PREVIEW & FILE READER UTILITIES =================
+    function handleImageFileSelect(event, previewId, inputId) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      // Max 5MB check
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Selected image is larger than 5MB. Please choose a smaller image!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const preview = document.getElementById(previewId);
+        if (preview) preview.src = dataUrl;
+        const input = document.getElementById(inputId);
+        if (input) input.value = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateImagePreview(url, previewId) {
+      const preview = document.getElementById(previewId);
+      if (!preview) return;
+      if (url && url.trim()) {
+        preview.src = url.trim();
+      } else {
+        preview.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120';
+      }
+    }
+
+    // ================= RESTAURANT & DISH MENU MANAGEMENT =================
     function renderMenuControl() {
+      populateDishRestFilter();
       renderAdminPartners();
       renderAdminDishes();
+    }
+
+    function populateDishRestFilter() {
+      const select = document.getElementById('adminDishRestFilter');
+      if (!select) return;
+      const currentVal = select.value || 'ALL';
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      
+      let html = '<option value="ALL">All Restaurants & Dhabas</option>';
+      rests.forEach(r => {
+        html += `<option value="${r.id}">${r.name}</option>`;
+      });
+      select.innerHTML = html;
+      select.value = currentVal;
     }
 
     function renderAdminPartners() {
@@ -984,30 +1256,43 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
           <div class="col-span-full py-8 px-4 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 space-y-2">
             <span class="text-3xl block">🏪</span>
             <p class="font-extrabold text-xs text-slate-800">No partner kitchens added yet</p>
-            <p class="text-[11px] text-slate-500 max-w-sm mx-auto">Demo restaurants were removed. Click "+ Add Restaurant / Dhaba" above to add real Kodad Highway Dhabas & Tiffin Centres!</p>
+            <p class="text-[11px] text-slate-500 max-w-sm mx-auto">Click "+ Add Restaurant / Dhaba" above to add real Kodad Highway Dhabas & Tiffin Centres!</p>
           </div>
         `;
         return;
       }
       list.innerHTML = rests.map(r => {
         const isOpen = r.isOpen !== false;
+        const img = r.image || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200';
         return `
-          <div class="bg-white p-3.5 rounded-2xl border ${isOpen ? 'border-slate-200' : 'border-rose-200 bg-rose-50/30'} shadow-xs flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="text-2xl shrink-0">🍳</span>
-              <div class="min-w-0">
-                <h5 class="font-black text-xs text-slate-900 truncate">${r.name}</h5>
+          <div class="bg-white p-3.5 rounded-2xl border ${isOpen ? 'border-slate-200' : 'border-rose-200 bg-rose-50/30'} shadow-xs flex flex-col justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <img src="${img}" alt="${r.name}" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs" onerror="this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200'">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <h5 class="font-black text-xs text-slate-900 truncate">${r.name}</h5>
+                  <button onclick="toggleAdminRestStatus('${r.id}')" title="Click to toggle OPEN / CLOSED" class="text-[9px] font-black px-2 py-0.5 rounded-full transition shrink-0 ${
+                    isOpen 
+                      ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300' 
+                      : 'bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300'
+                  }">
+                    ${isOpen ? '🟢 OPEN' : '🔴 CLOSED'}
+                  </button>
+                </div>
                 <p class="text-[10px] text-slate-500 truncate">${r.cuisine || 'Multi-Cuisine'} • 📍 ${r.location || 'Kodad'}</p>
                 <p class="text-[10px] text-blue-600 font-bold mt-0.5">📞 +91 ${r.phone} • ⏰ ${r.timings || '10 AM - 10 PM'}</p>
               </div>
             </div>
-            <button onclick="toggleAdminRestStatus('${r.id}')" title="Click to toggle OPEN / CLOSED" class="text-[10px] font-black px-2.5 py-1.5 rounded-xl transition shadow-xs flex items-center gap-1 ${
-              isOpen 
-                ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300' 
-                : 'bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300'
-            }">
-              <span>${isOpen ? '🟢 OPEN' : '🔴 CLOSED'}</span>
-            </button>
+
+            <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+              <button onclick="openEditPartnerModal('${r.id}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold py-1.5 rounded-xl transition flex items-center justify-center gap-1">
+                <span>✏️</span>
+                <span>Edit & Change Photo</span>
+              </button>
+              <button onclick="deleteAdminPartner('${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition" title="Delete Restaurant">
+                🗑️
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -1024,35 +1309,99 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
     function renderAdminDishes() {
       const list = document.getElementById('adminMenuList');
       if (!list) return;
+
       const products = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
-      if (!products || products.length === 0) {
+      const searchVal = (document.getElementById('adminDishSearchInput')?.value || '').toLowerCase().trim();
+      const restFilter = document.getElementById('adminDishRestFilter')?.value || 'ALL';
+      const vegFilter = document.getElementById('adminDishVegFilter')?.value || 'ALL';
+
+      let filtered = products.filter(p => {
+        if (restFilter !== 'ALL' && p.restId !== restFilter) return false;
+        if (vegFilter === 'VEG' && !p.isVeg) return false;
+        if (vegFilter === 'NONVEG' && p.isVeg) return false;
+        if (searchVal) {
+          const matchName = (p.name || '').toLowerCase().includes(searchVal);
+          const matchRest = (p.restName || '').toLowerCase().includes(searchVal);
+          const matchCat = (p.category || '').toLowerCase().includes(searchVal);
+          const matchBadge = (p.badge || '').toLowerCase().includes(searchVal);
+          if (!matchName && !matchRest && !matchCat && !matchBadge) return false;
+        }
+        return true;
+      });
+
+      const countBadge = document.getElementById('adminDishCountBadge');
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} items`;
+      }
+
+      if (filtered.length === 0) {
         list.innerHTML = `
           <div class="col-span-full py-8 px-4 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 space-y-2">
-            <span class="text-3xl block">🍲</span>
-            <p class="font-extrabold text-xs text-slate-800">No dishes on menu yet</p>
-            <p class="text-[11px] text-slate-500 max-w-sm mx-auto">Demo dishes were removed. Click "+ Add New Dish" above to add real menu items & prices!</p>
+            <span class="text-3xl block">🔍</span>
+            <p class="font-extrabold text-xs text-slate-800">No dishes match your filter</p>
+            <p class="text-[11px] text-slate-500 max-w-sm mx-auto">Try clearing your search query or selecting "All Restaurants".</p>
           </div>
         `;
         return;
       }
-      list.innerHTML = products.map(p => `
-        <div class="bg-white p-3.5 rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div class="flex items-center gap-3 min-w-0">
-            <img src="${p.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" alt="${p.name}" class="w-12 h-12 rounded-2xl object-cover shrink-0">
-            <div class="min-w-0">
-              <h5 class="font-bold text-xs text-slate-900 truncate">${p.name}</h5>
-              <p class="text-[10px] text-slate-500 truncate">${p.restName || 'Partner Kitchen'}</p>
-              <span class="text-xs text-blue-600 font-black">₹${p.price}</span>
+
+      list.innerHTML = filtered.map(p => {
+        const inStock = p.inStock !== false;
+        const img = p.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100';
+        return `
+          <div class="bg-white p-3.5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between gap-3 transition hover:border-slate-300">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="relative group shrink-0">
+                <img src="${img}" alt="${p.name}" class="w-16 h-16 rounded-2xl object-cover border border-slate-100 shadow-xs" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'">
+                <button onclick="openEditDishModal('${p.id}')" title="Change Image" class="absolute inset-0 bg-slate-900/40 rounded-2xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
+                  📷
+                </button>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs shrink-0">${p.isVeg ? '🟢' : '🔴'}</span>
+                  <h5 class="font-bold text-xs text-slate-900 truncate" title="${p.name}">${p.name}</h5>
+                </div>
+                <p class="text-[10px] text-slate-500 truncate mt-0.5">🏪 ${p.restName || 'Partner Kitchen'}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs text-blue-600 font-black">₹${p.price}</span>
+                  ${p.originalPrice ? `<span class="text-[10px] text-slate-400 line-through">₹${p.originalPrice}</span>` : ''}
+                  ${p.badge ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 truncate">${p.badge}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+              <label class="flex items-center gap-1.5 cursor-pointer text-xs font-semibold shrink-0">
+                <input type="checkbox" ${inStock ? 'checked' : ''} onchange="toggleDishStock('${p.id}', this.checked)" class="accent-emerald-600 w-4 h-4">
+                <span class="${inStock ? 'text-emerald-600' : 'text-slate-400'} text-[11px] font-bold">${inStock ? 'In Stock' : 'Out'}</span>
+              </label>
+
+              <div class="flex items-center gap-1.5">
+                <button onclick="openEditDishModal('${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-xl transition flex items-center gap-1">
+                  <span>✏️</span>
+                  <span>Edit / Photo</span>
+                </button>
+                <button onclick="deleteAdminDish('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold px-2 py-1 rounded-xl transition" title="Delete Dish">
+                  🗑️
+                </button>
+              </div>
             </div>
           </div>
-          <label class="flex items-center gap-1.5 cursor-pointer text-xs font-semibold shrink-0">
-            <input type="checkbox" checked class="accent-emerald-600 w-4 h-4">
-            <span class="text-emerald-600 text-[11px] font-bold">In Stock</span>
-          </label>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
+    function toggleDishStock(dishId, isChecked) {
+      const products = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
+      const prod = products.find(p => p.id === dishId);
+      if (prod) {
+        prod.inStock = isChecked;
+        if (RealtimeBus.saveProduct) RealtimeBus.saveProduct(prod);
+      }
+    }
+
+    // ================= ADD / EDIT / DELETE RESTAURANT =================
     function openAddPartnerModal() {
       document.getElementById('addPartnerModal').classList.remove('hidden');
     }
@@ -1070,6 +1419,7 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
       const location = document.getElementById('partnerFormLocation').value.trim();
       const time = document.getElementById('partnerFormTime').value.trim() || '25-30 mins';
       const badge = document.getElementById('partnerFormBadge').value.trim() || 'Verified Partner';
+      const img = document.getElementById('partnerFormImageUrl').value.trim() || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500';
 
       if (!name || phone.length < 10) {
         alert("Please enter partner name and a valid 10-digit mobile number!");
@@ -1084,12 +1434,13 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
         deliveryTime: time,
         distance: '1.2 km',
         badge: badge,
-        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&auto=format&fit=crop&q=60',
+        image: img,
         location: location,
         lat: 17.0015 + (Math.random() - 0.5) * 0.005,
         lng: 79.9660 + (Math.random() - 0.5) * 0.005,
         ownerName: owner,
-        phone: phone
+        phone: phone,
+        isOpen: true
       };
 
       if (window.RealtimeBus && RealtimeBus.saveRestaurant) {
@@ -1101,6 +1452,70 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
       alert(`✓ Partner "${name}" added successfully!`);
     }
 
+    function openEditPartnerModal(partnerId) {
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const r = rests.find(x => x.id === partnerId);
+      if (!r) {
+        alert("Restaurant not found!");
+        return;
+      }
+
+      document.getElementById('editPartnerId').value = r.id;
+      document.getElementById('editPartnerName').value = r.name || '';
+      document.getElementById('editPartnerCuisine').value = r.cuisine || '';
+      document.getElementById('editPartnerPhone').value = r.phone || '';
+      document.getElementById('editPartnerLocation').value = r.location || '';
+      document.getElementById('editPartnerTime').value = r.deliveryTime || '25-30 mins';
+      document.getElementById('editPartnerTimings').value = r.timings || '10 AM - 11 PM';
+      document.getElementById('editPartnerBadge').value = r.badge || 'Verified Partner';
+      document.getElementById('editPartnerImageUrl').value = r.image || '';
+      document.getElementById('editPartnerPreview').src = r.image || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200';
+
+      document.getElementById('editPartnerModal').classList.remove('hidden');
+    }
+
+    function closeEditPartnerModal() {
+      document.getElementById('editPartnerModal').classList.add('hidden');
+    }
+
+    function submitEditPartner(e) {
+      e.preventDefault();
+      const id = document.getElementById('editPartnerId').value;
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const r = rests.find(x => x.id === id);
+      if (!r) return;
+
+      r.name = document.getElementById('editPartnerName').value.trim();
+      r.cuisine = document.getElementById('editPartnerCuisine').value.trim();
+      r.phone = document.getElementById('editPartnerPhone').value.replace(/\D/g, '').slice(-10);
+      r.location = document.getElementById('editPartnerLocation').value.trim();
+      r.deliveryTime = document.getElementById('editPartnerTime').value.trim();
+      r.timings = document.getElementById('editPartnerTimings').value.trim();
+      r.badge = document.getElementById('editPartnerBadge').value.trim();
+      const newImg = document.getElementById('editPartnerImageUrl').value.trim();
+      if (newImg) r.image = newImg;
+
+      if (window.RealtimeBus && RealtimeBus.saveRestaurant) {
+        RealtimeBus.saveRestaurant(r);
+      }
+      closeEditPartnerModal();
+      renderMenuControl();
+      initAdminLiveMap();
+      alert(`✓ Restaurant "${r.name}" updated successfully!`);
+    }
+
+    function deleteAdminPartner(partnerId, partnerName) {
+      if (confirm(`Are you sure you want to delete "${partnerName}"?\nNote: Dishes belonging to this restaurant will remain in the database.`)) {
+        if (RealtimeBus.deleteRestaurant) {
+          RealtimeBus.deleteRestaurant(partnerId);
+        }
+        renderMenuControl();
+        initAdminLiveMap();
+        alert(`✓ Restaurant "${partnerName}" deleted.`);
+      }
+    }
+
+    // ================= ADD / EDIT / DELETE DISH =================
     function openAddDishModal() {
       const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
       const select = document.getElementById('dishFormRestId');
@@ -1122,9 +1537,14 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
       const restId = document.getElementById('dishFormRestId').value;
       const name = document.getElementById('dishFormName').value.trim();
       const price = parseInt(document.getElementById('dishFormPrice').value, 10);
+      const originalPrice = parseInt(document.getElementById('dishFormOriginalPrice').value, 10) || null;
       const category = document.getElementById('dishFormCategory').value;
+      const badge = document.getElementById('dishFormBadge').value.trim();
       const isVeg = document.getElementById('dishFormIsVeg').checked;
       const desc = document.getElementById('dishFormDesc').value.trim() || 'Delicious freshly prepared specialty.';
+      const img = document.getElementById('dishFormImageUrl').value.trim() || (isVeg 
+        ? 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500'
+        : 'chicken-dum-biryani.jpg');
 
       const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
       const rest = rests.find(r => r.id === restId) || { name: 'Partner Kitchen' };
@@ -1135,14 +1555,14 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
         restName: rest.name,
         name: name,
         price: price,
+        originalPrice: originalPrice,
         category: category,
         rating: 4.8,
         isVeg: isVeg,
         description: desc,
-        badge: isVeg ? 'Pure Veg' : 'Bestseller',
-        image: isVeg 
-          ? 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=60'
-          : 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop&q=60'
+        badge: badge || (isVeg ? 'Pure Veg' : 'Bestseller'),
+        image: img,
+        inStock: true
       };
 
       if (window.RealtimeBus && RealtimeBus.saveProduct) {
@@ -1151,6 +1571,78 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
       closeAddDishModal();
       renderMenuControl();
       alert(`✓ Dish "${name}" added to menu successfully!`);
+    }
+
+    function openEditDishModal(dishId) {
+      const products = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
+      const p = products.find(x => x.id === dishId);
+      if (!p) {
+        alert("Dish not found!");
+        return;
+      }
+
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const restSelect = document.getElementById('editDishFormRestId');
+      restSelect.innerHTML = rests.map(r => `<option value="${r.id}" ${r.id === p.restId ? 'selected' : ''}>${r.name}</option>`).join('');
+
+      document.getElementById('editDishId').value = p.id;
+      document.getElementById('editDishFormName').value = p.name || '';
+      document.getElementById('editDishFormPrice').value = p.price || 0;
+      document.getElementById('editDishFormOriginalPrice').value = p.originalPrice || '';
+      document.getElementById('editDishFormCategory').value = p.category || 'biryani';
+      document.getElementById('editDishFormBadge').value = p.badge || '';
+      document.getElementById('editDishFormIsVeg').checked = !!p.isVeg;
+      document.getElementById('editDishFormDesc').value = p.description || '';
+      document.getElementById('editDishFormImageUrl').value = p.image || '';
+      document.getElementById('editDishPreview').src = p.image || 'chicken-dum-biryani.jpg';
+
+      document.getElementById('editDishModal').classList.remove('hidden');
+    }
+
+    function closeEditDishModal() {
+      document.getElementById('editDishModal').classList.add('hidden');
+    }
+
+    function submitEditDish(e) {
+      e.preventDefault();
+      const id = document.getElementById('editDishId').value;
+      const products = (window.RealtimeBus && RealtimeBus.getProducts) ? RealtimeBus.getProducts() : (KODAD_DATA.products || []);
+      const prod = products.find(x => x.id === id);
+      if (!prod) return;
+
+      const restId = document.getElementById('editDishFormRestId').value;
+      const rests = (window.RealtimeBus && RealtimeBus.getRestaurants) ? RealtimeBus.getRestaurants() : (KODAD_DATA.restaurants || []);
+      const rest = rests.find(r => r.id === restId);
+      const restName = rest ? rest.name : prod.restName;
+
+      prod.name = document.getElementById('editDishFormName').value.trim();
+      prod.category = document.getElementById('editDishFormCategory').value;
+      prod.price = parseInt(document.getElementById('editDishFormPrice').value, 10);
+      prod.originalPrice = parseInt(document.getElementById('editDishFormOriginalPrice').value, 10) || null;
+      prod.restId = restId;
+      prod.restName = restName;
+      prod.badge = document.getElementById('editDishFormBadge').value.trim();
+      prod.isVeg = document.getElementById('editDishFormIsVeg').checked;
+      prod.description = document.getElementById('editDishFormDesc').value.trim();
+      const newImg = document.getElementById('editDishFormImageUrl').value.trim();
+      if (newImg) prod.image = newImg;
+
+      if (window.RealtimeBus && RealtimeBus.saveProduct) {
+        RealtimeBus.saveProduct(prod);
+      }
+      closeEditDishModal();
+      renderMenuControl();
+      alert(`✓ Dish "${prod.name}" and image updated successfully!`);
+    }
+
+    function deleteAdminDish(dishId, dishName) {
+      if (confirm(`Are you sure you want to delete "${dishName}" from the menu?`)) {
+        if (RealtimeBus.deleteProduct) {
+          RealtimeBus.deleteProduct(dishId);
+        }
+        renderMenuControl();
+        alert(`✓ Dish "${dishName}" deleted.`);
+      }
     }
 
     // ================= BULK TIZOLA MENU IMPORTER =================

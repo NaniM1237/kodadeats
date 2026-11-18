@@ -727,6 +727,22 @@ const RealtimeBus = (function() {
     return newProd;
   }
 
+  function deleteProduct(id) {
+    let list = getProducts().filter(p => p.id !== id);
+    try { localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(list)); } catch (e) {}
+    if (typeof KODAD_DATA !== 'undefined') KODAD_DATA.products = list;
+    emit('PRODUCT_DELETED', { id });
+    return true;
+  }
+
+  function deleteRestaurant(id) {
+    let list = getRestaurants().filter(r => r.id !== id);
+    try { localStorage.setItem(STORAGE_KEY_RESTAURANTS, JSON.stringify(list)); } catch (e) {}
+    if (typeof KODAD_DATA !== 'undefined') KODAD_DATA.restaurants = list;
+    emit('RESTAURANT_DELETED', { id });
+    return true;
+  }
+
   function registerCaptain(data) {
     const captains = getCaptains();
     const cleanPhone = (data.phone || '').replace(/\D/g, '').slice(-10);
@@ -1266,10 +1282,12 @@ _Please prepare and dispatch KodadEats Captain!_`;
     registerCaptain,
     getRestaurants,
     saveRestaurant,
+    deleteRestaurant,
     getRestaurantStatus,
     setRestaurantStatus,
     getProducts,
     saveProduct,
+    deleteProduct,
     captainAcceptOrder,
     captainDeclineOrder,
     getUserOrderHistory,

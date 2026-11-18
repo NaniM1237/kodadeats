@@ -1487,17 +1487,22 @@
       if (!track) return;
 
       const cravings = KODAD_DATA.cravingsShowcase || [
-        { id: 'c-biryani', name: 'Dum Biryani', query: 'biryani', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Top Hit' },
+        { id: 'c-chicken-biryani', name: 'Chicken Biryanis', query: 'chicken biryani', image: 'chicken-dum-biryani.jpg', time: '15-20 min', tag: '6 Dishes' },
+        { id: 'c-mutton-biryani', name: 'Mutton Biryanis', query: 'mutton biryani', image: 'https://images.openai.com/static-rsc-4/UwVr0t9j2FuZW2lEcAP1sbmPkUq2kKSxlPON_JaeCejX2jscdqbM7mSTtrIA7wBbxUgMO9-RPx5s-Pq21cJYmwx0Ez-r8kYuRnNoioXZMF7LuIEeBdBKXY6BAqiXA9rFRKPCVaagQzNqFxDKdOXSpx1QzjtMuY1xoQS73RKBVr0?purpose=inline', time: '20-25 min', tag: '8 Dishes' },
+        { id: 'c-seafood-biryani', name: 'Seafood Biryanis', query: 'seafood biryani', image: 'https://images.openai.com/static-rsc-4/o41ho4JMhkKqyJbk5ty4B_YiV8RAbZdf4_M5CdjNY33thrM6-DXsiHukC2lLoGtVqeAmP9QFGD6giwCpYVmLV8n-wAGdiuM97OQfL0An8GpvQqpxynVz1lbiFOzieFzGwYMNiIloRmK5RKB6pwsaoBCFh2tiLEaBCyY-wa-miro?purpose=inline', time: '15-20 min', tag: '10 Dishes' },
+        { id: 'c-chicken-starters', name: 'Chicken Starters', query: 'chicken starter', image: 'https://images.openai.com/static-rsc-4/yQswWPb1MF9IClbAc7VLWgotqaK_Mrvrewz03nQTs3ejUOF6o6W_EcRSeqnRUN-x_hi6SpEHH47Gb1QnoQMqlHhvK0M0IemOWAHd0qiUJpFk41yWBdNDtwaoe5Kg3aTs1by50XoJ5pRCMGJ0wM8e4l9RBswPQs5I3ePffSLjYK4?purpose=inline', time: '15-20 min', tag: '6 Dishes' },
+        { id: 'c-mutton-starters', name: 'Mutton Starters', query: 'mutton starter', image: 'https://images.openai.com/static-rsc-4/MCwaJReDNJjkanuYlbcPwi7Gy14dpjs9erLWRvStnriBVG4xKfwAqiyWN5EBvR01yhMr7TuoIOJW3QiV2xiQX-P57mnx7vlU86gOxaHaMjajJ3ei2QKJ_MSgwcX0Sb5i53eL5vlhZYbn6FRFG_sFXpRfro0gYW-EWePw5dC8L4?purpose=inline', time: '15-20 min', tag: '5 Dishes' },
+        { id: 'c-chicken-curries', name: 'Chicken Curries', query: 'chicken curry', image: 'https://images.openai.com/static-rsc-4/_BJBwKGp_29Wynx4Hcoz6rsZ4cvb-p-PdqkFl7r_dWIES8uuoVjJVCaC-DRFKl5VNbWdXAOcCSjLNrPGZu9gdAJkOxFZi4nuMcWcx5TGG6JnnAmvUpXdvgkhCskXhmoTXXcenLM-LrUBU_pxpE3OnpqCHWVaGWQvEM9J2wZFTns?purpose=inline', time: '15-20 min', tag: '6 Dishes' },
+        { id: 'c-mutton-curries', name: 'Mutton Curries', query: 'mutton curry', image: 'https://images.openai.com/static-rsc-4/iZ7nZXmpH4mQ5ItNnMRaxyDaAWoVwAuW_iH1Nmn2Yrjd7COj_NHCZKfR34mRfsXPBPkI20dZZvQi4_Rh8nUOa_3Tr-ausUDkLb-UMuQIordRSL9MTn8qv5adIa-Sfo608rtfjYkzD5Tt5K3Bfx-N0_fsYCRNsgrQG_M6Mmcc9So?purpose=inline', time: '20-25 min', tag: '9 Dishes' },
+        { id: 'c-fish-prawns', name: 'Fish & Prawns', query: 'fish prawns', image: 'https://images.openai.com/static-rsc-4/bAR-yl803-lPbITJmDND8qyXWBTrYLpMvoZxj3guVJVE1spDtZNRBY8qgEOT6JeKRGV6QXP-pQoJ2w188GwEUn4Pl_2eJLCamLrus9FLnkYsCwIS3Ugy0mDm9IknSBNt9SlWOWqtwivRaofoxfWtxwEoArPVHLIlnvezuv0aR5Q?purpose=inline', time: '15-20 min', tag: '6 Dishes' },
+        { id: 'c-egg-varieties', name: 'Egg Varieties', query: 'egg variety', image: 'https://images.openai.com/static-rsc-4/Q-eZeUKXHfGnewrQF7JIQ3faFrPOqtPcXQ8GLJqPeLJCl8H1G-871dT4IYSrK8DC1icLe7kAy7Xg1ibZAh1sl8VGQUeYxcZKYN2JN1AO5tuM2wV06Je4ISlwPWqxcrp8okeftM082H84204x_gl0e4WJcchxTPWnLCD8jedlV3U?purpose=inline', time: '10-15 min', tag: '8 Dishes' },
+        { id: 'c-special-nonveg', name: 'Special Non-Veg', query: 'special non-veg', image: 'https://images.openai.com/static-rsc-4/Z73vCsTt34QdpwnWB8uxr3v7U_RMCPd3mypsdw0YuMjoirIcAAaaV7LnqF0u3DiIiR8GoUnadgkB-VeGDN89gg9Y-jbNc5nG8NrofVy1WrIxfIaEJZLjD1mZNNfn1g_jyQvTCr-MN45-T0g2hS57CUKBZy8kHO4SmZwtuufSv2I?purpose=inline', time: '15-20 min', tag: '8 Dishes' },
         { id: 'c-talakaya', name: 'Talakaya Kura', query: 'talakaya', image: 'talakaya-curry.jpg', time: '15-20 min', tag: 'Kodad Legendary' },
+        { id: 'c-prawns', name: 'Prawns Biryani', query: 'prawn', image: 'prawns-biryani.jpg', time: '15-20 min', tag: 'Fresh Coastal' },
         { id: 'c-mandi', name: 'Arabian Mandi', query: 'mandi', image: 'https://plus.unsplash.com/premium_photo-1703417465970-e1b71f697cc4?w=300&auto=format&fit=crop&q=80', time: '20-25 min', tag: 'Royal Feast' },
         { id: 'c-tiffins', name: 'Ghee Dosa & Tiffins', query: 'dosa', image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Crispy' },
         { id: 'c-dhaba', name: 'Dhaba Rotis & Curries', query: 'roti', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80', time: '20-25 min', tag: 'Highway Dhaba' },
-        { id: 'c-pulav', name: 'Military Pulav', query: 'pulav', image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Spicy' },
-        { id: 'c-starters', name: 'Chicken 65 & Starters', query: 'chicken', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Crunchy' },
-        { id: 'c-fastfood', name: 'Burgers & Shawarma', query: 'burger', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&auto=format&fit=crop&q=80', time: '15 min', tag: 'Fast Prep' },
-        { id: 'c-cakes', name: 'Cakes & Bakery', query: 'cake', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&auto=format&fit=crop&q=80', time: '15 min', tag: 'Sweet' },
-        { id: 'c-shakes', name: 'Thick Shakes', query: 'shake', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&auto=format&fit=crop&q=80', time: '10-15 min', tag: 'Chilled' },
-        { id: 'c-meat', name: 'Live Meat & Chicken', query: 'chicken', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=300&auto=format&fit=crop&q=80', time: '15-20 min', tag: 'Fresh Dressed' }
+        { id: 'c-cakes', name: 'Cakes & Bakery', query: 'cake', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&auto=format&fit=crop&q=80', time: '15 min', tag: 'Sweet' }
       ];
 
       track.innerHTML = cravings.map(c => {
@@ -1980,24 +1985,20 @@
 
       // Filter by Craving (What's on your mind?)
       if (selectedCravingQuery) {
-        const cq = selectedCravingQuery.toLowerCase();
-        list = list.filter(p => 
-          p.name.toLowerCase().includes(cq) ||
-          (p.category && p.category.toLowerCase().includes(cq)) ||
-          (p.description && p.description.toLowerCase().includes(cq)) ||
-          (p.restName && p.restName.toLowerCase().includes(cq))
-        );
+        const words = selectedCravingQuery.toLowerCase().split(/\s+/).filter(Boolean);
+        list = list.filter(p => {
+          const haystack = `${p.name} ${p.category || ''} ${p.description || ''} ${p.restName || ''} ${p.badge || ''}`.toLowerCase();
+          return words.every(w => haystack.includes(w));
+        });
       }
 
       // Filter by Search Query (Requirement 1)
       if (searchQuery && !selectedCravingQuery) {
-        const q = searchQuery.toLowerCase();
-        list = list.filter(p => 
-          p.name.toLowerCase().includes(q) ||
-          (p.restName && p.restName.toLowerCase().includes(q)) ||
-          (p.description && p.description.toLowerCase().includes(q)) ||
-          (p.category && p.category.toLowerCase().includes(q))
-        );
+        const words = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+        list = list.filter(p => {
+          const haystack = `${p.name} ${p.restName || ''} ${p.description || ''} ${p.category || ''} ${p.badge || ''}`.toLowerCase();
+          return words.every(w => haystack.includes(w));
+        });
       }
 
       // Sorting
