@@ -331,6 +331,25 @@
           </div>
         </div>
 
+        <!-- Bulk Selection & Multi-Delete Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 select-none">
+            <input id="selectAllDishesCb" type="checkbox" onchange="toggleSelectAllDishes(this.checked)" class="accent-blue-600 w-4 h-4 rounded cursor-pointer">
+            <span>Select All Displayed (<span id="adminDishSelectableCount">0</span> items)</span>
+          </label>
+
+          <div class="flex items-center gap-2">
+            <span id="selectedDishesLabel" class="text-xs font-bold text-slate-500">0 selected</span>
+            <button id="btnDeleteSelectedDishes" onclick="deleteSelectedDishes()" disabled class="bg-rose-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed hover:bg-rose-700 text-white font-black px-3.5 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1.5">
+              <span>🗑️</span>
+              <span>Delete Selected (<span id="deleteSelectedBtnCount">0</span>)</span>
+            </button>
+            <button onclick="clearDishSelection()" class="bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 font-bold px-2.5 py-1.5 rounded-xl transition">
+              Clear
+            </button>
+          </div>
+        </div>
+
         <div id="adminMenuList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
       </div>
     </div>
@@ -1306,6 +1325,92 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
       initAdminLiveMap();
     }
 
+    // ================= DISH SELECTION & BULK ACTIONS =================
+    let selectedDishIds = new Set();
+    let currentlyFilteredDishIds = [];
+
+    function updateBulkActionBar() {
+      const selectableCount = document.getElementById('adminDishSelectableCount');
+      const selectedLabel = document.getElementById('selectedDishesLabel');
+      const btnDelete = document.getElementById('btnDeleteSelectedDishes');
+      const btnCount = document.getElementById('deleteSelectedBtnCount');
+      const selectAllCb = document.getElementById('selectAllDishesCb');
+
+      if (selectableCount) selectableCount.textContent = currentlyFilteredDishIds.length;
+      if (selectedLabel) selectedLabel.textContent = `${selectedDishIds.size} selected`;
+      if (btnCount) btnCount.textContent = selectedDishIds.size;
+
+      if (btnDelete) {
+        btnDelete.disabled = selectedDishIds.size === 0;
+      }
+
+      if (selectAllCb) {
+        if (currentlyFilteredDishIds.length > 0 && currentlyFilteredDishIds.every(id => selectedDishIds.has(id))) {
+          selectAllCb.checked = true;
+          selectAllCb.indeterminate = false;
+        } else if (currentlyFilteredDishIds.some(id => selectedDishIds.has(id))) {
+          selectAllCb.checked = false;
+          selectAllCb.indeterminate = true;
+        } else {
+          selectAllCb.checked = false;
+          selectAllCb.indeterminate = false;
+        }
+      }
+    }
+
+    function toggleDishSelection(dishId, isChecked) {
+      if (isChecked) {
+        selectedDishIds.add(dishId);
+      } else {
+        selectedDishIds.delete(dishId);
+      }
+      updateBulkActionBar();
+    }
+
+    function toggleSelectAllDishes(isChecked) {
+      if (isChecked) {
+        currentlyFilteredDishIds.forEach(id => selectedDishIds.add(id));
+      } else {
+        currentlyFilteredDishIds.forEach(id => selectedDishIds.delete(id));
+      }
+      renderAdminDishes();
+    }
+
+    function clearDishSelection() {
+      selectedDishIds.clear();
+      renderAdminDishes();
+    }
+
+    function deleteSelectedDishes() {
+      const count = selectedDishIds.size;
+      if (count === 0) {
+        alert("Please select at least one dish to delete!");
+        return;
+      }
+
+      const restFilter = document.getElementById('adminDishRestFilter')?.value;
+      const restSelect = document.getElementById('adminDishRestFilter');
+      const restName = (restFilter && restFilter !== 'ALL' && restSelect)
+        ? restSelect.selectedOptions[0]?.text 
+        : '';
+
+      const confirmMsg = restName 
+        ? `⚠️ Are you sure you want to permanently delete all ${count} selected dishes from "${restName}"?`
+        : `⚠️ Are you sure you want to permanently delete all ${count} selected dishes from the menu?`;
+
+      if (confirm(confirmMsg)) {
+        const idsToDelete = Array.from(selectedDishIds);
+        if (window.RealtimeBus && RealtimeBus.deleteProducts) {
+          RealtimeBus.deleteProducts(idsToDelete);
+        } else if (window.RealtimeBus && RealtimeBus.deleteProduct) {
+          idsToDelete.forEach(id => RealtimeBus.deleteProduct(id));
+        }
+        selectedDishIds.clear();
+        renderMenuControl();
+        alert(`✓ Successfully deleted ${count} dishes from the menu!`);
+      }
+    }
+
     function renderAdminDishes() {
       const list = document.getElementById('adminMenuList');
       if (!list) return;
@@ -1329,10 +1434,14 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
         return true;
       });
 
+      currentlyFilteredDishIds = filtered.map(p => p.id);
+
       const countBadge = document.getElementById('adminDishCountBadge');
       if (countBadge) {
         countBadge.textContent = `${filtered.length} items`;
       }
+
+      updateBulkActionBar();
 
       if (filtered.length === 0) {
         list.innerHTML = `
@@ -1347,10 +1456,12 @@ Butter Naan - 40" class="w-full bg-slate-50 border border-slate-200 rounded-2xl 
 
       list.innerHTML = filtered.map(p => {
         const inStock = p.inStock !== false;
+        const isSelected = selectedDishIds.has(p.id);
         const img = p.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100';
         return `
-          <div class="bg-white p-3.5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between gap-3 transition hover:border-slate-300">
-            <div class="flex items-start gap-3 min-w-0">
+          <div class="bg-white p-3.5 rounded-3xl border ${isSelected ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20' : 'border-slate-200'} shadow-xs flex flex-col justify-between gap-3 transition hover:border-slate-300">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleDishSelection('${p.id}', this.checked)" class="accent-blue-600 w-4 h-4 rounded cursor-pointer mt-1 shrink-0" title="Select to delete or manage">
               <div class="relative group shrink-0">
                 <img src="${img}" alt="${p.name}" class="w-16 h-16 rounded-2xl object-cover border border-slate-100 shadow-xs" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'">
                 <button onclick="openEditDishModal('${p.id}')" title="Change Image" class="absolute inset-0 bg-slate-900/40 rounded-2xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
